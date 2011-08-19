@@ -14,7 +14,7 @@ Features
 Requirements
 ------------
 
-django_bfm extensively uses HTML5 techniques, so modern browser is required, see Supported Browsers section.
+django_bfm extensively uses HTML5 techniques, so modern browser is required, see Tested Browsers section.
 
 Tested only with Django 1.3, may work with Django 1.2 or even 1.1.
 
@@ -35,7 +35,7 @@ Things to note
 * You must be logged as staff user to use file manager
 * It's very young project
 
-Supported Browsers(Tested with)
+Tested Browsers
 -------------------------------
 
 * Chromium 15
