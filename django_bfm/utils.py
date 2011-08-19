@@ -2,20 +2,30 @@ import os
 import settings
 from django.core.files.storage import FileSystemStorage
 
+#Most important thing :)
 media_storage = FileSystemStorage(settings.MEDIA_DIRECTORY)
 
 def _delete_files(files):
+    """
+    Given list of filenames will delete them
+    """
     for file in files:
         path = media_storage.path(file)
         if os.path.isfile(path):
             os.remove(path)
 
 def _touch_files(files):
+    """
+    Given list of filenames will update its creation_time attribute
+    """
     for file in files:
         path = media_storage.path(file)
         os.utime(path, None)
 
 def _human_readable_size(bytes):
+    """
+    Converts bytes into human readable file size representation
+    """
     bytes = int(bytes)
     if bytes/1073741824.0 > 1:
         return '%.2f GB'%(bytes/1073741824.0)
@@ -27,6 +37,9 @@ def _human_readable_size(bytes):
         return '%d B'%bytes
 
 def _collect_file_metadata(listing):
+    """
+    Given list of paths will return list of files with metadata, like size, extension and so on.
+    """
     files = []
     for key in listing:
         file = {'name': key, 'path': media_storage.path(key),

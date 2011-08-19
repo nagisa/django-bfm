@@ -1,14 +1,17 @@
-# Create your views here.
-
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed, HttpResponseRedirect, Http404
 from django.core.context_processors import csrf
 from django.contrib.auth.decorators import login_required
-from decorators import  staff_required
-from django import forms
-from utils import _touch_files, _collect_file_metadata, _delete_files, media_storage
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 import settings
+from forms import UploadFileForm
+from decorators import  staff_required
+from utils import _touch_files, _collect_file_metadata, _delete_files, media_storage
+
+def redirect(request):
+    #Relative path
+    return HttpResponseRedirect('browse/')
 
 @login_required
 @staff_required
@@ -26,9 +29,6 @@ def browse(request):
         raise Http404
     c['files'] = page
     return render_to_response('django_bfm/browse.html', c)
-
-class UploadFileForm(forms.Form):
-    file  = forms.FileField()
 
 @login_required
 @staff_required
@@ -55,6 +55,9 @@ def _check_file(request):
 @login_required
 @staff_required
 def _upload_file(request):
+    """
+    Responsible for saving file
+    """
     if not request.method == 'POST':
         return HttpResponseNotAllowed(['POST'])
     else:
@@ -69,6 +72,9 @@ def _upload_file(request):
 @login_required
 @staff_required
 def select(request):
+    """
+    Responsible for file deleting and touching
+    """
     if not request.method == 'POST':
         return HttpResponseNotAllowed(['POST'])
     else:

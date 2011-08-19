@@ -1,5 +1,6 @@
 from django.conf import settings
 
+#Have to think of better way?
 try:
     MEDIA_DIRECTORY = settings.BFM_MEDIA_DIRECTORY
 except:
