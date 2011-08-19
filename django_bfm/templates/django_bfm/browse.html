@@ -1,0 +1,39 @@
+{% extends 'django_bfm/base.html' %}
+{% block title %} - Browse{% endblock %}
+
+{% block content %}
+    <form action="select/" method="POST">
+        {% csrf_token %}
+        <table cellspacing="0" id="result_list">
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Filename</th>
+                    <th scope="col">Size</th>
+                    <th scope="col">Creation time</th>
+                    <th scope="col">Extension</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in files.object_list %}
+                    <tr class={% cycle "row1" "row2" %}>
+                        <td><input type="checkbox" name="selected" value="{{ file.name }}"></td>
+                        <td>{{ file.name }}</td>
+                        <td>{{ file.size }}</td>
+                        <td>{{ file.created_time }}</td>
+                        <td>{{ file.extension }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="footer">
+        <div class="paginator">
+            {% for page in files.paginator.page_range %}
+                <a class="button" href="?p={{ page }}">{{ page }}</a>
+            {% endfor %}
+        </div>
+        <input type="submit" class="button" name="action" value="Delete">
+        <input type="submit" class="button" name="action" value="Touch">
+        </div>
+    </form>
+{% endblock %}

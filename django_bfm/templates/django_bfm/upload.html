@@ -1,0 +1,154 @@
+{% extends 'django_bfm/base.html' %}
+{% block title %} - Upload{% endblock %}
+
+{% block script %}
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script type="text/javascript">
+        uploader_stats = {};
+        function parse_size(size){
+            if(size/1073741824>1){
+                return ~~(size/1073741824+0.5)+" GB"
+            }else if(size/1048576>1){
+                return ~~(size/1048576+0.5)+" MB"
+            }else if(size/1024>1){
+                return ~~(size/1024+0.5)+" KB"
+            }else{
+                return size+" B"
+            }
+        }
+
+        function parse_transfer_rate(transfered, time){
+            var t = ~~((transfered*1000/time)+0.5);
+            if(t/1073741824>1){
+                return ~~(t/1073741824+0.5)+" GB/s"
+            }else if(t/1048576>1){
+                return ~~(t/1048576+0.5)+" MB/s"
+            }else if(t/1024>1){
+                return ~~(t/1024+0.5)+" KB/s"
+            }else{
+                return size+" B/s"
+            }
+        }
+
+        function parse_progress(loaded, total){
+            return (loaded * 100 / total).toFixed(1)+" %";
+
+        }
+
+        function update_transfer_speed(rowid, speed){
+            $('#file'+rowid+' td:nth-child(3)').text(speed)
+        }
+
+        function update_completion(rowid, completion){
+            $('#file'+rowid+' td').last().text(completion);
+        }
+
+        function append_queue(){
+            var files = $('#fileselection')[0].files;
+            var table = $('#filelist');
+            var file = 0, filecount = files.length;
+            var row, cell, rowno = 0;
+            var childs;
+            $('#step1').hide();
+            $('#step2').show();
+            while(file < filecount){
+                $('<tr/>', {id:'file'+file, class:"row"+(1+rowno%2)}).appendTo(table);
+                $('<td/>', {text:files[file].name}).appendTo(table.children().last());
+                $('<td/>', {text:parse_size(files[file].size)}).appendTo(table.children().last());
+                $('<td/>', {text:""}).appendTo(table.children().last());
+                $('<td/>', {text:""}).appendTo(table.children().last());
+                file++;
+                rowno++;
+            }
+        }
+        function get_id(element){
+            return element.attr('id').replace('file', '');
+        }
+
+        function uploadProgress(evt, id) {
+            if (evt == "ABORT"){
+                update_completion(id, 'Aborted');
+            }else if (evt.lengthComputable) {
+                var curr_time = new Date().getTime();
+                var time_diff = curr_time - uploader_stats.last_time;
+                var transf_diff = evt.loaded - uploader_stats.last_loaded;
+                uploader_stats.last_loaded = evt.loaded;
+                uploader_stats.last_time = curr_time;
+                uploader_stats.full_size = evt.total;
+                update_completion(id, parse_progress(evt.loaded, evt.total));
+                update_transfer_speed(id, parse_transfer_rate(transf_diff, time_diff));
+            }
+        }
+
+        function uploadComplete(evt, queue, id){
+            var took_time = new Date().getTime() - uploader_stats.start_time;
+            update_transfer_speed(id, parse_transfer_rate(uploader_stats.full_size, took_time));
+            upload(queue);
+        }
+
+        function check_existing(file){
+            var exist = false;
+            $.ajax({
+                url: '../__exists/?f='+encodeURIComponent(file.name),
+                async: false
+            }).success(function(data){exist = data == "YES";});
+            return exist;
+        }
+
+        function upload(queue){
+            if(queue){
+                var current = queue[0];
+                if(!current){return;}
+                var fileid = get_id($(current));
+                var file = document.getElementById('fileselection').files[fileid];
+                uploader_stats = {last_time: new Date().getTime(), last_loaded: 0, start_time: new Date().getTime()};
+                queue = queue.not(current);
+                if(check_existing(file) && !confirm("File with name "+file.name+" already exists. Rewrite?")){
+                    uploadProgress('ABORT', fileid);
+                    upload(queue);
+                    return;
+                }
+                var xhr = new XMLHttpRequest();
+                var fd = new FormData();
+                fd.append("file", file);
+                xhr.upload.addEventListener("progress", (function(evt){uploadProgress(evt, fileid)}), false);
+                xhr.addEventListener("load", (function(evt){uploadComplete(evt, queue, fileid)}), false);
+                xhr.open("POST", "file/");
+                xhr.setRequestHeader("X-CSRFToken", $('input[name=csrfmiddlewaretoken]').val());
+                xhr.send(fd);
+            }
+        }
+
+        function start_upload(){
+            $('#step2').hide();
+            $('#step3').show();
+            upload($('tr[id^=file]'));
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+    <table cellspacing="0" id="result_list">
+        <thead>
+            <tr>
+                <th scope="col">Filename</th>
+                <th scope="col">Size</th>
+                <th scope="col">Transfer speed</th>
+                <th scope="col">Progress</th>
+            </tr>
+        </thead>
+        <tbody id='filelist'>
+        </tbody>
+    </table>
+    <div class="footer">
+        <div class="button" id="step1">
+            <span>Select files</span>
+            <form action="file/" method="post" enctype="multipart/form-data" >
+                {% csrf_token %}
+                <input type="file" id='fileselection' multiple onchange="append_queue();" />
+            </form>
+        </div>
+        <a class="button" style="display:none" id="step2" onclick="start_upload()">Start Upload</a>
+        <a class="button" style="display: none" id="step3">Uploading...</a>
+    </div>
+{% endblock %}
