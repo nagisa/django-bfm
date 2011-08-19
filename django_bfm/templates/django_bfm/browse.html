@@ -1,13 +1,32 @@
 {% extends 'django_bfm/base.html' %}
 {% block title %} - Browse{% endblock %}
 
+{% block script %}
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            $('#select_all').change(function(){
+                if(this.checked){
+                    $('input[name=selected]').each(function(){
+                        this.checked = true;
+                    })
+                }else{
+                    $('input[name=selected]').each(function(){
+                        this.checked = false;
+                    })
+                }
+            })
+        })
+    </script>
+{% endblock %}
+
 {% block content %}
     <form action="select/" method="POST">
         {% csrf_token %}
         <table cellspacing="0" id="result_list">
             <thead>
                 <tr>
-                    <th scope="col"></th>
+                    <th scope="col" class="cbox"><input type="checkbox" id="select_all"></th>
                     <th scope="col">Filename</th>
                     <th scope="col">Size</th>
                     <th scope="col">Creation time</th>
@@ -17,7 +36,7 @@
             <tbody>
                 {% for file in files.object_list %}
                     <tr class={% cycle "row1" "row2" %}>
-                        <td><input type="checkbox" name="selected" value="{{ file.name }}"></td>
+                        <td class="cbox"><input type="checkbox" name="selected" value="{{ file.name }}"></td>
                         <td>{{ file.name }}</td>
                         <td>{{ file.size }}</td>
                         <td>{{ file.created_time }}</td>
