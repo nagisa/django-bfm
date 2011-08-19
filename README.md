@@ -33,9 +33,8 @@ Settings
 
 Variables in settings.py, that influence way, how BFM works.
 
-*`BFM_MEDIA_DIRECTORY`(if not set `MEDIA_ROOT` is used) - absolute path to place, where uploaded files are.
-*`BFM_FILES_IN_PAGE`(default - `20`) - integer. Tells BFM, how much files to show in one page.
-
+* `BFM_MEDIA_DIRECTORY`(if not set `MEDIA_ROOT` is used) - absolute path to place, where uploaded files are.
+* `BFM_FILES_IN_PAGE`(default - `20`) - integer. Tells BFM, how much files to show in one page.
 
 Things to note
 --------------
