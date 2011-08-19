@@ -20,6 +20,7 @@ Usage/Install
 -------------
 
 No easy_install or pip support yet, so:
+
 * Download package, extract it, and copy django_bfm into your project directory
 * Add [`'django_bfm',`] to [`INSTALLED_APPS`] in settings.py.
 * Add [`url(r'^files/', include('django_bfm.urls')),`] to [`urlpatterns`] in urls.py
