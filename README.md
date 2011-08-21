@@ -23,9 +23,7 @@ Tested only with Django 1.3, may work with Django 1.2 or even 1.1.
 Usage/Install
 -------------
 
-No easy_install or pip support yet, so:
-
-* Download package, extract it, and copy django_bfm into your project directory
+* `easy_install django_bfm` or `pip install django_bfm` or download package, extract it, and copy django_bfm into your project directory
 * Add `'django_bfm',` to `INSTALLED_APPS` in settings.py.
 * Add `url(r'^files/', include('django_bfm.urls')),` to `urlpatterns` in urls.py
 * Access file manager at /files/browse/

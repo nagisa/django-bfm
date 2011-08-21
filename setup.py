@@ -6,6 +6,9 @@
 import os
 from setuptools import setup
 
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
 setup(
     name = "django-bfm",
     version = "0.1",
@@ -25,5 +28,5 @@ setup(
           'Operating System :: OS Independent',
           'License :: OSI Approved :: GNU Affero General Public License v3',
           'Topic :: Software Development :: Libraries :: Python Modules',],
-    long_description = open('README.md').read()
+    long_description = read('README.md'),
 )
