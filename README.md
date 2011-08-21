@@ -10,6 +10,8 @@ Features
 * Live Upload Status report ([Screenshot](https://github.com/simukis/django-bfm/raw/master/screenshots/Upload.gif))
 * File listing and deleting ([Screenshot](https://github.com/simukis/django-bfm/raw/master/screenshots/Basic%20File%20Manager%20-%20Browse.png))
 * No external dependencies, lightweight
+* Looks like django admin (extends admin template)
+
 
 Requirements
 ------------
@@ -48,3 +50,4 @@ Tested Browsers
 * Chromium 15
 * Midori 0.4.0
 * Chrome 13
+* Firefox 6

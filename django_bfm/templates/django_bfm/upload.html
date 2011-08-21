@@ -1,11 +1,14 @@
 {% extends 'django_bfm/base.html' %}
-{% block title %} - Upload{% endblock %}
-
-{% block script %}
+{% block title %}Basic File Manager - Upload{% endblock %}
+{% block crumbs %} &rsaquo; Upload{% endblock %}
+{% block extrahead %}
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
     <script type="text/javascript">
         uploader_stats = {};
         function parse_size(size){
+            if(!size){
+                return
+            }
             if(size/1073741824>1){
                 return ~~(size/1073741824+0.5)+" GB"
             }else if(size/1048576>1){
@@ -26,13 +29,12 @@
             }else if(t/1024>1){
                 return ~~(t/1024+0.5)+" KB/s"
             }else{
-                return size+" B/s"
+                return t+" B/s"
             }
         }
 
         function parse_progress(loaded, total){
             return (loaded * 100 / total).toFixed(1)+" %";
-
         }
 
         function update_transfer_speed(rowid, speed){
@@ -83,6 +85,7 @@
         function uploadComplete(evt, queue, id){
             var took_time = new Date().getTime() - uploader_stats.start_time;
             update_transfer_speed(id, parse_transfer_rate(uploader_stats.full_size, took_time));
+            update_completion(id, '100 %')
             upload(queue);
         }
 
@@ -98,7 +101,12 @@
         function upload(queue){
             if(queue){
                 var current = queue[0];
-                if(!current){return;}
+                if(!current){
+                    $('#step3').click(function(){
+                        window.location.reload()
+                    }).text('Upload complete')
+                    return;
+                    }
                 var fileid = get_id($(current));
                 var file = document.getElementById('fileselection').files[fileid];
                 uploader_stats = {last_time: new Date().getTime(), last_loaded: 0, start_time: new Date().getTime()};
@@ -140,15 +148,15 @@
         <tbody id='filelist'>
         </tbody>
     </table>
-    <div class="footer">
-        <div class="button" id="step1">
+    <div class="paginator">
+        <div class="button action" id="step1">
             <span>Select files</span>
             <form action="file/" method="post" enctype="multipart/form-data" >
                 {% csrf_token %}
                 <input type="file" id='fileselection' multiple onchange="append_queue();" />
             </form>
         </div>
-        <a class="button" style="display:none" id="step2" onclick="start_upload()">Start Upload</a>
-        <a class="button" style="display: none" id="step3">Uploading...</a>
+        <div class="button action" style="display:none" id="step2" onclick="start_upload()">Start Upload</div>
+        <div class="button action" style="display: none" id="step3">Uploading...</div>
     </div>
 {% endblock %}
