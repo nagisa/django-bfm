@@ -7,7 +7,7 @@ Features
 --------
 
 * Multifile Uploads ([Screenshot](https://github.com/simukis/django-bfm/raw/master/screenshots/Open%20Files.png))
-* Live Upload Status report ([Screenshot](https://github.com/simukis/django-bfm/raw/master/screenshots/Upload.gif))
+* Live Upload Status report ([Screenshot](https://github.com/simukis/django-bfm/raw/master/screenshots/Upload2.gif), [Screenshot](https://github.com/simukis/django-bfm/raw/master/screenshots/Upload.gif))
 * File listing and deleting ([Screenshot](https://github.com/simukis/django-bfm/raw/master/screenshots/Basic%20File%20Manager%20-%20Browse.png))
 * No external dependencies, lightweight
 * Looks like django admin (extends admin template)
