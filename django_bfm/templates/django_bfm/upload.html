@@ -6,9 +6,6 @@
     <script type="text/javascript">
         uploader_stats = {};
         function parse_size(size){
-            if(!size){
-                return
-            }
             if(size/1073741824>1){
                 return ~~(size/1073741824+0.5)+" GB"
             }else if(size/1048576>1){
@@ -22,15 +19,7 @@
 
         function parse_transfer_rate(transfered, time){
             var t = ~~((transfered*1000/time)+0.5);
-            if(t/1073741824>1){
-                return ~~(t/1073741824+0.5)+" GB/s"
-            }else if(t/1048576>1){
-                return ~~(t/1048576+0.5)+" MB/s"
-            }else if(t/1024>1){
-                return ~~(t/1024+0.5)+" KB/s"
-            }else{
-                return t+" B/s"
-            }
+            return parse_size(t)+'/s'
         }
 
         function parse_progress(loaded, total){
