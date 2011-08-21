@@ -84,7 +84,7 @@
         }
 
         function upload_complete(evt){
-            speed = $(current).find('.speed'),
+            var speed = $(current).find('.speed'),
             progress = $(current).find('.progress'),
             time_difference = new Date() - upload_stats.start;
 
@@ -94,14 +94,37 @@
             upload_next_file();
         }
 
+        function upload_fail(){
+            var speed = $(current).find('.speed'),
+            progress = $(current).find('.progress');
+            speed.text('0 B/s');
+            progress.text('FAILED');
+            $(current).css('background-color', '#F5A9A9')
+            upload_next_file();
+        }
+
+        function upload_cancel(){
+            var speed = $(current).find('.speed'),
+            progress = $(current).find('.progress');
+            speed.text('0 B/s');
+            progress.text('CANCELED');
+            $(current).css('background-color', '#F7D358')
+            upload_next_file();
+        }
+
+        function all_uploads_complete(){
+            $('#uploading').text('Completed').click(function(){
+                window.location.reload()
+            })
+            $('#cancel').hide()
+            return true;
+        }
+
         function upload_next_file(){
             current = queue.shift();
             if(!current){
                 //We're done with our work.
-                $('#step3').text('Completed').click(function(){
-                    window.location.reload()
-                })
-                return true;
+                return all_uploads_complete();
             }
             var id = get_file_id(current),
             file = document.getElementById('fileselection').files[id],
@@ -109,15 +132,22 @@
             fd = new FormData(),
             csrf_token = $('input[name=csrfmiddlewaretoken]').val(),
             s = upload_stats = {'start': new Date(), 'size': file.size,
-                                'ltime': new Date(), 'lload': 0};
+                                'ltime': new Date(), 'lload': 0,
+                                'xhr': xhr};
 
 
             fd.append("file", file);
             xhr.upload.addEventListener("progress", upload_progress, false);
             xhr.addEventListener("load", upload_complete, false);
+            xhr.addEventListener("error", upload_fail, false);
+            xhr.addEventListener("abort", upload_cancel, false);
             xhr.open("POST", "file/");
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
             xhr.send(fd);
+        }
+
+        function cancel_current(){
+            upload_stats.xhr.abort();
         }
     </script>
 {% endblock %}
@@ -144,6 +174,9 @@
             </form>
         </div>
         <div class="button action" style="display:none" id="step2" onclick="start_upload()">Start Upload</div>
-        <div class="button action" style="display: none" id="step3">Uploading...</div>
+        <div style="display: none" id="step3">
+            <div class="button action" id="uploading">Uploading...</div>
+            <div class="button action" id="cancel" onclick="cancel_current()">Cancel current upload</div>
+        </div>
     </div>
 {% endblock %}
