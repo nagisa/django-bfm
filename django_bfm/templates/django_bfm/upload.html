@@ -145,10 +145,6 @@
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
             xhr.send(fd);
         }
-
-        function cancel_current(){
-            upload_stats.xhr.abort();
-        }
     </script>
 {% endblock %}
 
@@ -176,7 +172,7 @@
         <div class="button action" style="display:none" id="step2" onclick="start_upload()">Start Upload</div>
         <div style="display: none" id="step3">
             <div class="button action" id="uploading">Uploading...</div>
-            <div class="button action" id="cancel" onclick="cancel_current()">Cancel current upload</div>
+            <div class="button action" id="cancel" onclick="upload_stats.xhr.abort()">Cancel current upload</div>
         </div>
     </div>
 {% endblock %}
