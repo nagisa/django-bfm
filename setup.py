@@ -11,7 +11,7 @@ def read(fname):
 
 setup(
     name = "django-bfm",
-    version = "0.1",
+    version = "0.1.1",
     author = "Simonas Kazlauskas",
     author_email = "simonas@kazlauskas.me",
     description = ("Basic Django File Manager with multifile uploads, live file status, and file deleting."),
@@ -29,4 +29,5 @@ setup(
           'License :: OSI Approved :: GNU Affero General Public License v3',
           'Topic :: Software Development :: Libraries :: Python Modules',],
     long_description = read('README.md'),
+    include_package_data=True,
 )

@@ -42,9 +42,10 @@ def _collect_file_metadata(listing):
     """
     files = []
     for key in listing:
-        file = {'name': key, 'path': media_storage.path(key),
-                'size': _human_readable_size(os.path.getsize(media_storage.path(key))),
-                'accessed_time': media_storage.accessed_time(key), 'created_time': media_storage.created_time(key),
-                'extension': os.path.splitext(key)[1]}
-        files.append(file)
+        if os.path.isfile(media_storage.path(key)):
+            file = {'name': key, 'path': media_storage.path(key),
+                    'size': _human_readable_size(os.path.getsize(media_storage.path(key))),
+                    'accessed_time': media_storage.accessed_time(key), 'created_time': media_storage.created_time(key),
+                    'extension': os.path.splitext(key)[1]}
+            files.append(file)
     return list(reversed(sorted(files, key=lambda file: file['created_time'])))
