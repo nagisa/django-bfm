@@ -5,15 +5,16 @@
 
 import os
 from setuptools import setup
+from django_bfm import __version__, __author__, __email__
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(
     name = "django-bfm",
-    version = "0.1.1",
-    author = "Simonas Kazlauskas",
-    author_email = "simonas@kazlauskas.me",
+    version = __version__,
+    author = __author__,
+    author_email = __email__,
     description = ("Basic Django File Manager with multifile uploads, live file status, and file deleting."),
     license = "GPL",
     keywords = "django file manager",

@@ -1,17 +1,18 @@
 {% extends 'django_bfm/base.html' %}
 {% block title %}Basic File Manager - Upload{% endblock %}
-{% block crumbs %} &rsaquo; Upload{% endblock %}
+{% block crumbs %} &rsaquo; /{{ current_dir }} &rsaquo; Upload{% endblock %}
 {% block extrahead %}
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
     <script type="text/javascript">
         upload_stats = {};
+        dir = "{{ current_dir }}";
 
         function parse_size(size){
             //~~ is double bitwise NOT. It rounds. Very quickly.
             if(size/1073741824 > 1){
-                return ~~(size/1073741824 + 0.5) + " GB"
+                return (size/1073741824 + 0.5).toFixed(2) + " GB"
             }else if(size / 1048576 > 1){
-                return ~~(size / 1048576 + 0.5) + " MB"
+                return (size / 1048576 + 0.5).toFixed(1) + " MB"
             }else if(size / 1024 > 1){
                 return ~~(size / 1024 + 0.5) + " KB"
             }else{
@@ -28,7 +29,7 @@
             var exist = false,
             question = 'File with name '+filename+' already exists. Rewrite?';
             $.ajax({
-                url: '../__exists/?f='+encodeURIComponent(filename),
+                url: '../__exists/?f='+encodeURIComponent(filename)+'&d='+encodeURIComponent(dir),
                 async: false}).success(function(rsp){exist = rsp == "YES"});
             return exist ? confirm(question) : true;
         }
@@ -141,7 +142,7 @@
             xhr.addEventListener("load", upload_complete, false);
             xhr.addEventListener("error", upload_fail, false);
             xhr.addEventListener("abort", upload_cancel, false);
-            xhr.open("POST", "file/");
+            xhr.open("POST", "file/?d="+dir);
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
             xhr.send(fd);
         }

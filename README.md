@@ -1,8 +1,6 @@
 Django Basic File Manager
 =========================
 
-Simple Django File Manager
-
 Features
 --------
 
@@ -40,7 +38,8 @@ Things to note
 --------------
 
 * You must be logged as staff user to use file manager
-* It's very young project
+* If you're not logged in, then you will be redirected to login page at `settings.LOGIN_URL`
+* It's young project
 
 Tested Browsers
 -------------------------------

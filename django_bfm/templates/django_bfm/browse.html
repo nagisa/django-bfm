@@ -1,6 +1,6 @@
 {% extends 'django_bfm/base.html' %}
 {% block title %}Basic File Manager - Browse{% endblock %}
-{% block crumbs %} &rsaquo; Browse{% endblock %}
+{% block crumbs %} &rsaquo; /{{ current_dir }} &rsaquo; Browse{% endblock %}
 
 {% block extrahead %}
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
@@ -18,12 +18,19 @@
                 }
             })
         })
+        function dir_up(){
+            var l = window.location, tmp;
+            tmp = l.search.split('/');
+            tmp.pop();
+            l.search = tmp.join('/');
+            return false;
+        }
     </script>
 {% endblock %}
 
 {% block content %}
 <div id="changelist">
-    <form action="select/" id="changelist-form" method="POST">
+    <form action="select/?d={{ current_dir }}" id="changelist-form" method="POST">
         {% csrf_token %}
         <div class="results">
             <table cellspacing="0" id="result_list">
@@ -38,7 +45,7 @@
                 </thead>
                 <tbody>
                     {% for file in files.object_list %}
-                        <tr class={% cycle "row1" "row2" %}>
+                        <tr class="{% cycle "row1" "row2" %}">
                             <td class="action-checkbox"><input type="checkbox" name="selected" value="{{ file.name }}"></td>
                             <td>{{ file.name }}</td>
                             <td>{{ file.size }}</td>
@@ -46,15 +53,41 @@
                             <td>{{ file.extension }}</td>
                         </tr>
                     {% endfor %}
+                    </tr>
                 </tbody>
+                {% if dirs %}
+                    <thead>
+                        <tr>
+                            <th scope="col"></th>
+                            <th scope="col">Directories</th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dir in dirs %}
+                            <tr class={% cycle "row1" "row2" %}>
+                                <td></td>
+                                <td><a href="?d={{ dir.path }}">{{ dir.name }}</a></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                {% endif %}
             </table>
         </div>
         <div class="paginator">
             {% for page in files.paginator.page_range %}
-                <a class="button" href="?p={{ page }}">{{ page }}</a>
+                <a class="button" href="?d={{ current_dir }}&amp;p={{ page }}">{{ page }}</a>
             {% endfor %}
             <input type="submit" class="button action" name="action" value="Delete">
             <input type="submit" class="button action" name="action" value="Touch">
+            {% if current_dir %}
+                <input type="submit" class="button action" value="Parent directory" onclick="return dir_up()">
+            {% endif %}
         </div>
     </form>
 </div>
