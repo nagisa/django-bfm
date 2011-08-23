@@ -43,6 +43,8 @@ class Directory():
             path = self.storage.path(directory)
             directory = {'name': directory,
                          'path': os.path.relpath(path, settings.MEDIA_DIRECTORY)}
+            if settings.COUNT_DIR_CONTENTS:
+                directory['count'] = self.count_files(os.walk(path))
             result.append(directory)
         return result
 
@@ -71,5 +73,10 @@ class Directory():
                         'accessed_time': self.storage.accessed_time(key),
                         'created_time': self.storage.created_time(key),
                         'extension': os.path.splitext(key)[1]}
+                if settings.MEDIA_URL:
+                    file['url'] = settings.MEDIA_URL + key
                 files.append(file)
         return list(reversed(sorted(files, key=lambda file: file['created_time'])))
+
+    def count_files(self, walker):
+        return len(sum([files for _, _, files in walker], []))

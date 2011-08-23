@@ -47,7 +47,7 @@
                     {% for file in files.object_list %}
                         <tr class="{% cycle "row1" "row2" %}">
                             <td class="action-checkbox"><input type="checkbox" name="selected" value="{{ file.name }}"></td>
-                            <td>{{ file.name }}</td>
+                            <td>{% if file.url %}<a href="{{ file.url }}">{{ file.name }}</a>{% else %}{{ file.name }}{% endif %}</td>
                             <td>{{ file.size }}</td>
                             <td>{{ file.created_time }}</td>
                             <td>{{ file.extension }}</td>
@@ -70,7 +70,7 @@
                             <tr class={% cycle "row1" "row2" %}>
                                 <td></td>
                                 <td><a href="?d={{ dir.path }}">{{ dir.name }}</a></td>
-                                <td></td>
+                                <td>{% if dir.count %}{{ dir.count }} file{{ dir.count|pluralize }}{% endif %}</td>
                                 <td></td>
                                 <td></td>
                             </tr>
