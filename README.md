@@ -28,7 +28,7 @@ Usage/Install
 Settings
 --------
 
-Variables in settings.py, that influence behavior of BFM. For more extensive explanation you may want to refeer to [Wiki](https://github.com/simukis/django-bfm/wiki/Settings).
+Variables in settings.py, that influence behavior of BFM. For more extensive explanation you may want to refer to [Wiki](https://github.com/simukis/django-bfm/wiki/Settings).
 
 * `BFM_MEDIA_DIRECTORY`(if not set `MEDIA_ROOT` is used) - absolute path to place, where uploaded files are.
 * `BFM_MEDIA_URL`(may use `MEDIA_URL` as value) - Let's BFM to construct clickable links to files.
