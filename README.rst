@@ -4,9 +4,9 @@ Django Basic File Manager
 Features
 --------
 
-- Multifile Uploads (`Screenshot <https://github.com/simukis/django-bfm/blob/master/screenshots/Open%20Files.png>`_)
-- Live Upload Status report (`Screenshot <https://github.com/simukis/django-bfm/blob/master/screenshots/Upload2.gif>`_, `Screenshot <https://github.com/simukis/django-bfm/blob/master/screenshots/Upload.gif>`_)
-- File browsing (`Screenshot <https://github.com/simukis/django-bfm/blob/master/screenshots/Basic%20File%20Manager%20-%20Browse.png>`_, `Screenshot <https://github.com/simukis/django-bfm/blob/master/screenshots/Basic%20File%20Manager%20-%20Browse%20Directory.png>`_)
+- Multifile Uploads (`Open File Dialog <https://github.com/simukis/django-bfm/blob/master/screenshots/Open%20Files.png>`_)
+- Live Upload Status report (`Multiple files <https://github.com/simukis/django-bfm/blob/master/screenshots/Upload2.gif>`_, `One file <https://github.com/simukis/django-bfm/blob/master/screenshots/Upload.gif>`_)
+- File browsing (`Parent directory <https://github.com/simukis/django-bfm/blob/master/screenshots/Basic%20File%20Manager%20-%20Browse.png>`_, `Child directory <https://github.com/simukis/django-bfm/blob/master/screenshots/Basic%20File%20Manager%20-%20Browse%20Directory.png>`_)
 - Directory support
 - No external dependencies, lightweight
 - Looks like django admin (extends admin template)
@@ -24,11 +24,11 @@ Usage/Install
     + ``pip install django_bfm``
     + ``easy_install django_bfm``
     + You can also put django_bfm directory directly into your project directory, if you want.
-- Add following to ``INSTALLED_APPS`` in your project settings.py.
+- Add following to ``INSTALLED_APPS`` in your project settings.py. ::
 
     'django_bfm',
 
-- Add following to ``urlpatterns`` in urls.py
+- Add following to ``urlpatterns`` in urls.py ::
 
     url(r'^files/', include('django_bfm.urls')),
 
