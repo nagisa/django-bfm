@@ -29,6 +29,6 @@ setup(
           'Operating System :: OS Independent',
           'License :: OSI Approved :: Apache Software License',
           'Topic :: Software Development :: Libraries :: Python Modules',],
-    long_description = read('README.md'),
+    long_description = read('README.rst'),
     include_package_data=True,
 )
