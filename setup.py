@@ -27,7 +27,7 @@ setup(
           'Development Status :: 4 - Beta',
           'Intended Audience :: Developers',
           'Operating System :: OS Independent',
-          'License :: OSI Approved :: GNU Affero General Public License v3',
+          'License :: OSI Approved :: Apache Software License',
           'Topic :: Software Development :: Libraries :: Python Modules',],
     long_description = read('README.md'),
     include_package_data=True,
