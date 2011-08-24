@@ -24,15 +24,20 @@ Usage/Install
     + ``pip install django_bfm``
     + ``easy_install django_bfm``
     + You can also put django_bfm directory directly into your project directory, if you want.
-- Add ``'django_bfm',`` to ``INSTALLED_APPS`` in your project settings.py.
-- Add ``url(r'^files/', include('django_bfm.urls')),`` to `urlpatterns` in urls.py
+- Add following to ``INSTALLED_APPS`` in your project settings.py.
+
+    'django_bfm',
+
+- Add following to ``urlpatterns`` in urls.py
+
+    url(r'^files/', include('django_bfm.urls')),
 
 Settings
 --------
 
 Variables in settings.py, that influence behavior of BFM. `Wiki <https://github.com/simukis/django-bfm/wiki/Settings>`_ has more extensive explanation, so you may want to look at it.
 
-- ``BFM_MEDIA_DIRECTORY`` (if not set ``MEDIA_ROOT`` is used) - absolute path to directory, where uploaded files are.
+- ``BFM_MEDIA_DIRECTORY`` (if not set, then ``MEDIA_ROOT`` is used) - absolute path to directory, where uploaded files are.
 - ``BFM_MEDIA_URL`` (may use ``MEDIA_URL`` as value) - Let's BFM to construct clickable links to files.
 - ``BFM_FILES_IN_PAGE`` (default - ``20``) - integer. Tells BFM, how much files to show in one page.
 - ``BFM_COUNT_DIR_CONTENTS`` (default - ``False``) - boolean. Tells BFM, if it should count files in directory and show them as directory size.
