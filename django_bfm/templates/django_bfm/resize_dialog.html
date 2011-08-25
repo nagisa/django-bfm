@@ -1,0 +1,26 @@
+<div class="image-resize">
+    <form>
+        <h1>Resize Image</h1>
+        Generated image name:<br />
+        <input name="new_name" type="text" class="wide">
+        <input name="old_name" type="text" style="display:none;">
+        New width:
+        <input name="width" type="text"><br clear="both" />
+        New height:
+        <input name="height" type="text"><br clear="both" />
+        Lock aspect ratio:
+        <input name="lock" type="checkbox" checked>
+        <input name="ratio" style="display:none;" type="ratio">
+        <br clear="both" />
+        Mode:
+        <select name="filter">
+            <option value="ANTIALIAS">ANTIALIASING</option>
+            <option value="BICUBIC">BICUBIC</option>
+            <option value="BILINEAR">BILINEAR</option>
+            <option value="NEAREST">NEAREST</option>
+        </select><br clear="both" />
+        <input type="button" value="Close" onclick="$('.image-resize').hide(); return false;">
+        <input type="submit" value="Resize">
+        <span class="warning error"></span>
+    </form>
+</div>

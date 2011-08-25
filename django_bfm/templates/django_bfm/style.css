@@ -15,3 +15,11 @@ table tbody td {border-left: 1px solid #DDD;}
 #step1 form{position:absolute; top:0; left:0; opacity:0;}
 #preview{position:absolute; display:none;}
 #preview img{max-width:400px; max-height:400px;}
+.options { float:right; cursor:pointer; height:16px; margin-top:-3px;}
+.options li{display:block; height:16px;}
+.options li.resize-button a{width:16px; height:16px; display:block; text-indent:-1000px; overflow:hidden; background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAGsSURBVDjLpZIxixNRFIW/kVHQQlwEQdgUdkkgTX6BkMIi/yJY5geE/ISAZIuUSb9lgnYWNsraaOkkTSSz6MLWJhmY9+7ZIm8mCUYLvfDg8d49h3POvZEk/qdigMFgkEqqSEp6vV79b4But/shz/OXzrlkMpnU4/BeabfbzGaz2pt3NzIJAd4DAplhAm+w3W7pdDqMRqNaqcB7/3U6nTbjR095fnYfGQiQCRPogOT2yTnD4RDn3CeAqMhg8Panzs8e7AAGkpDApJLITJiJ5U3GoPMiKhUQ5HoDJMwCsLjbMUnu7ThEAHnbNQrMDBkBYCWwIHTuBIEzMC8sNO2ai7vtlQjM6XcCc4Y3lT514FnBUqHEnSJwDry30v8xyV6RBM5OWfAe7+OQegAqjPIgQEl4f1LB7qOUa2DB++E4FbIqKpJEq9VK8zyvPHz8jFedi6PED6VL4vLiNd+Tz3jvkyzL6vcAsiyr9Pt9bn8sWVyvWVxvmKdrFqtfzNM189WGZLUmSTcsv10xHo9xztV285doNptfGo2GVavVK4UF+tOJ4/h9FEUCPkrar/K/1h35Nbw8S+DdbwAAAABJRU5ErkJggg==)}
+.image-resize{position:absolute; top:10%; left:50%; margin-left:-125px; width:250px; background:#000; border-radius:10px; opacity:0.9; overflow:hidden; display:none;}
+.image-resize form{text-align:left; width:200px; margin:20px auto; color:#fff;}
+.image-resize input[type=text]{width:50px;}
+.image-resize input.wide{clear:both; width:100%;}
+.image-resize .warning{font-size:0.8em; color:red;}
