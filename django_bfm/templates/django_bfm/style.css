@@ -1,0 +1,17 @@
+#result_list{width:100%; border: 1px solid #DDD;}
+td, th {font-size: 11px; line-height: 13px; border-bottom: 1px solid #EEE;
+vertical-align: top; padding: 5px; font-family: "Lucida Grande", Verdana, Arial, sans-serif;}
+nav ul,nav ol {list-style: none;list-style-image: none;}
+nav{clear:both; width: 100%; overflow: hidden;}
+nav ul{margin: 0; padding: 0; font-size: 13px; line-height: 15px;}
+nav ul li{display: inline-block; float:right; padding: 5px;}
+nav ul li a{background: #999; font-size:11px; color:#FFF!important;
+font-weight: bolder; padding: 2px 10px; border-radius: 10px}
+table tbody td {border-left: 1px solid #DDD;}
+.action-checkbox-column, .action-checkbox{width:1.5em; text-align: center;}
+.paginator .action{float:right!important; margin-left:5px;}
+.paginator .button{margin-top:10px; display:inline-block;}
+#step1{position:relative; overflow:hidden;}
+#step1 form{position:absolute; top:0; left:0; opacity:0;}
+#preview{position:absolute; display:none;}
+#preview img{max-width:400px; max-height:400px;}

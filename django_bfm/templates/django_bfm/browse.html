@@ -5,26 +5,7 @@
 {% block extrahead %}
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
     <script type="text/javascript">
-        $(function(){
-            $('#select_all').change(function(){
-                if(this.checked){
-                    $('input[name=selected]').each(function(){
-                        this.checked = true;
-                    })
-                }else{
-                    $('input[name=selected]').each(function(){
-                        this.checked = false;
-                    })
-                }
-            })
-        })
-        function dir_up(){
-            var l = window.location, tmp;
-            tmp = l.search.split('/');
-            tmp.pop();
-            l.search = tmp.join('/');
-            return false;
-        }
+        {% include 'django_bfm/browse.js' %}
     </script>
 {% endblock %}
 
@@ -45,7 +26,7 @@
                 </thead>
                 <tbody>
                     {% for file in files.object_list %}
-                        <tr class="{% cycle "row1" "row2" %}">
+                        <tr class="{% cycle "row1" "row2" %} file">
                             <td class="action-checkbox"><input type="checkbox" name="selected" value="{{ file.name }}"></td>
                             <td>{% if file.url %}<a href="{{ file.url }}">{{ file.name }}</a>{% else %}{{ file.name }}{% endif %}</td>
                             <td>{{ file.size }}</td>

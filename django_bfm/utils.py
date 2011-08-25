@@ -23,13 +23,14 @@ def get_dir(GET):
         directory = Directory(rel_dir)
     except:
         raise Http404
-    return directory, rel_dir.strip('/')
+    return directory, (rel_dir+'/').lstrip('/')
 
 
 class Directory():
 
     def __init__(self, rel_dir):
-        directory = os.path.join(settings.MEDIA_DIRECTORY, rel_dir.strip('/'))
+        self.rel_dir = (rel_dir+"/").lstrip('/')
+        directory = os.path.join(settings.MEDIA_DIRECTORY, self.rel_dir)
         self.storage = FileSystemStorage(directory)
 
     def exists(self, fname):
@@ -74,7 +75,7 @@ class Directory():
                         'created_time': self.storage.created_time(key),
                         'extension': os.path.splitext(key)[1]}
                 if settings.MEDIA_URL:
-                    file['url'] = settings.MEDIA_URL + key
+                    file['url'] = settings.MEDIA_URL + self.rel_dir + key
                 files.append(file)
         return list(reversed(sorted(files, key=lambda file: file['created_time'])))
 
