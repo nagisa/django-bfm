@@ -61,7 +61,7 @@ def image_resize(request):
     try:
         filt = filters[filt]
     except IndexError:
-         _failed(HttpResponseBadRequest, 'Such filter does not exist')
+        return _failed(HttpResponseBadRequest, 'Such filter does not exist')
     image = image.resize((width, height), filt)
     try:
         image.save(directory.storage.path(new_image))
