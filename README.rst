@@ -8,8 +8,8 @@ Features
 - Live Upload Status report (`Multiple files <https://github.com/simukis/django-bfm/blob/master/screenshots/Upload2.gif>`_, `One file <https://github.com/simukis/django-bfm/blob/master/screenshots/Upload.gif>`_)
 - File browsing (`Parent directory <https://github.com/simukis/django-bfm/blob/master/screenshots/Basic%20File%20Manager%20-%20Browse.png>`_, `Child directory <https://github.com/simukis/django-bfm/blob/master/screenshots/Basic%20File%20Manager%20-%20Browse%20Directory.png>`_)
 - Directory support
-- Image resizing/Thumbnailing
-- No external dependencies, lightweight
+- Image resizing/Thumbnailing (Uses PIL)
+- Core features has no dependencies (except for Django), lightweight
 - Looks like django admin (extends admin template)
 
 Requirements
