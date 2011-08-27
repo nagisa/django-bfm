@@ -1,3 +1,4 @@
+{% load i18n %}
 upload_stats = {};
 
 function parse_size(size){
@@ -20,7 +21,7 @@ function parse_transfer_rate(transfered, time){
 
 function rewrite_file_if_exists(filename){
     var exist = false,
-    question = 'File with name '+filename+' already exists. Rewrite?';
+    question = '{% trans "File with name '+filename+' already exists. Rewrite?" %}';
     $.ajax({
         url: '../__exists/?f='+encodeURIComponent(filename)+'&d='+encodeURIComponent(dir),
         async: false}).success(function(rsp){exist = rsp == "YES"});
@@ -92,7 +93,7 @@ function upload_fail(){
     var speed = $(current).find('.speed'),
     progress = $(current).find('.progress');
     speed.text('0 B/s');
-    progress.text('FAILED');
+    progress.text('{% trans "FAILED" %}');
     $(current).css('background-color', '#F5A9A9')
     upload_next_file();
 }
@@ -101,13 +102,13 @@ function upload_cancel(){
     var speed = $(current).find('.speed'),
     progress = $(current).find('.progress');
     speed.text('0 B/s');
-    progress.text('CANCELED');
+    progress.text('{% trans "CANCELED" %}');
     $(current).css('background-color', '#F7D358')
     upload_next_file();
 }
 
 function all_uploads_complete(){
-    $('#uploading').text('Completed').click(function(){
+    $('#uploading').text('{% trans "Completed" %}').click(function(){
         window.location.reload()
     })
     $('#cancel').hide()

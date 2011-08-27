@@ -1,26 +1,27 @@
+{% load i18n %}
 <div class="image-resize">
     <form>
-        <h1>Resize Image</h1>
-        Generated image name:<br />
+        <h1>{% trans "Resize image" %}</h1>
+        {% trans "New image name:" %}<br />
         <input name="new_name" type="text" class="wide">
         <input name="old_name" type="text" style="display:none;">
-        New width:
+        {% trans "New image width" %}
         <input name="width" type="text"><br clear="both" />
-        New height:
+        {% trans "New image height" %}
         <input name="height" type="text"><br clear="both" />
-        Lock aspect ratio:
+        {% trans "Lock aspect ratio" %}
         <input name="lock" type="checkbox" checked>
         <input name="ratio" style="display:none;" type="ratio">
         <br clear="both" />
-        Mode:
+        {% trans "Filter" %}
         <select name="filter">
-            <option value="ANTIALIAS">ANTIALIASING</option>
-            <option value="BICUBIC">BICUBIC</option>
-            <option value="BILINEAR">BILINEAR</option>
-            <option value="NEAREST">NEAREST</option>
+            <option value="ANTIALIAS">{% trans "ANTIALIAS" %}</option>
+            <option value="BICUBIC">{% trans "BICUBIC" %}</option>
+            <option value="BILINEAR">{% trans "BILINEAR" %}</option>
+            <option value="NEAREST">{% trans "NEAREST" %}</option>
         </select><br clear="both" />
-        <input type="button" value="Close" onclick="$('.image-resize').hide(); return false;">
-        <input type="submit" value="Resize">
+        <input type="button" value="{% trans 'Close' %}" onclick="$('.image-resize').hide(); return false;">
+        <input type="submit" value="{% trans 'Resize' %}">
         <span class="warning error"></span>
     </form>
 </div>

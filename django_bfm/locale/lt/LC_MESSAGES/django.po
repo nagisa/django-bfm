@@ -1,0 +1,166 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-08-27 14:41+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n"
+"%100<10 || n%100>=20) ? 1 : 2)\n"
+
+#: views.py:95 templates/django_bfm/browse.html:69
+msgid "Delete"
+msgstr "Ištrinti"
+
+#: views.py:97 templates/django_bfm/browse.html:70
+msgid "Touch"
+msgstr "Priliesti"
+
+#: templates/django_bfm/base.html:3 templates/django_bfm/base.html.py:4
+#: templates/django_bfm/browse.html:3 templates/django_bfm/upload.html:3
+msgid "Basic File Manager"
+msgstr "Paprasta failų tvarkyklė"
+
+#: templates/django_bfm/base.html:14 templates/django_bfm/browse.html:3
+#: templates/django_bfm/browse.html.py:4
+msgid "Browse"
+msgstr "Naršyti"
+
+#: templates/django_bfm/base.html:15
+msgid "Upload files"
+msgstr "Įkelti failus"
+
+#: templates/django_bfm/browse.html:23 templates/django_bfm/upload.html:17
+msgid "Filename"
+msgstr "Pavadinimas"
+
+#: templates/django_bfm/browse.html:24 templates/django_bfm/upload.html:18
+msgid "Size"
+msgstr "Dydis"
+
+#: templates/django_bfm/browse.html:25
+msgid "Creation time"
+msgstr "Sukūrimo data"
+
+#: templates/django_bfm/browse.html:26
+msgid "Extension"
+msgstr "Plėtinys"
+
+#: templates/django_bfm/browse.html:45
+msgid "Directories"
+msgstr "Aplankai"
+
+#: templates/django_bfm/browse.html:56
+#, python-format
+msgid "%(directories)s file"
+msgid_plural "%(directories)s files"
+msgstr[0] "%(directories)s failas"
+msgstr[1] "%(directories)s failai"
+msgstr[2] "%(directories)s failų"
+
+#: templates/django_bfm/browse.html:72
+msgid "Parent directory"
+msgstr "Aplankas aukščiau"
+
+#: templates/django_bfm/browse.js:37 templates/django_bfm/upload.js:24
+msgid "File with name '+filename+' already exists. Rewrite?"
+msgstr "Failas vardu '+filename+' jau egzistuoja. Perrašyti?"
+
+#: templates/django_bfm/resize_dialog.html:4
+msgid "Resize image"
+msgstr "Pakeisti paveiksliuko dydį"
+
+#: templates/django_bfm/resize_dialog.html:5
+msgid "New image name:"
+msgstr "Naujo paveiksliuko pavadinimas"
+
+#: templates/django_bfm/resize_dialog.html:8
+msgid "New image width"
+msgstr "Naujo paveiksliuko plotis"
+
+#: templates/django_bfm/resize_dialog.html:10
+msgid "New image height"
+msgstr "Naujo paveiksliuko aukštis"
+
+#: templates/django_bfm/resize_dialog.html:12
+msgid "Lock aspect ratio"
+msgstr "Išlaikyti proporciją"
+
+#: templates/django_bfm/resize_dialog.html:16
+msgid "Filter"
+msgstr "Filtras"
+
+#: templates/django_bfm/resize_dialog.html:18
+msgid "ANTIALIAS"
+msgstr "Išlyginimas"
+
+#: templates/django_bfm/resize_dialog.html:19
+msgid "BICUBIC"
+msgstr "Dvikubinis"
+
+#: templates/django_bfm/resize_dialog.html:20
+msgid "BILINEAR"
+msgstr "Dvilinijinis"
+
+#: templates/django_bfm/resize_dialog.html:21
+msgid "NEAREST"
+msgstr "Arčiausias"
+
+#: templates/django_bfm/resize_dialog.html:23
+msgid "Close"
+msgstr "Uždaryti"
+
+#: templates/django_bfm/resize_dialog.html:24
+msgid "Resize"
+msgstr "Pakeisti dydį"
+
+#: templates/django_bfm/upload.html:3 templates/django_bfm/upload.html.py:4
+msgid "Upload"
+msgstr "Įkelti"
+
+#: templates/django_bfm/upload.html:19
+msgid "Transfer Speed"
+msgstr "Siuntimo greitis"
+
+#: templates/django_bfm/upload.html:20
+msgid "Progress"
+msgstr "Progresas"
+
+#: templates/django_bfm/upload.html:28
+msgid "Select files"
+msgstr "Pasirinkti failus"
+
+#: templates/django_bfm/upload.html:34
+msgid "Start Upload"
+msgstr "Pradėti įkėlimą"
+
+#: templates/django_bfm/upload.html:36
+msgid "Uploading..."
+msgstr "Įkeliama..."
+
+#: templates/django_bfm/upload.html:37
+msgid "Cancel current file"
+msgstr "Atšaukti šio failo įkėlimą"
+
+#: templates/django_bfm/upload.js:96
+msgid "FAILED"
+msgstr "NEPAVYKO"
+
+#: templates/django_bfm/upload.js:105
+msgid "CANCELED"
+msgstr "ATŠAUKTA"
+
+#: templates/django_bfm/upload.js:111
+msgid "Completed"
+msgstr "Baigta"

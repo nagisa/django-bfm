@@ -1,6 +1,7 @@
 {% extends 'admin/base_site.html' %}
-{% block title %}Basic File Manager{% endblock %}
-{% block breadcrumbs %}<div class="breadcrumbs"><a href="..">Basic File Manager</a>{% block crumbs %}{% endblock %}</div>{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Basic File Manager" %}{% endblock %}
+{% block breadcrumbs %}<div class="breadcrumbs"><a href="..">{% trans "Basic File Manager" %}</a>{% block crumbs %}{% endblock %}</div>{% endblock %}
 {% block extrastyle %}
 <style type="text/css">
     {% include 'django_bfm/style.css' %}
@@ -10,8 +11,8 @@
 {% block pretitle %}
 <nav>
     <ul>
-        <li><a href="../browse/?d={{ current_dir }}">Browse</a></li>
-        <li><a href="../upload/?d={{ current_dir }}">Upload file(s)</a></li>
+        <li><a href="../browse/?d={{ current_dir }}">{% trans "Browse" %}</a></li>
+        <li><a href="../upload/?d={{ current_dir }}">{% trans "Upload files" %}</a></li>
     </ul>
 </nav>
 {% endblock %}

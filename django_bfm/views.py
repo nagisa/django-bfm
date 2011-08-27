@@ -4,6 +4,7 @@ from django.core.context_processors import csrf
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.admin.views.decorators import staff_member_required
+from django.utils.translation import ugettext as _
 
 import settings
 from forms import UploadFileForm
@@ -91,8 +92,8 @@ def select(request):
         files = dict(request.POST).get('selected', False)
         if not files:
             return HttpResponseRedirect('..')
-        if 'delete' in action.lower():
+        if _('Delete') in _(action):
             directory.delete_files(files)
-        elif 'touch' in action.lower():
+        elif _('Touch') in _(action):
             directory.touch_files(files)
         return HttpResponseRedirect('../?d=%s' % rel_dir)

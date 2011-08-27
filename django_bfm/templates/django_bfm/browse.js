@@ -1,3 +1,5 @@
+{% load i18n %}
+
 this.imagePreview = function(files){
     xOffset = -10;
     yOffset = 20;
@@ -32,7 +34,7 @@ this.image_info = function(parent){
 
 function rewrite_file_if_exists(filename){
     var exist = false,
-    question = 'File with name '+filename+' already exists. Rewrite?';
+    question = '{% trans "File with name '+filename+' already exists. Rewrite?" %}';
     $.ajax({
         url: '../__exists/?f='+encodeURIComponent(filename)+'&d='+encodeURIComponent(directory),
         async: false}).success(function(rsp){exist = rsp == "YES"});
