@@ -2,17 +2,17 @@
 {% load i18n %}
 {% block title %}{% trans "Basic File Manager" %}{% endblock %}
 {% block breadcrumbs %}<div class="breadcrumbs"><a href="..">{% trans "Basic File Manager" %}</a>{% block crumbs %}{% endblock %}</div>{% endblock %}
-{% block extrastyle %}
-<style type="text/css">
-    {% include 'django_bfm/style.css' %}
-</style>
+{% block extrahead %}
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.1.7/underscore-min.js"></script>
+	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.5.3/backbone-min.js"></script>
+	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2.js"></script>
+	<script>{% include 'django_bfm/application.js' %}</script>
 {% endblock %}
 {% block coltype %}flex{% endblock %}
 {% block pretitle %}
-<nav>
-    <ul>
-        <li><a href="../browse/?d={{ current_dir }}">{% trans "Browse" %}</a></li>
-        <li><a href="../upload/?d={{ current_dir }}">{% trans "Upload files" %}</a></li>
-    </ul>
-</nav>
+{% endblock %}
+{% block content %}
+	<table id="rows">
+	</table>
 {% endblock %}
