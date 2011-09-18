@@ -1,18 +1,65 @@
-{% extends 'admin/base_site.html' %}
+{% extends 'admin/change_list.html' %}
 {% load i18n %}
 {% block title %}{% trans "Basic File Manager" %}{% endblock %}
-{% block breadcrumbs %}<div class="breadcrumbs"><a href="..">{% trans "Basic File Manager" %}</a>{% block crumbs %}{% endblock %}</div>{% endblock %}
+
+{# No idea what to do with this one #}
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="..">{% trans "Basic File Manager" %}</a>
+        {% block crumbs %}{% endblock %}
+    </div>
+{% endblock %}
+
+{# Scripts'n'Templates #}
 {% block extrahead %}
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.1.7/underscore-min.js"></script>
-	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.5.3/backbone-min.js"></script>
-	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2.js"></script>
-	<script>{% include 'django_bfm/application.js' %}</script>
+    {{ block.super }}
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.1.7/underscore-min.js"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.5.3/backbone-min.js"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2.js"></script>
+    <script type="text/javascript" src="https://raw.github.com/jquery/jquery-tmpl/master/jquery.tmpl.min.js"></script>
+    <script>{% include 'django_bfm/application.js' %}</script>
+    <script id="fileBrowseHeadTemplate" type="text/x-jquery-tmpl">
+        <th>{% trans "Actions" %}</th>
+        <th>{% trans "Filename" %}</th>
+        <th>{% trans "Size" %}</th>
+        <th>{% trans "Modification Date" %}</th>
+        <th>{% trans "Extension" %}</th>
+    </script>
+    <script id="fileBrowseTemplate" type="text/x-jquery-tmpl">
+        <td class="tight">Actions</td>
+        <td>${filename}</td>
+        <td class="tight">${size}</td>
+        <td class="tight">${date}</td>
+        <td class="tight">${extension}</td>
+    </script>
 {% endblock %}
-{% block coltype %}flex{% endblock %}
-{% block pretitle %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        td.tight{width: 1px; white-space: nowrap;}
+    </style>
 {% endblock %}
+
+{# ??? #}
+{% block pretitle %}{% endblock %}
+
+{# It's main part #}
 {% block content %}
-	<table id="rows">
-	</table>
+    <div id="content-main">
+        <div class="module filtered" id="changelist">
+            <div id="changelist-filter">
+                <h2>{% trans 'Directories' %}</h2>
+                <ul class="directory-list">
+                </ul>
+            </div>
+            <form id="changelist-form">
+                <div class="results">
+                    <table id="result_list">
+                    </table>
+                </div>
+            </form>
+        </div>
+    </div>
 {% endblock %}
