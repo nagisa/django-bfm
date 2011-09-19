@@ -16,3 +16,7 @@ def list_files(request):
     d = [{'filename': 'Ow May Gawd', 'size': '1024', 'extension': '.a', 'date': '122334'},
          {'filename': 'Ow May Gawd2', 'size': '2048', 'extension': '.b', 'date': '134'}]
     return HttpResponse(simplejson.dumps(d))
+
+def list_directories(request):
+    d = [{'name': 'main', 'size': '45', 'childs': [{'name': 'sub1', 'size': '18', 'childs': [{'name': 'subsub1', 'size': '10'}]}]}, {'name': 'main2', 'size': '108'}]
+    return HttpResponse(simplejson.dumps(d))
