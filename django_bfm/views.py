@@ -5,6 +5,9 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.utils import simplejson
 from django.http import HttpResponse
 
+import utils
+import os
+
 @login_required
 @staff_member_required
 def base(request):
@@ -12,11 +15,30 @@ def base(request):
     c.update(csrf(request))
     return render_to_response('django_bfm/base.html', c)
 
+@login_required
+@staff_member_required
 def list_files(request):
-    d = [{'filename': 'Ow May Gawd', 'size': '1024', 'extension': '.a', 'date': '122334'},
-         {'filename': 'Ow May Gawd2', 'size': '2048', 'extension': '.b', 'date': '134'}]
+    storage = utils.Directory('')
+    d = storage.collect_files()
     return HttpResponse(simplejson.dumps(d))
 
+@login_required
+@staff_member_required
 def list_directories(request):
-    d = [{'name': 'main', 'size': '45', 'childs': [{'name': 'sub1', 'size': '18', 'childs': [{'name': 'subsub1', 'size': '10'}]}]}, {'name': 'main2', 'size': '108'}]
+    storage = utils.Directory('')
+    d = storage.collect_dirs()
     return HttpResponse(simplejson.dumps(d))
+
+@login_required
+@staff_member_required
+def file_actions(request):
+    directory = request.GET.get('directory', False)
+    f = request.GET.get('file', False)
+    if directory == False or f == False:
+        return HttpResponse(simplejson.dumps(False))
+    storage = utils.Directory(directory)
+    if request.GET.get('action', False) == 'delete':
+        storage.s.delete(f)
+    elif request.GET.get('action', False) == 'touch':
+        os.utime(storage.s.path(f), None)
+    return HttpResponse(simplejson.dumps(True))

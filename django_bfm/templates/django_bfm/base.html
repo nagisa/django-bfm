@@ -21,17 +21,17 @@
     <script>{% include 'django_bfm/application.js' %}</script>
     <script id="fileBrowseHeadTemplate" type="text/x-jquery-tmpl">
         <th>{% trans "Actions" %}</th>
-        <th>{% trans "Filename" %}</th>
-        <th>{% trans "Size" %}</th>
-        <th>{% trans "Modification Date" %}</th>
-        <th>{% trans "Extension" %}</th>
+        <th class="${filename}" data-name="filename"><a>{% trans "Filename" %}</a></th>
+        <th class="${size}" data-name="size"><a>{% trans "Size" %}</a></th>
+        <th class="${date}" data-name="date"><a>{% trans "Modification Date" %}</a></th>
+        <th class="${mime}" data-name="mime"><a>{% trans "Type" %}</a></th>
     </script>
     <script id="fileBrowseTemplate" type="text/x-jquery-tmpl">
-        <td class="tight">Actions</td>
+        <td class="tight icons"><a class="delete" title="{% trans "Delete" %}"></a><a class="touch" title="{% trans "Touch" %}"></a><a class="resize" title="{% trans "Resize" %}"></a></td>
         <td>${filename}</td>
-        <td class="tight">${size}</td>
-        <td class="tight">${date}</td>
-        <td class="tight">${extension}</td>
+        <td class="tight">${psize}</td>
+        <td class="tight">${pdate}</td>
+        <td class="tight">${mimetype}</td>
     </script>
 {% endblock %}
 
@@ -39,6 +39,12 @@
     {{ block.super }}
     <style>
         td.tight{width: 1px; white-space: nowrap;}
+        .directory{display:block; overflow:hidden;}
+        .directory.selected{border-left: 5px solid #CCC; padding-left: 5px; margin-left: -10px; color: #5B80B2 !important}
+        .icons a{margin: -2px 0; height: 16px; width: 16px; display:block; float:left;}
+        a.delete{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAJdSURBVDjLpZP7S1NhGMf9W7YfogSJboSEUVCY8zJ31trcps6zTI9bLGJpjp1hmkGNxVz4Q6ildtXKXzJNbJRaRmrXoeWx8tJOTWptnrNryre5YCYuI3rh+8vL+/m8PA/PkwIg5X+y5mJWrxfOUBXm91QZM6UluUmthntHqplxUml2lciF6wrmdHriI0Wx3xw2hAediLwZRWRkCPzdDswaSvGqkGCfq8VEUsEyPF1O8Qu3O7A09RbRvjuIttsRbT6HHzebsDjcB4/JgFFlNv9MnkmsEszodIIY7Oaut2OJcSF68Qx8dgv8tmqEL1gQaaARtp5A+N4NzB0lMXxon/uxbI8gIYjB9HytGYuusfiPIQcN71kjgnW6VeFOkgh3XcHLvAwMSDPohOADdYQJdF1FtLMZPmslvhZJk2ahkgRvq4HHUoWHRDqTEDDl2mDkfheiDgt8pw340/EocuClCuFvboQzb0cwIZgki4KhzlaE6w0InipbVzBfqoK/qRH94i0rgokSFeO11iBkp8EdV8cfJo0yD75aE2ZNRvSJ0lZKcBXLaUYmQrCzDT6tDN5SyRqYlWeDLZAg0H4JQ+Jt6M3atNLE10VSwQsN4Z6r0CBwqzXesHmV+BeoyAUri8EyMfi2FowXS5dhd7doo2DVII0V5BAjigP89GEVAtda8b2ehodU4rNaAW+dGfzlFkyo89GTlcrHYCLpKD+V7yeeHNzLjkp24Uu1Ed6G8/F8qjqGRzlbl2H2dzjpMg1KdwsHxOlmJ7GTeZC/nesXbeZ6c9OYnuxUc3fmBuFft/Ff8xMd0s65SXIb/gAAAABJRU5ErkJggg==);}
+        a.touch{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAEGSURBVDjLpZM/LwRRFMXPspmEaGc1shHRaiXsJ5GIRixbCr6SikxIlqgJM5UohIiGdofovHf/PZVmYwZvTntPfjnn3txWCAFNNFE33L/ZKXYv+1dRgL3r7bu0PbucJp3e4GLjtsrXGq9wkA8SU7tPk87i/MwCzAyP5QNeytcnJl46XMuoNoGKDoVlTkQhJpAgmJqcBjnqkqPTXxN8qz9cD6vdHtQMxXOBt49y5XjzLB/3tau6kWewKiwoRu8jZFvn+U++GgCBlWFBQY4qr1ANcAQxgQaFjwH4TwYrQ5skYBOYKbzjiASOwCrNd2BBwZ4jAcowGJgkAuAZ2dEJhAUqij//wn/1BesSumImTttSAAAAAElFTkSuQmCC);}
+        a.resize{display:none; background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAGsSURBVDjLpZIxixNRFIW/kVHQQlwEQdgUdkkgTX6BkMIi/yJY5geE/ISAZIuUSb9lgnYWNsraaOkkTSSz6MLWJhmY9+7ZIm8mCUYLvfDg8d49h3POvZEk/qdigMFgkEqqSEp6vV79b4But/shz/OXzrlkMpnU4/BeabfbzGaz2pt3NzIJAd4DAplhAm+w3W7pdDqMRqNaqcB7/3U6nTbjR095fnYfGQiQCRPogOT2yTnD4RDn3CeAqMhg8Panzs8e7AAGkpDApJLITJiJ5U3GoPMiKhUQ5HoDJMwCsLjbMUnu7ThEAHnbNQrMDBkBYCWwIHTuBIEzMC8sNO2ai7vtlQjM6XcCc4Y3lT514FnBUqHEnSJwDry30v8xyV6RBM5OWfAe7+OQegAqjPIgQEl4f1LB7qOUa2DB++E4FbIqKpJEq9VK8zyvPHz8jFedi6PED6VL4vLiNd+Tz3jvkyzL6vcAsiyr9Pt9bn8sWVyvWVxvmKdrFqtfzNM189WGZLUmSTcsv10xHo9xztV285doNptfGo2GVavVK4UF+tOJ4/h9FEUCPkrar/K/1h35Nbw8S+DdbwAAAABJRU5ErkJggg==);}
     </style>
 {% endblock %}
 
