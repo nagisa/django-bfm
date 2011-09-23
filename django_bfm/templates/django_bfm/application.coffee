@@ -1,4 +1,3 @@
-#TODO: Sorting
 #TODO: Pagination
 #TODO: Uploading
 #TODO: File Actions (Delete, Touch, Rename)
@@ -24,6 +23,18 @@ $ ->
                     action: 'delete'
                     file: @get('filename')
                     directory: @get('rel_dir')
+        rename_file: () ->
+            dialog = new BFMDialog
+                url: @url
+                model: @
+                template: '#fileRenameTemplate'
+                callback: @rename_file_callback
+            dialog.render()
+        rename_file_callback: (dialog_data) ->
+            $.ajax
+                url: @url
+                data: "#{dialog_data}&action=rename"
+            Route.do_browse(Route.path)
         touch_file: () ->
             $.ajax
                 url: @url
@@ -31,6 +42,7 @@ $ ->
                     action: 'touch'
                     file: @get('filename')
                     directory: @get('rel_dir')
+            Route.do_browse(Route.path)
         url: 'file/'
         parseDate: () ->
             d = @get("date")
@@ -43,7 +55,12 @@ $ ->
     BFMFiles = Backbone.Collection.extend
         url: 'list_files/'
         initialize: (attrs) ->
+            @base_url = @url
             @bind('reset', @added)
+            if attrs? and attrs.directory?
+                @url = @url+'?directory='+attrs.directory
+        set_directory: (directory) ->
+            @url = @base_url+'?directory='+directory
         comparator: (model) ->
             date = model.get('date')
             dt = date.getFullYear()*10000+date.getMonth()*100+date.getDate()
@@ -52,15 +69,9 @@ $ ->
         comparators:
             date:
                 desc: (model) ->
-                    date = model.get('date')
-                    dt = date.getFullYear()*10000+date.getMonth()*100+date.getDate()
-                    dh = date.getHours()*100+date.getMinutes()
-                    -(dt+dh*0.0001)
+                    0 - model.get('date')
                 asc: (model) ->
-                    date = model.get('date')
-                    dt = date.getFullYear()*10000+date.getMonth()*100+date.getDate()
-                    dh = date.getHours()*100+date.getMinutes()
-                    (dt+dh*0.0001)
+                    model.get('date') - 0
             size:
                 desc: (model) ->
                     -model.get('size')
@@ -102,8 +113,8 @@ $ ->
         el: $ '#result_list'
         current_row: 1
         ord: ['date', true]
-        events: {'click th': 'resort_date'}
-        resort_date: (e) ->
+        events: {'click th': 'resort_data'}
+        resort_data: (e) ->
             name = e.currentTarget.getAttribute('data-name')
             if not Files.comparators[name]
                 return false
@@ -148,9 +159,8 @@ $ ->
         events:
             "click .directory": "load_directory"
         load_directory: (e) ->
-            e.stopImmediatePropagation();
+            e.stopImmediatePropagation()
             Route.goto(@model.rel_dir)
-            Dirs.el.find('.selected').removeClass('selected')
             @el.children('a').addClass('selected')
         initialize: (attrs) ->
             @model = attrs.model
@@ -158,11 +168,11 @@ $ ->
         render: () ->
             Dirs.append @srender()
         srender: () ->
-            @el.html "<a class='directory'>#{@model.name}</a>"
+            @el.html "<a class='directory#{if Route.path == @model.rel_dir then " selected" else ""}'>#{@model.name}</a>"
             if @model.childs?
                 child = new BFMChildDirectoriesView({'childs': @model.childs, 'parent': @})
                 child.render()
-            return @el
+            @el
         append: (element) ->
             @el.append element
 
@@ -180,16 +190,45 @@ $ ->
             _.forEach(@childs, callback, @)
 
 
+    BFMDialog = Backbone.View.extend
+        tagName: 'form'
+        className: 'dialog'
+        events:
+            "click .submit": 'call_callback'
+            "click .cancel": 'cancel'
+        tear_down: () ->
+            $(@el).fadeOut(200, => @remove())
+            $('.block').css('display', 'none')
+        cancel: (e) ->
+            @tear_down()
+            e.preventDefault()
+        call_callback: (e) ->
+            @tear_down()
+            e.preventDefault()
+            @callback($(@el).serialize())
+        initialize: (attrs) ->
+            @url = attrs.url
+            @model = attrs.model
+            @template = attrs.template
+            @callback = attrs.callback
+        render: () ->
+            element = $(@el).html($(@template).tmpl(@model.attributes))
+            $('body').append(element.fadeIn(200))
+            $('.block').css('display', 'block')
+
     BFMFileView = Backbone.View.extend
         tagName: 'tr'
         events:
             "click .delete": 'delete'
             "click .touch": 'touch'
+            "click .rename": 'rename'
         delete: (e)->
             @model.delete_file()
             @remove()
         touch: (e) ->
             @model.touch_file()
+        rename: (e) ->
+            @model.rename_file()
         className: ->
             Table.get_row_class()
         initialize: (attrs) ->
@@ -197,24 +236,24 @@ $ ->
             @attrs = attrs.model.attributes
             @model = attrs.model
         render: () ->
-            elm = $(this.el).html($('#fileBrowseTemplate').tmpl(@attrs))
+            elm = $(@el).html($('#fileBrowseTemplate').tmpl(@attrs))
             if @attrs.mimetype.substring(0, 5) == "image"
                 elm.find('.icons .resize').css('display', 'block')
             @table.append elm
 
 
     BFMUrls = Backbone.Router.extend
-        initialize: (attrs) ->
-            @path = ""
-            @path = attrs.path if attrs? and attrs.path?
         routes:
             '*path': 'do_browse'
         do_browse: (path) ->
+            @path = path
+            Dirs.el.find('.selected').removeClass('selected')
             # Drawing filetable
             Table.clear()
+            Files.set_directory(path)
             Files.fetch()
         goto: (path) ->
-            @navigate "#{path||@path}", true
+            @navigate "#{path}", true
 
     Table = new BFMFileTableView()
     Dirs = new BFMDirectoriesView()

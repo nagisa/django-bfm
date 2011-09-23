@@ -2,13 +2,15 @@ import os
 import settings
 from django.core.files.storage import FileSystemStorage
 from mimetypes import guess_type as guess_mimetype
+from urlparse import urljoin
 
 class Directory(object):
 
     def __init__(self, rel_dir):
         self.rel_dir = (rel_dir+"/").lstrip('/')
         directory = os.path.join(settings.MEDIA_DIRECTORY, self.rel_dir)
-        self.s = FileSystemStorage(directory)
+        url = urljoin(settings.MEDIA_URL, self.rel_dir)
+        self.s = FileSystemStorage(directory, url)
 
     def collect_dirs(self):
         def childs(path):
@@ -27,5 +29,6 @@ class Directory(object):
                           'rel_dir': self.rel_dir,
                           'date': self.s.created_time(f).isoformat(),
                           'extension': os.path.splitext(f)[1],
-                          'mimetype': guess_mimetype(f)[0]}
+                          'mimetype': guess_mimetype(f)[0],
+                          'url': self.s.url(f)}
         return files

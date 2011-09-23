@@ -1,6 +1,7 @@
 (function() {
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
   $(function() {
-    var BFMChildDirectoriesView, BFMDirectories, BFMDirectoriesView, BFMDirectoryView, BFMFile, BFMFileTableView, BFMFileView, BFMFiles, BFMUrls, D, Dirs, Files, Route, Table, readable_size;
+    var BFMChildDirectoriesView, BFMDialog, BFMDirectories, BFMDirectoriesView, BFMDirectoryView, BFMFile, BFMFileTableView, BFMFileView, BFMFiles, BFMUrls, D, Dirs, Files, Route, Table, readable_size;
     readable_size = function(size) {
       var s, table, _i, _len;
       table = [['B', 1024, 0], ['KB', 1048576, 0], ['MB', 1073741824, 1], ['GB', 1099511627776, 2], ['TB', 1125899906842624, 3]];
@@ -31,8 +32,25 @@
           }
         });
       },
+      rename_file: function() {
+        var dialog;
+        dialog = new BFMDialog({
+          url: this.url,
+          model: this,
+          template: '#fileRenameTemplate',
+          callback: this.rename_file_callback
+        });
+        return dialog.render();
+      },
+      rename_file_callback: function(dialog_data) {
+        $.ajax({
+          url: this.url,
+          data: "" + dialog_data + "&action=rename"
+        });
+        return Route.do_browse(Route.path);
+      },
       touch_file: function() {
-        return $.ajax({
+        $.ajax({
           url: this.url,
           data: {
             action: 'touch',
@@ -40,6 +58,7 @@
             directory: this.get('rel_dir')
           }
         });
+        return Route.do_browse(Route.path);
       },
       url: 'file/',
       parseDate: function() {
@@ -54,7 +73,14 @@
     BFMFiles = Backbone.Collection.extend({
       url: 'list_files/',
       initialize: function(attrs) {
-        return this.bind('reset', this.added);
+        this.base_url = this.url;
+        this.bind('reset', this.added);
+        if ((attrs != null) && (attrs.directory != null)) {
+          return this.url = this.url + '?directory=' + attrs.directory;
+        }
+      },
+      set_directory: function(directory) {
+        return this.url = this.base_url + '?directory=' + directory;
       },
       comparator: function(model) {
         var date, dh, dt;
@@ -66,18 +92,10 @@
       comparators: {
         date: {
           desc: function(model) {
-            var date, dh, dt;
-            date = model.get('date');
-            dt = date.getFullYear() * 10000 + date.getMonth() * 100 + date.getDate();
-            dh = date.getHours() * 100 + date.getMinutes();
-            return -(dt + dh * 0.0001);
+            return 0 - model.get('date');
           },
           asc: function(model) {
-            var date, dh, dt;
-            date = model.get('date');
-            dt = date.getFullYear() * 10000 + date.getMonth() * 100 + date.getDate();
-            dh = date.getHours() * 100 + date.getMinutes();
-            return dt + dh * 0.0001;
+            return model.get('date') - 0;
           }
         },
         size: {
@@ -142,9 +160,9 @@
       current_row: 1,
       ord: ['date', true],
       events: {
-        'click th': 'resort_date'
+        'click th': 'resort_data'
       },
-      resort_date: function(e) {
+      resort_data: function(e) {
         var name;
         name = e.currentTarget.getAttribute('data-name');
         if (!Files.comparators[name]) {
@@ -204,7 +222,6 @@
       load_directory: function(e) {
         e.stopImmediatePropagation();
         Route.goto(this.model.rel_dir);
-        Dirs.el.find('.selected').removeClass('selected');
         return this.el.children('a').addClass('selected');
       },
       initialize: function(attrs) {
@@ -216,7 +233,7 @@
       },
       srender: function() {
         var child;
-        this.el.html("<a class='directory'>" + this.model.name + "</a>");
+        this.el.html("<a class='directory" + (Route.path === this.model.rel_dir ? " selected" : "") + "'>" + this.model.name + "</a>");
         if (this.model.childs != null) {
           child = new BFMChildDirectoriesView({
             'childs': this.model.childs,
@@ -249,11 +266,47 @@
         return _.forEach(this.childs, callback, this);
       }
     });
+    BFMDialog = Backbone.View.extend({
+      tagName: 'form',
+      className: 'dialog',
+      events: {
+        "click .submit": 'call_callback',
+        "click .cancel": 'cancel'
+      },
+      tear_down: function() {
+        $(this.el).fadeOut(200, __bind(function() {
+          return this.remove();
+        }, this));
+        return $('.block').css('display', 'none');
+      },
+      cancel: function(e) {
+        this.tear_down();
+        return e.preventDefault();
+      },
+      call_callback: function(e) {
+        this.tear_down();
+        e.preventDefault();
+        return this.callback($(this.el).serialize());
+      },
+      initialize: function(attrs) {
+        this.url = attrs.url;
+        this.model = attrs.model;
+        this.template = attrs.template;
+        return this.callback = attrs.callback;
+      },
+      render: function() {
+        var element;
+        element = $(this.el).html($(this.template).tmpl(this.model.attributes));
+        $('body').append(element.fadeIn(200));
+        return $('.block').css('display', 'block');
+      }
+    });
     BFMFileView = Backbone.View.extend({
       tagName: 'tr',
       events: {
         "click .delete": 'delete',
-        "click .touch": 'touch'
+        "click .touch": 'touch',
+        "click .rename": 'rename'
       },
       "delete": function(e) {
         this.model.delete_file();
@@ -261,6 +314,9 @@
       },
       touch: function(e) {
         return this.model.touch_file();
+      },
+      rename: function(e) {
+        return this.model.rename_file();
       },
       className: function() {
         return Table.get_row_class();
@@ -280,21 +336,18 @@
       }
     });
     BFMUrls = Backbone.Router.extend({
-      initialize: function(attrs) {
-        this.path = "";
-        if ((attrs != null) && (attrs.path != null)) {
-          return this.path = attrs.path;
-        }
-      },
       routes: {
         '*path': 'do_browse'
       },
       do_browse: function(path) {
+        this.path = path;
+        Dirs.el.find('.selected').removeClass('selected');
         Table.clear();
+        Files.set_directory(path);
         return Files.fetch();
       },
       goto: function(path) {
-        return this.navigate("" + (path || this.path), true);
+        return this.navigate("" + path, true);
       }
     });
     Table = new BFMFileTableView();

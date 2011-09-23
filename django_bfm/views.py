@@ -18,7 +18,8 @@ def base(request):
 @login_required
 @staff_member_required
 def list_files(request):
-    storage = utils.Directory('')
+    directory = request.GET.get('directory', '')
+    storage = utils.Directory(directory)
     d = storage.collect_files()
     return HttpResponse(simplejson.dumps(d))
 
@@ -41,4 +42,12 @@ def file_actions(request):
         storage.s.delete(f)
     elif request.GET.get('action', False) == 'touch':
         os.utime(storage.s.path(f), None)
+    elif request.GET.get('action', False) == 'rename':
+        new_name = request.GET.get('new', False)
+        if new_name == False:
+            return HttpResponse(simplejson.dumps(False))
+        else:
+            os.rename(storage.s.path(f), storage.s.path(new_name))
+    else:
+        return HttpResponse(simplejson.dumps(False))
     return HttpResponse(simplejson.dumps(True))
