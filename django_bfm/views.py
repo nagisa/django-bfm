@@ -7,6 +7,7 @@ from django.http import HttpResponse
 
 import utils
 import os
+from forms import UploadFileForm
 
 @login_required
 @staff_member_required
@@ -51,3 +52,17 @@ def file_actions(request):
     else:
         return HttpResponse(simplejson.dumps(False))
     return HttpResponse(simplejson.dumps(True))
+
+@login_required
+@staff_member_required
+def file_upload(request):
+    directory = request.GET.get('directory', False)
+    if directory == False or not request.method == 'POST':
+        return HttpResponse(simplejson.dumps(False))
+    else:
+        form = UploadFileForm(request.POST, request.FILES)
+        storage = utils.Directory(directory)
+        if form.is_valid():
+            f = storage.s.save(request.FILES['file'].name,request.FILES['file'])
+            return HttpResponse(simplejson.dumps(f))
+        return HttpResponse(simplejson.dumps(False))

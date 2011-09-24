@@ -139,9 +139,7 @@ $ ->
             @el.prepend element
         draw_head: () ->
             c = {}
-            cl = 'descending'
-            cl = 'ascending' if not @ord[1]
-            c[@ord[0]] = cl+' sorted'
+            c[@ord[0]] = "#{if @ord[1] then 'descending' else 'ascending'} sorted"
             @el.find('tr:first').append($('#fileBrowseHeadTemplate').tmpl(c))
         get_row_class: () ->
             @current_row = ((@current_row+1)%2)
@@ -242,13 +240,117 @@ $ ->
             @table.append elm
 
 
+    BFMFileUploadView = Backbone.View.extend
+        initialize: (file, parent) ->
+            @file = file
+            @parent = parent
+            @directory = Route.path
+        events:
+            'click a': 'abort'
+        renders: () ->
+            @el = $('#UploadableTemplate').tmpl({'filename': @file.fileName})
+            @delegateEvents @events
+            @el
+        abort: () ->
+            @xhr.abort()
+            @el.find('.progress').css('background', '#FF6600')
+            @upload_complete()
+        fail: () ->
+            @el.find('.progress').css('background', '#CC0000')
+            @parent.report_errors()
+            @upload_complete()
+        do_upload: () ->
+            @xhr = xhr = new XMLHttpRequest()
+            form = new FormData()
+            csrf_token = $('input[name=csrfmiddlewaretoken]').val()
+            form.append "file", @file;
+            xhr.upload.addEventListener "progress", ((e) => @report_progress(e)), false
+            xhr.addEventListener "load", ((e) => @upload_complete(e)), false
+            xhr.addEventListener "error", (() => @fail()), false
+            @stats =
+                start: new Date()
+                last_report: new Date()
+                last_loaded: 0
+            xhr.open "POST", "upfile/?directory="+@directory
+            xhr.setRequestHeader "X-CSRFToken", csrf_token
+            xhr.send(form)
+        report_progress: (e) ->
+            last_report = @stats.last_report
+            last_loaded = @stats.last_loaded
+            time_difference = new Date() - last_report
+            size_difference = e.loaded - last_loaded
+            percentage = (e.loaded*100/@file.size).toFixed(1)
+            speed = ~~((size_difference*1000/time_difference)+0.5)
+            @parent.report_speed(speed)
+            if percentage > 100
+                percentage = 100
+            @el.find('.progress').stop(true).animate({
+                width: "#{percentage}%"
+                }, Math.min(1000/(speed/1048576), 1000))
+            if time_difference > 3000
+                @stats.last_report = new Date()
+                @stats.last_loaded = e.loaded
+        upload_complete: (e) ->
+            @parent.upload_next()
+            @el.find('.stop').remove()
+
+
+    BFMUploaderView = Backbone.View.extend
+        initialize: () ->
+            @uploadlist = []
+            @errors = false
+        el: $ '.uploader'
+        events:
+            'change form input': 'selected'
+        uploadingevents:
+            'click .minimize': 'minimize'
+            'click .maximize': 'maximize'
+            'click .refresh': 'karakiri'
+        minimize: (e) ->
+            @el.addClass('minimized')
+            $(e.currentTarget).removeClass('minimize').addClass('maximize')
+        maximize: (e) ->
+            @el.removeClass('minimized')
+            $(e.currentTarget).removeClass('maximize').addClass('minimize')
+        karakiri: (e) ->
+            Uploader = new BFMUploaderView()
+            Uploader.render(@el)
+        render: (elm) ->
+            @el.html $('#startUploadTemplate').tmpl()
+            if elm?
+                elm.replaceWith(@el)
+        selected: (e) ->
+            tmpl = $('#UploadablesTemplate').tmpl()
+            @el.replaceWith tmpl
+            @el = tmpl
+            @delegateEvents @uploadingevents
+            table = tmpl.find('table')
+            selected_files = e.currentTarget.files
+            for file in selected_files
+                @uploadlist.push(new BFMFileUploadView file, @)
+            for uploadable in @uploadlist
+                table.append uploadable.renders()
+            @uploadlist.reverse()
+            @uploadlist.pop().do_upload()
+        upload_next: () ->
+            if @uploadlist and @uploadlist.length > 0
+                @uploadlist.pop().do_upload()
+            else
+                text = "Upload was completed #{if not @errors then 'successfully.' else ', but with errors.'}"
+                @el.find('.status').text(text)
+                @el.filter('.uploadinghead').find('.icon').removeClass('minimize maximize').addClass('refresh')
+                Route.do_browse(Route.path)
+        report_speed: (speed) ->
+            @el.find('.status .speed').text("#{readable_size(speed)}/s")
+        report_errors: () ->
+            @errors = true
+
     BFMUrls = Backbone.Router.extend
         routes:
             '*path': 'do_browse'
         do_browse: (path) ->
             @path = path
             Dirs.el.find('.selected').removeClass('selected')
-            # Drawing filetable
             Table.clear()
             Files.set_directory(path)
             Files.fetch()
@@ -257,8 +359,10 @@ $ ->
 
     Table = new BFMFileTableView()
     Dirs = new BFMDirectoriesView()
+    Uploader = new BFMUploaderView()
     Files = new BFMFiles()
     D = new BFMDirectories
-    D.fetch()
     Route = new BFMUrls()
+    D.fetch()
+    Uploader.render()
     Backbone.history.start()

@@ -4,6 +4,7 @@ from django.core.files.storage import FileSystemStorage
 from mimetypes import guess_type as guess_mimetype
 from urlparse import urljoin
 
+
 class Directory(object):
 
     def __init__(self, rel_dir):
@@ -29,6 +30,6 @@ class Directory(object):
                           'rel_dir': self.rel_dir,
                           'date': self.s.created_time(f).isoformat(),
                           'extension': os.path.splitext(f)[1],
-                          'mimetype': guess_mimetype(f)[0],
+                          'mimetype': guess_mimetype(f)[0] or "unknown",
                           'url': self.s.url(f)}
         return files
