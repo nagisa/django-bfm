@@ -9,7 +9,7 @@ $ ->
         for s in table
             if size < s[1]
                 return "#{(size/(s[1]/1024)).toFixed(s[2])} #{s[0]}"
-    BFMFile = Backbone.Model.extend
+    File = Backbone.Model.extend
         initialize: () ->
             @set
                 'date': new Date(@get('date'))
@@ -24,7 +24,7 @@ $ ->
                     file: @get('filename')
                     directory: @get('rel_dir')
         rename_file: () ->
-            dialog = new BFMDialog
+            dialog = new Dialog
                 url: @url
                 model: @
                 template: '#fileRenameTemplate'
@@ -52,7 +52,7 @@ $ ->
 
 
 
-    BFMFiles = Backbone.Collection.extend
+    Files = Backbone.Collection.extend
         url: 'list_files/'
         initialize: (attrs) ->
             @base_url = @url
@@ -94,22 +94,22 @@ $ ->
                 asc: (model) ->
                     model.get('mimetype')
 
-        model: BFMFile
+        model: File
         added: () ->
             _.forEach(@models, (model) ->
-                new BFMFileView('model': model).render())
+                new FileView('model': model).render())
 
 
-    BFMDirectories = Backbone.Collection.extend
+    Directories = Backbone.Collection.extend
         url: 'list_directories/'
         initialize: (attrs) ->
             @bind('reset', @added)
         added: () ->
             _.forEach(@models, (model) ->
-                new BFMDirectoryView({'model': model.attributes}).render()
+                new DirectoryView({'model': model.attributes}).render()
                 )
 
-    BFMFileTableView = Backbone.View.extend
+    FileTableView = Backbone.View.extend
         el: $ '#result_list'
         current_row: 1
         ord: ['date', true]
@@ -146,13 +146,13 @@ $ ->
             return "row#{@current_row+1}"
 
 
-    BFMDirectoriesView = Backbone.View.extend
+    DirectoriesView = Backbone.View.extend
         el: $ '.directory-list'
         append: (elm) ->
             @el.append(elm)
 
 
-    BFMDirectoryView = Backbone.View.extend
+    DirectoryView = Backbone.View.extend
         tagName: 'li'
         events:
             "click .directory": "load_directory"
@@ -168,14 +168,14 @@ $ ->
         srender: () ->
             @el.html "<a class='directory#{if Route.path == @model.rel_dir then " selected" else ""}'>#{@model.name}</a>"
             if @model.childs?
-                child = new BFMChildDirectoriesView({'childs': @model.childs, 'parent': @})
+                child = new ChildDirectoriesView({'childs': @model.childs, 'parent': @})
                 child.render()
             @el
         append: (element) ->
             @el.append element
 
 
-    BFMChildDirectoriesView = Backbone.View.extend
+    ChildDirectoriesView = Backbone.View.extend
         tagName: 'ul'
         initialize: (attrs) ->
             @el = $ @el
@@ -183,12 +183,12 @@ $ ->
             @parent = attrs.parent
         render: () ->
             callback = (child) ->
-                directory = new BFMDirectoryView({'model': child})
+                directory = new DirectoryView({'model': child})
                 @parent.append(@el.append(directory.srender()))
             _.forEach(@childs, callback, @)
 
 
-    BFMDialog = Backbone.View.extend
+    Dialog = Backbone.View.extend
         tagName: 'form'
         className: 'dialog'
         events:
@@ -214,7 +214,7 @@ $ ->
             $('body').append(element.fadeIn(200))
             $('.block').css('display', 'block')
 
-    BFMFileView = Backbone.View.extend
+    FileView = Backbone.View.extend
         tagName: 'tr'
         events:
             "click .delete": 'delete'
@@ -240,7 +240,7 @@ $ ->
             @table.append elm
 
 
-    BFMFileUploadView = Backbone.View.extend
+    FileUploadView = Backbone.View.extend
         initialize: (file, parent) ->
             @file = file
             @parent = parent
@@ -295,7 +295,7 @@ $ ->
             @el.find('.stop').remove()
 
 
-    BFMUploaderView = Backbone.View.extend
+    UploaderView = Backbone.View.extend
         initialize: () ->
             @uploadlist = []
             @errors = false
@@ -313,7 +313,7 @@ $ ->
             @el.removeClass('minimized')
             $(e.currentTarget).removeClass('maximize').addClass('minimize')
         karakiri: (e) ->
-            Uploader = new BFMUploaderView()
+            Uploader = new UploaderView()
             Uploader.render(@el)
         render: (elm) ->
             @el.html $('#startUploadTemplate').tmpl()
@@ -327,7 +327,7 @@ $ ->
             table = tmpl.find('table')
             selected_files = e.currentTarget.files
             for file in selected_files
-                @uploadlist.push(new BFMFileUploadView file, @)
+                @uploadlist.push(new FileUploadView file, @)
             for uploadable in @uploadlist
                 table.append uploadable.renders()
             @uploadlist.reverse()
@@ -345,7 +345,7 @@ $ ->
         report_errors: () ->
             @errors = true
 
-    BFMUrls = Backbone.Router.extend
+    Urls = Backbone.Router.extend
         routes:
             '*path': 'do_browse'
         do_browse: (path) ->
@@ -357,12 +357,12 @@ $ ->
         goto: (path) ->
             @navigate "#{path}", true
 
-    Table = new BFMFileTableView()
-    Dirs = new BFMDirectoriesView()
-    Uploader = new BFMUploaderView()
-    Files = new BFMFiles()
-    D = new BFMDirectories
-    Route = new BFMUrls()
+    Table = new FileTableView()
+    Dirs = new DirectoriesView()
+    Uploader = new UploaderView()
+    Files = new Files()
+    D = new Directories
+    Route = new Urls()
     D.fetch()
     Uploader.render()
     Backbone.history.start()
