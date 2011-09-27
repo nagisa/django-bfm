@@ -1,6 +1,4 @@
 #TODO: Pagination
-#TODO: Uploading
-#TODO: File Actions (Delete, Touch, Rename)
 #TODO: Admin Applet
 $ ->
     readable_size = (size) ->
@@ -235,8 +233,9 @@ $ ->
             @model = attrs.model
         render: () ->
             elm = $(@el).html($('#fileBrowseTemplate').tmpl(@attrs))
-            if @attrs.mimetype.substring(0, 5) == "image"
-                elm.find('.icons .resize').css('display', 'block')
+            #For future - image resizing.
+            #if @attrs.mimetype.substring(0, 5) == "image"
+            #    elm.find('.icons .resize').css('display', 'inline-block')
             @table.append elm
 
 
@@ -248,17 +247,10 @@ $ ->
         events:
             'click a': 'abort'
         renders: () ->
-            @el = $('#UploadableTemplate').tmpl({'filename': @file.fileName})
+            filename = if @file.name? then @file.name else @file.fileName
+            @el = $('#UploadableTemplate').tmpl({'filename': filename})
             @delegateEvents @events
             @el
-        abort: () ->
-            @xhr.abort()
-            @el.find('.progress').css('background', '#FF6600')
-            @upload_complete()
-        fail: () ->
-            @el.find('.progress').css('background', '#CC0000')
-            @parent.report_errors()
-            @upload_complete()
         do_upload: () ->
             @xhr = xhr = new XMLHttpRequest()
             form = new FormData()
@@ -266,34 +258,51 @@ $ ->
             form.append "file", @file;
             xhr.upload.addEventListener "progress", ((e) => @report_progress(e)), false
             xhr.addEventListener "load", ((e) => @upload_complete(e)), false
-            xhr.addEventListener "error", (() => @fail()), false
+            xhr.addEventListener "error", ((e) => @upload_error(e)), false
+            xhr.addEventListener "abort", ((e) => @upload_abort(e)), false
             @stats =
                 start: new Date()
                 last_report: new Date()
+                last_call: new Date() - 50
                 last_loaded: 0
             xhr.open "POST", "upfile/?directory="+@directory
             xhr.setRequestHeader "X-CSRFToken", csrf_token
             xhr.send(form)
+        abort: (e) ->
+            @xhr.abort()
         report_progress: (e) ->
-            last_report = @stats.last_report
-            last_loaded = @stats.last_loaded
-            time_difference = new Date() - last_report
-            size_difference = e.loaded - last_loaded
-            percentage = (e.loaded*100/@file.size).toFixed(1)
+            #Report upload speed
+            time_difference = new Date() - @stats.last_report
+            size_difference = e.loaded - @stats.last_loaded
             speed = ~~((size_difference*1000/time_difference)+0.5)
             @parent.report_speed(speed)
+            #Report file status
+            percentage = (e.loaded*100/@file.size).toFixed(1)
             if percentage > 100
                 percentage = 100
             @el.find('.progress').stop(true).animate({
                 width: "#{percentage}%"
-                }, Math.min(1000/(speed/1048576), 1000))
+                }, new Date()-@stats.last_call)
+            #Set new stats
             if time_difference > 3000
                 @stats.last_report = new Date()
                 @stats.last_loaded = e.loaded
+            @stats.last_call = new Date() - 50
+        upload_error: (e) ->
+            @el.find('.progress').css('background', '#CC0000')
+            @parent.report_errors()
+            @upload_next()
+        upload_abort: (e) ->
+            @el.find('.progress').css('background', '#FF6600')
+            @upload_next()
         upload_complete: (e) ->
+            @el.find('.progress').stop(true).animate({
+                width: "100%"
+                }, 300)
+            @upload_next()
+        upload_next: () ->
             @parent.upload_next()
             @el.find('.stop').remove()
-
 
     UploaderView = Backbone.View.extend
         initialize: () ->
@@ -325,7 +334,7 @@ $ ->
             @el = tmpl
             @delegateEvents @uploadingevents
             table = tmpl.find('table')
-            selected_files = e.currentTarget.files
+            window.selected_files = selected_files = e.currentTarget.files
             for file in selected_files
                 @uploadlist.push(new FileUploadView file, @)
             for uploadable in @uploadlist
@@ -336,7 +345,7 @@ $ ->
             if @uploadlist and @uploadlist.length > 0
                 @uploadlist.pop().do_upload()
             else
-                text = "Upload was completed #{if not @errors then 'successfully.' else ', but with errors.'}"
+                text = "#{if not @errors then 'Upload was completed successfully.' else 'One or more errors occured!'}"
                 @el.find('.status').text(text)
                 @el.filter('.uploadinghead').find('.icon').removeClass('minimize maximize').addClass('refresh')
                 Route.do_browse(Route.path)

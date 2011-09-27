@@ -1,7 +1,7 @@
 (function() {
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
   $(function() {
-    var BFMChildDirectoriesView, BFMDialog, BFMDirectories, BFMDirectoriesView, BFMDirectoryView, BFMFile, BFMFileTableView, BFMFileUploadView, BFMFileView, BFMFiles, BFMUploaderView, BFMUrls, D, Dirs, Files, Route, Table, Uploader, readable_size;
+    var ChildDirectoriesView, D, Dialog, Directories, DirectoriesView, DirectoryView, Dirs, File, FileTableView, FileUploadView, FileView, Files, Route, Table, Uploader, UploaderView, Urls, readable_size;
     readable_size = function(size) {
       var s, table, _i, _len;
       table = [['B', 1024, 0], ['KB', 1048576, 0], ['MB', 1073741824, 1], ['GB', 1099511627776, 2], ['TB', 1125899906842624, 3]];
@@ -12,7 +12,7 @@
         }
       }
     };
-    BFMFile = Backbone.Model.extend({
+    File = Backbone.Model.extend({
       initialize: function() {
         this.set({
           'date': new Date(this.get('date'))
@@ -34,7 +34,7 @@
       },
       rename_file: function() {
         var dialog;
-        dialog = new BFMDialog({
+        dialog = new Dialog({
           url: this.url,
           model: this,
           template: '#fileRenameTemplate',
@@ -70,7 +70,7 @@
         return readable_size(this.get('size'));
       }
     });
-    BFMFiles = Backbone.Collection.extend({
+    Files = Backbone.Collection.extend({
       url: 'list_files/',
       initialize: function(attrs) {
         this.base_url = this.url;
@@ -133,29 +133,29 @@
           }
         }
       },
-      model: BFMFile,
+      model: File,
       added: function() {
         return _.forEach(this.models, function(model) {
-          return new BFMFileView({
+          return new FileView({
             'model': model
           }).render();
         });
       }
     });
-    BFMDirectories = Backbone.Collection.extend({
+    Directories = Backbone.Collection.extend({
       url: 'list_directories/',
       initialize: function(attrs) {
         return this.bind('reset', this.added);
       },
       added: function() {
         return _.forEach(this.models, function(model) {
-          return new BFMDirectoryView({
+          return new DirectoryView({
             'model': model.attributes
           }).render();
         });
       }
     });
-    BFMFileTableView = Backbone.View.extend({
+    FileTableView = Backbone.View.extend({
       el: $('#result_list'),
       current_row: 1,
       ord: ['date', true],
@@ -204,13 +204,13 @@
         return "row" + (this.current_row + 1);
       }
     });
-    BFMDirectoriesView = Backbone.View.extend({
+    DirectoriesView = Backbone.View.extend({
       el: $('.directory-list'),
       append: function(elm) {
         return this.el.append(elm);
       }
     });
-    BFMDirectoryView = Backbone.View.extend({
+    DirectoryView = Backbone.View.extend({
       tagName: 'li',
       events: {
         "click .directory": "load_directory"
@@ -231,7 +231,7 @@
         var child;
         this.el.html("<a class='directory" + (Route.path === this.model.rel_dir ? " selected" : "") + "'>" + this.model.name + "</a>");
         if (this.model.childs != null) {
-          child = new BFMChildDirectoriesView({
+          child = new ChildDirectoriesView({
             'childs': this.model.childs,
             'parent': this
           });
@@ -243,7 +243,7 @@
         return this.el.append(element);
       }
     });
-    BFMChildDirectoriesView = Backbone.View.extend({
+    ChildDirectoriesView = Backbone.View.extend({
       tagName: 'ul',
       initialize: function(attrs) {
         this.el = $(this.el);
@@ -254,7 +254,7 @@
         var callback;
         callback = function(child) {
           var directory;
-          directory = new BFMDirectoryView({
+          directory = new DirectoryView({
             'model': child
           });
           return this.parent.append(this.el.append(directory.srender()));
@@ -262,7 +262,7 @@
         return _.forEach(this.childs, callback, this);
       }
     });
-    BFMDialog = Backbone.View.extend({
+    Dialog = Backbone.View.extend({
       tagName: 'form',
       className: 'dialog',
       events: {
@@ -297,7 +297,7 @@
         return $('.block').css('display', 'block');
       }
     });
-    BFMFileView = Backbone.View.extend({
+    FileView = Backbone.View.extend({
       tagName: 'tr',
       events: {
         "click .delete": 'delete',
@@ -325,13 +325,10 @@
       render: function() {
         var elm;
         elm = $(this.el).html($('#fileBrowseTemplate').tmpl(this.attrs));
-        if (this.attrs.mimetype.substring(0, 5) === "image") {
-          elm.find('.icons .resize').css('display', 'block');
-        }
         return this.table.append(elm);
       }
     });
-    BFMFileUploadView = Backbone.View.extend({
+    FileUploadView = Backbone.View.extend({
       initialize: function(file, parent) {
         this.file = file;
         this.parent = parent;
@@ -341,21 +338,13 @@
         'click a': 'abort'
       },
       renders: function() {
+        var filename;
+        filename = this.file.name != null ? this.file.name : this.file.fileName;
         this.el = $('#UploadableTemplate').tmpl({
-          'filename': this.file.fileName
+          'filename': filename
         });
         this.delegateEvents(this.events);
         return this.el;
-      },
-      abort: function() {
-        this.xhr.abort();
-        this.el.find('.progress').css('background', '#FF6600');
-        return this.upload_complete();
-      },
-      fail: function() {
-        this.el.find('.progress').css('background', '#CC0000');
-        this.parent.report_errors();
-        return this.upload_complete();
       },
       do_upload: function() {
         var csrf_token, form, xhr;
@@ -369,44 +358,65 @@
         xhr.addEventListener("load", (__bind(function(e) {
           return this.upload_complete(e);
         }, this)), false);
-        xhr.addEventListener("error", (__bind(function() {
-          return this.fail();
+        xhr.addEventListener("error", (__bind(function(e) {
+          return this.upload_error(e);
+        }, this)), false);
+        xhr.addEventListener("abort", (__bind(function(e) {
+          return this.upload_abort(e);
         }, this)), false);
         this.stats = {
           start: new Date(),
           last_report: new Date(),
+          last_call: new Date() - 50,
           last_loaded: 0
         };
         xhr.open("POST", "upfile/?directory=" + this.directory);
         xhr.setRequestHeader("X-CSRFToken", csrf_token);
         return xhr.send(form);
       },
+      abort: function(e) {
+        return this.xhr.abort();
+      },
       report_progress: function(e) {
-        var last_loaded, last_report, percentage, size_difference, speed, time_difference;
-        last_report = this.stats.last_report;
-        last_loaded = this.stats.last_loaded;
-        time_difference = new Date() - last_report;
-        size_difference = e.loaded - last_loaded;
-        percentage = (e.loaded * 100 / this.file.size).toFixed(1);
+        var percentage, size_difference, speed, time_difference;
+        time_difference = new Date() - this.stats.last_report;
+        size_difference = e.loaded - this.stats.last_loaded;
         speed = ~~((size_difference * 1000 / time_difference) + 0.5);
         this.parent.report_speed(speed);
+        percentage = (e.loaded * 100 / this.file.size).toFixed(1);
         if (percentage > 100) {
           percentage = 100;
         }
         this.el.find('.progress').stop(true).animate({
           width: "" + percentage + "%"
-        }, Math.min(1000 / (speed / 1048576), 1000));
+        }, new Date() - this.stats.last_call);
         if (time_difference > 3000) {
           this.stats.last_report = new Date();
-          return this.stats.last_loaded = e.loaded;
+          this.stats.last_loaded = e.loaded;
         }
+        return this.stats.last_call = new Date() - 50;
+      },
+      upload_error: function(e) {
+        this.el.find('.progress').css('background', '#CC0000');
+        this.parent.report_errors();
+        return this.upload_next();
+      },
+      upload_abort: function(e) {
+        this.el.find('.progress').css('background', '#FF6600');
+        return this.upload_next();
       },
       upload_complete: function(e) {
+        this.el.find('.progress').stop(true).animate({
+          width: "100%"
+        }, 300);
+        return this.upload_next();
+      },
+      upload_next: function() {
         this.parent.upload_next();
         return this.el.find('.stop').remove();
       }
     });
-    BFMUploaderView = Backbone.View.extend({
+    UploaderView = Backbone.View.extend({
       initialize: function() {
         this.uploadlist = [];
         return this.errors = false;
@@ -430,7 +440,7 @@
       },
       karakiri: function(e) {
         var Uploader;
-        Uploader = new BFMUploaderView();
+        Uploader = new UploaderView();
         return Uploader.render(this.el);
       },
       render: function(elm) {
@@ -446,10 +456,10 @@
         this.el = tmpl;
         this.delegateEvents(this.uploadingevents);
         table = tmpl.find('table');
-        selected_files = e.currentTarget.files;
+        window.selected_files = selected_files = e.currentTarget.files;
         for (_i = 0, _len = selected_files.length; _i < _len; _i++) {
           file = selected_files[_i];
-          this.uploadlist.push(new BFMFileUploadView(file, this));
+          this.uploadlist.push(new FileUploadView(file, this));
         }
         _ref = this.uploadlist;
         for (_j = 0, _len2 = _ref.length; _j < _len2; _j++) {
@@ -464,7 +474,7 @@
         if (this.uploadlist && this.uploadlist.length > 0) {
           return this.uploadlist.pop().do_upload();
         } else {
-          text = "Upload was completed " + (!this.errors ? 'successfully.' : ', but with errors.');
+          text = "" + (!this.errors ? 'Upload was completed successfully.' : 'One or more errors occured!');
           this.el.find('.status').text(text);
           this.el.filter('.uploadinghead').find('.icon').removeClass('minimize maximize').addClass('refresh');
           return Route.do_browse(Route.path);
@@ -477,7 +487,7 @@
         return this.errors = true;
       }
     });
-    BFMUrls = Backbone.Router.extend({
+    Urls = Backbone.Router.extend({
       routes: {
         '*path': 'do_browse'
       },
@@ -492,12 +502,12 @@
         return this.navigate("" + path, true);
       }
     });
-    Table = new BFMFileTableView();
-    Dirs = new BFMDirectoriesView();
-    Uploader = new BFMUploaderView();
-    Files = new BFMFiles();
-    D = new BFMDirectories;
-    Route = new BFMUrls();
+    Table = new FileTableView();
+    Dirs = new DirectoriesView();
+    Uploader = new UploaderView();
+    Files = new Files();
+    D = new Directories;
+    Route = new Urls();
     D.fetch();
     Uploader.render();
     return Backbone.history.start();
