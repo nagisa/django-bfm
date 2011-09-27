@@ -1,7 +1,7 @@
 (function() {
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
   $(function() {
-    var ChildDirectoriesView, D, Dialog, Directories, DirectoriesView, DirectoryView, Dirs, File, FileTableView, FileUploadView, FileView, Files, Route, Table, Uploader, UploaderView, Urls, readable_size;
+    var ChildDirectoriesView, D, Dialog, Directories, DirectoriesView, DirectoryView, Dirs, File, FileTableView, FileUploadView, FileView, Files, Paginator, PaginatorView, Route, Table, Uploader, UploaderView, Urls, readable_size;
     readable_size = function(size) {
       var s, table, _i, _len;
       table = [['B', 1024, 0], ['KB', 1048576, 0], ['MB', 1073741824, 1], ['GB', 1099511627776, 2], ['TB', 1125899906842624, 3]];
@@ -80,7 +80,7 @@
         }
       },
       set_directory: function(directory) {
-        return this.url = this.base_url + '?directory=' + directory;
+        return this.url = "" + this.base_url + "?directory=" + directory;
       },
       comparator: function(model) {
         var date, dh, dt;
@@ -134,12 +134,26 @@
         }
       },
       model: File,
+      models_in_page: 20,
+      get_page: function(page) {
+        var end, start;
+        page -= 1;
+        start = this.models_in_page * page;
+        end = start + this.models_in_page;
+        return this.models.slice(start, (end + 1) || 9e9);
+      },
+      page_count: function() {
+        return ~~(this.length / this.models_in_page + 1);
+      },
       added: function() {
-        return _.forEach(this.models, function(model) {
+        var page;
+        page = Route.page;
+        _.forEach(this.get_page(page), function(model) {
           return new FileView({
             'model': model
           }).render();
         });
+        return Paginator.render();
       }
     });
     Directories = Backbone.Collection.extend({
@@ -456,7 +470,7 @@
         this.el = tmpl;
         this.delegateEvents(this.uploadingevents);
         table = tmpl.find('table');
-        window.selected_files = selected_files = e.currentTarget.files;
+        selected_files = e.currentTarget.files;
         for (_i = 0, _len = selected_files.length; _i < _len; _i++) {
           file = selected_files[_i];
           this.uploadlist.push(new FileUploadView(file, this));
@@ -477,7 +491,7 @@
           text = "" + (!this.errors ? 'Upload was completed successfully.' : 'One or more errors occured!');
           this.el.find('.status').text(text);
           this.el.filter('.uploadinghead').find('.icon').removeClass('minimize maximize').addClass('refresh');
-          return Route.do_browse(Route.path);
+          return Route.reload();
         }
       },
       report_speed: function(speed) {
@@ -487,24 +501,71 @@
         return this.errors = true;
       }
     });
+    PaginatorView = Backbone.View.extend({
+      el: $('p.paginator'),
+      events: {
+        'click a': 'page_click'
+      },
+      render: function() {
+        var page, pages, rn, _ref, _results;
+        this.el.empty();
+        pages = [];
+        _results = [];
+        for (page = 1, _ref = Files.page_count(); 1 <= _ref ? page <= _ref : page >= _ref; 1 <= _ref ? page++ : page--) {
+          if (parseInt(page) === parseInt(Route.page)) {
+            rn = $('#PaginatorCurrentPageTemplate').tmpl({
+              page: page
+            });
+          } else {
+            rn = $('#PaginatorPageTemplate').tmpl({
+              page: page
+            });
+          }
+          _results.push(this.el.append(rn));
+        }
+        return _results;
+      },
+      page_click: function(e) {
+        Route.goto(void 0, $(e.currentTarget).text());
+        return e.preventDefault();
+      }
+    });
     Urls = Backbone.Router.extend({
+      initialize: function() {
+        return this.do_reload = false;
+      },
       routes: {
+        '*path/page-:page': 'do_browse',
         '*path': 'do_browse'
       },
-      do_browse: function(path) {
-        this.path = path;
-        Dirs.el.find('.selected').removeClass('selected');
-        Table.clear();
-        Files.set_directory(path);
-        return Files.fetch();
+      do_browse: function(path, page) {
+        this.page = page != null ? page : 1;
+        if (this.do_reload || path !== this.path) {
+          this.path = path;
+          Dirs.el.find('.selected').removeClass('selected');
+          Table.clear();
+          Files.set_directory(path);
+          Files.fetch();
+        } else {
+          Table.clear();
+          Files.added();
+        }
+        return this.do_reload = false;
       },
-      goto: function(path) {
-        return this.navigate("" + path, true);
+      goto: function(path, page) {
+        page = page != null ? page : 1;
+        path = path != null ? path : this.path;
+        return this.navigate("" + path + "/page-" + page, true);
+      },
+      reload: function() {
+        this.do_reload = true;
+        return this.do_browse(this.path, this.page);
       }
     });
     Table = new FileTableView();
     Dirs = new DirectoriesView();
     Uploader = new UploaderView();
+    Paginator = new PaginatorView();
     Files = new Files();
     D = new Directories;
     Route = new Urls();

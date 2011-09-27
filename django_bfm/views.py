@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.utils import simplejson
 from django.http import HttpResponse
+from django.core.paginator import Paginator
 
 import utils
 import os
@@ -21,8 +22,8 @@ def base(request):
 def list_files(request):
     directory = request.GET.get('directory', '')
     storage = utils.Directory(directory)
-    d = storage.collect_files()
-    return HttpResponse(simplejson.dumps(d))
+    files = storage.collect_files()
+    return HttpResponse(simplejson.dumps(files))
 
 @login_required
 @staff_member_required

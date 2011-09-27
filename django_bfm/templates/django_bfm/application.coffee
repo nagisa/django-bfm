@@ -58,7 +58,7 @@ $ ->
             if attrs? and attrs.directory?
                 @url = @url+'?directory='+attrs.directory
         set_directory: (directory) ->
-            @url = @base_url+'?directory='+directory
+            @url = "#{@base_url}?directory=#{directory}"
         comparator: (model) ->
             date = model.get('date')
             dt = date.getFullYear()*10000+date.getMonth()*100+date.getDate()
@@ -91,11 +91,20 @@ $ ->
                         return String.fromCharCode(-(letter.charCodeAt(0)));
                 asc: (model) ->
                     model.get('mimetype')
-
         model: File
+        models_in_page: 20
+        get_page: (page)->
+            page -= 1
+            start = @models_in_page * page
+            end = start + @models_in_page
+            @models[start..end]
+        page_count: ->
+            ~~(@length/@models_in_page+1)
         added: () ->
-            _.forEach(@models, (model) ->
+            page = Route.page
+            _.forEach(@get_page(page), (model) ->
                 new FileView('model': model).render())
+            Paginator.render()
 
 
     Directories = Backbone.Collection.extend
@@ -334,7 +343,7 @@ $ ->
             @el = tmpl
             @delegateEvents @uploadingevents
             table = tmpl.find('table')
-            window.selected_files = selected_files = e.currentTarget.files
+            selected_files = e.currentTarget.files
             for file in selected_files
                 @uploadlist.push(new FileUploadView file, @)
             for uploadable in @uploadlist
@@ -348,27 +357,61 @@ $ ->
                 text = "#{if not @errors then 'Upload was completed successfully.' else 'One or more errors occured!'}"
                 @el.find('.status').text(text)
                 @el.filter('.uploadinghead').find('.icon').removeClass('minimize maximize').addClass('refresh')
-                Route.do_browse(Route.path)
+                Route.reload()
         report_speed: (speed) ->
             @el.find('.status .speed').text("#{readable_size(speed)}/s")
         report_errors: () ->
             @errors = true
 
+
+    PaginatorView = Backbone.View.extend
+        el: $ 'p.paginator'
+        events: {'click a': 'page_click'}
+        render: () ->
+            @el.empty()
+            pages = []
+            for page in [1..Files.page_count()]
+                if parseInt(page) == parseInt(Route.page)
+                    rn = $('#PaginatorCurrentPageTemplate').tmpl({page: page})
+                else
+                    rn = $('#PaginatorPageTemplate').tmpl({page: page})
+                @el.append rn
+        page_click: (e) ->
+            Route.goto undefined, $(e.currentTarget).text()
+            e.preventDefault()
+
+
     Urls = Backbone.Router.extend
+        initialize: ->
+            @do_reload = false
         routes:
+            '*path/page-:page': 'do_browse'
             '*path': 'do_browse'
-        do_browse: (path) ->
-            @path = path
-            Dirs.el.find('.selected').removeClass('selected')
-            Table.clear()
-            Files.set_directory(path)
-            Files.fetch()
-        goto: (path) ->
-            @navigate "#{path}", true
+        do_browse: (path, page) ->
+            @page = if page? then page else 1
+            if @do_reload or path isnt @path
+                @path = path
+                Dirs.el.find('.selected').removeClass('selected')
+                Table.clear()
+                Files.set_directory(path)
+                Files.fetch()
+            else
+                #only page number has changed...
+                Table.clear()
+                Files.added()
+            @do_reload = false
+        goto: (path, page) ->
+            page = if page? then page else 1
+            path = if path? then path else @path
+            @navigate "#{path}/page-#{page}", true
+        reload: () ->
+            @do_reload = true
+            @do_browse(@path, @page)
 
     Table = new FileTableView()
     Dirs = new DirectoriesView()
     Uploader = new UploaderView()
+    Paginator = new PaginatorView()
     Files = new Files()
     D = new Directories
     Route = new Urls()

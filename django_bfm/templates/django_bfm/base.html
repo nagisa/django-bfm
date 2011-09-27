@@ -68,6 +68,12 @@
         </tr>
         <tr class="uploadstatus"><td colspan="2"><span class="progress"></span></td></tr>
     </script>
+    <script id="PaginatorCurrentPageTemplate" type="text/x-jquery-tmpl">
+        <span class="this-page">${page}</span>&nbsp;
+    </script>
+    <script id="PaginatorPageTemplate" type="text/x-jquery-tmpl">
+        <a href="#">${page}</a>&nbsp;
+    </script>
 {% endblock %}
 
 {% block extrastyle %}
@@ -125,6 +131,7 @@
                     <table id="result_list">
                     </table>
                 </div>
+                <p class="paginator"></p>
             </form>
         </div>
     </div>
