@@ -23,7 +23,7 @@
         });
       },
       delete_file: function() {
-        return $.ajax({
+        $.ajax({
           url: this.url,
           data: {
             action: 'delete',
@@ -31,6 +31,7 @@
             directory: this.get('rel_dir')
           }
         });
+        return Route.do_reload = true;
       },
       rename_file: function() {
         var dialog;
@@ -47,7 +48,7 @@
           url: this.url,
           data: "" + dialog_data + "&action=rename"
         });
-        return Route.do_browse(Route.path);
+        return Route.reload();
       },
       touch_file: function() {
         $.ajax({
@@ -58,7 +59,7 @@
             directory: this.get('rel_dir')
           }
         });
-        return Route.do_browse(Route.path);
+        return Route.reload();
       },
       url: 'file/',
       parseDate: function() {
@@ -484,12 +485,13 @@
         return this.uploadlist.pop().do_upload();
       },
       upload_next: function() {
-        var text;
+        var template, text;
         if (this.uploadlist && this.uploadlist.length > 0) {
           return this.uploadlist.pop().do_upload();
         } else {
-          text = "" + (!this.errors ? 'Upload was completed successfully.' : 'One or more errors occured!');
-          this.el.find('.status').text(text);
+          template = !this.errors ? '#UploadSuccessTemplate' : '#UploadFailTemplate';
+          text = $(template).tmpl();
+          this.el.find('.status').html(text);
           this.el.filter('.uploadinghead').find('.icon').removeClass('minimize maximize').addClass('refresh');
           return Route.reload();
         }
@@ -504,14 +506,24 @@
     PaginatorView = Backbone.View.extend({
       el: $('p.paginator'),
       events: {
-        'click a': 'page_click'
+        'click a': 'page_click',
+        'click .firstpage': 'first_page',
+        'click .lastpage': 'last_page'
       },
       render: function() {
-        var page, pages, rn, _ref, _results;
+        var page, page_count, pages, rn, _ref, _ref2;
         this.el.empty();
         pages = [];
-        _results = [];
-        for (page = 1, _ref = Files.page_count(); 1 <= _ref ? page <= _ref : page >= _ref; 1 <= _ref ? page++ : page--) {
+        page_count = Files.page_count();
+        if (page_count > 5) {
+          if (Route.page > 6) {
+            this.el.append($('#PaginatorFirstPageTemplate').tmpl());
+          }
+        }
+        for (page = _ref = Route.page - 5, _ref2 = Route.page + 5; _ref <= _ref2 ? page <= _ref2 : page >= _ref2; _ref <= _ref2 ? page++ : page--) {
+          if (page < 1 || page > page_count) {
+            continue;
+          }
           if (parseInt(page) === parseInt(Route.page)) {
             rn = $('#PaginatorCurrentPageTemplate').tmpl({
               page: page
@@ -521,13 +533,29 @@
               page: page
             });
           }
-          _results.push(this.el.append(rn));
+          this.el.append(rn);
         }
-        return _results;
+        if (page_count > 5) {
+          if (Route.page < page_count - 5) {
+            return this.el.append($('#PaginatorLastPageTemplate').tmpl());
+          }
+        }
       },
       page_click: function(e) {
-        Route.goto(void 0, $(e.currentTarget).text());
-        return e.preventDefault();
+        var page;
+        page = parseInt($(e.currentTarget).text());
+        if (!isNaN(page)) {
+          Route.goto(void 0, page);
+          return e.preventDefault();
+        }
+      },
+      first_page: function(e) {
+        e.preventDefault();
+        return Route.goto(void 0, 1);
+      },
+      last_page: function(e) {
+        e.preventDefault();
+        return Route.goto(void 0, Files.page_count());
       }
     });
     Urls = Backbone.Router.extend({
@@ -539,7 +567,7 @@
         '*path': 'do_browse'
       },
       do_browse: function(path, page) {
-        this.page = page != null ? page : 1;
+        this.page = page != null ? parseInt(page) : 1;
         if (this.do_reload || path !== this.path) {
           this.path = path;
           Dirs.el.find('.selected').removeClass('selected');
@@ -553,7 +581,7 @@
         return this.do_reload = false;
       },
       goto: function(path, page) {
-        page = page != null ? page : 1;
+        page = page != null ? parseInt(page) : 1;
         path = path != null ? path : this.path;
         return this.navigate("" + path + "/page-" + page, true);
       },

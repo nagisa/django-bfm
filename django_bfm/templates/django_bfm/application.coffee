@@ -1,5 +1,6 @@
-#TODO: Pagination
 #TODO: Admin Applet
+#TODO: Image Actions
+#TODO: Directory Actions
 $ ->
     readable_size = (size) ->
         table = [['B', 1024, 0],['KB', 1048576, 0],['MB', 1073741824, 1],
@@ -21,6 +22,7 @@ $ ->
                     action: 'delete'
                     file: @get('filename')
                     directory: @get('rel_dir')
+            Route.do_reload = true
         rename_file: () ->
             dialog = new Dialog
                 url: @url
@@ -32,7 +34,7 @@ $ ->
             $.ajax
                 url: @url
                 data: "#{dialog_data}&action=rename"
-            Route.do_browse(Route.path)
+            Route.reload()
         touch_file: () ->
             $.ajax
                 url: @url
@@ -40,7 +42,7 @@ $ ->
                     action: 'touch'
                     file: @get('filename')
                     directory: @get('rel_dir')
-            Route.do_browse(Route.path)
+            Route.reload()
         url: 'file/'
         parseDate: () ->
             d = @get("date")
@@ -354,8 +356,9 @@ $ ->
             if @uploadlist and @uploadlist.length > 0
                 @uploadlist.pop().do_upload()
             else
-                text = "#{if not @errors then 'Upload was completed successfully.' else 'One or more errors occured!'}"
-                @el.find('.status').text(text)
+                template = if not @errors then '#UploadSuccessTemplate' else '#UploadFailTemplate'
+                text = $(template).tmpl()
+                @el.find('.status').html(text)
                 @el.filter('.uploadinghead').find('.icon').removeClass('minimize maximize').addClass('refresh')
                 Route.reload()
         report_speed: (speed) ->

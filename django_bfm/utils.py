@@ -26,10 +26,12 @@ class Directory(object):
     def collect_files(self):
         files = self.s.listdir('')[1]
         for key, f in enumerate(files):
+            mimetype = guess_mimetype(f)[0] or "application/octet-stream"
+            ###
             files[key] = {'filename': f, 'size': self.s.size(f),
                           'rel_dir': self.rel_dir,
                           'date': self.s.created_time(f).isoformat(),
                           'extension': os.path.splitext(f)[1],
-                          'mimetype': guess_mimetype(f)[0] or "unknown",
+                          'mimetype': mimetype,
                           'url': self.s.url(f)}
         return files

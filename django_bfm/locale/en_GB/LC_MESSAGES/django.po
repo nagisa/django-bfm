@@ -1,14 +1,14 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Translation strings for Django BFM - Basic file manager.
+# Copyright (C) 2011 Simonas Kazlauskas
+# This file is distributed under the same license as the django_bfm package.
+# Simonas Kazlauskas, 2011.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: 0.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-27 14:42+0300\n"
+"POT-Creation-Date: 2011-09-29 22:09+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,147 +18,78 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: views.py:95 templates/django_bfm/browse.html:69
-msgid "Delete"
-msgstr ""
+#: templates/django_bfm/base.html:3 templates/django_bfm/base.html.py:8
+msgid "Basic file manager"
+msgstr "Basic file manager"
 
-#: views.py:97 templates/django_bfm/browse.html:70
-msgid "Touch"
-msgstr ""
+#: templates/django_bfm/base.html:23
+msgid "Actions"
+msgstr "Actions"
 
-#: templates/django_bfm/base.html:3 templates/django_bfm/base.html.py:4
-#: templates/django_bfm/browse.html:3 templates/django_bfm/upload.html:3
-msgid "Basic File Manager"
-msgstr ""
-
-#: templates/django_bfm/base.html:14 templates/django_bfm/browse.html:3
-#: templates/django_bfm/browse.html.py:4
-msgid "Browse"
-msgstr ""
-
-#: templates/django_bfm/base.html:15
-msgid "Upload files"
-msgstr ""
-
-#: templates/django_bfm/browse.html:23 templates/django_bfm/upload.html:17
+#: templates/django_bfm/base.html:24
 msgid "Filename"
-msgstr ""
+msgstr "File name"
 
-#: templates/django_bfm/browse.html:24 templates/django_bfm/upload.html:18
+#: templates/django_bfm/base.html:25
 msgid "Size"
-msgstr ""
+msgstr "Size"
 
-#: templates/django_bfm/browse.html:25
-msgid "Creation time"
-msgstr ""
+#: templates/django_bfm/base.html:26
+msgid "Date"
+msgstr "Date"
 
-#: templates/django_bfm/browse.html:26
-msgid "Extension"
-msgstr ""
+#: templates/django_bfm/base.html:27
+msgid "Type"
+msgstr "Type"
 
-#: templates/django_bfm/browse.html:45
-msgid "Directories"
-msgstr ""
+#: templates/django_bfm/base.html:31
+msgid "Delete"
+msgstr "Delete"
 
-#: templates/django_bfm/browse.html:56
-#, python-format
-msgid "%(directories)s file"
-msgid_plural "%(directories)s files"
-msgstr[0] ""
-msgstr[1] ""
+#: templates/django_bfm/base.html:32
+msgid "Touch"
+msgstr "Touch"
 
-#: templates/django_bfm/browse.html:72
-msgid "Parent directory"
-msgstr ""
+#: templates/django_bfm/base.html:33 templates/django_bfm/base.html.py:46
+msgid "Rename"
+msgstr "Rename"
 
-#: templates/django_bfm/browse.js:37 templates/django_bfm/upload.js:24
-msgid "File with name '+filename+' already exists. Rewrite?"
-msgstr ""
-
-#: templates/django_bfm/resize_dialog.html:4
-msgid "Resize image"
-msgstr ""
-
-#: templates/django_bfm/resize_dialog.html:5
-msgid "New image name:"
-msgstr ""
-
-#: templates/django_bfm/resize_dialog.html:8
-msgid "New image width"
-msgstr ""
-
-#: templates/django_bfm/resize_dialog.html:10
-msgid "New image height"
-msgstr ""
-
-#: templates/django_bfm/resize_dialog.html:12
-msgid "Lock aspect ratio"
-msgstr ""
-
-#: templates/django_bfm/resize_dialog.html:16
-msgid "Filter"
-msgstr ""
-
-#: templates/django_bfm/resize_dialog.html:18
-msgid "ANTIALIAS"
-msgstr ""
-
-#: templates/django_bfm/resize_dialog.html:19
-msgid "BICUBIC"
-msgstr ""
-
-#: templates/django_bfm/resize_dialog.html:20
-msgid "BILINEAR"
-msgstr ""
-
-#: templates/django_bfm/resize_dialog.html:21
-msgid "NEAREST"
-msgstr ""
-
-#: templates/django_bfm/resize_dialog.html:23
-msgid "Close"
-msgstr ""
-
-#: templates/django_bfm/resize_dialog.html:24
+#: templates/django_bfm/base.html:34
 msgid "Resize"
-msgstr ""
+msgstr "Resize"
 
-#: templates/django_bfm/upload.html:3 templates/django_bfm/upload.html.py:4
-msgid "Upload"
-msgstr ""
+#: templates/django_bfm/base.html:42
+msgid "Rename file"
+msgstr "Rename file"
 
-#: templates/django_bfm/upload.html:19
-msgid "Transfer Speed"
-msgstr ""
+#: templates/django_bfm/base.html:47
+msgid "Cancel"
+msgstr "Cancel"
 
-#: templates/django_bfm/upload.html:20
-msgid "Progress"
-msgstr ""
+#: templates/django_bfm/base.html:51
+msgid "Upload files"
+msgstr "Upload files"
 
-#: templates/django_bfm/upload.html:28
-msgid "Select files"
-msgstr ""
+#: templates/django_bfm/base.html:57
+msgid "Uploading"
+msgstr "Uploading"
 
-#: templates/django_bfm/upload.html:34
-msgid "Start Upload"
-msgstr ""
+#: templates/django_bfm/base.html:78
+msgid "First page"
+msgstr "First page"
 
-#: templates/django_bfm/upload.html:36
-msgid "Uploading..."
-msgstr ""
+#: templates/django_bfm/base.html:81
+msgid "Last page"
+msgstr "Last page"
 
-#: templates/django_bfm/upload.html:37
-msgid "Cancel current file"
-msgstr ""
+#: templates/django_bfm/base.html:84
+msgid "Upload was completed successfully."
+msgstr "Upload was completed successfully."
 
-#: templates/django_bfm/upload.js:96
-msgid "FAILED"
-msgstr ""
+#: templates/django_bfm/base.html:87
+msgid "One or more errors occured!"
+msgstr "One or more errors occured!"
 
-#: templates/django_bfm/upload.js:105
-msgid "CANCELED"
-msgstr ""
-
-#: templates/django_bfm/upload.js:111
-msgid "Completed"
-msgstr ""
+#: templates/django_bfm/base.html:137
+msgid "Root directory"
+msgstr "Root directory"
