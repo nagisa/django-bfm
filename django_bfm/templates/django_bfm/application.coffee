@@ -366,19 +366,42 @@ $ ->
 
     PaginatorView = Backbone.View.extend
         el: $ 'p.paginator'
-        events: {'click a': 'page_click'}
+        events:
+            'click a': 'page_click'
+            'click .firstpage': 'first_page'
+            'click .lastpage': 'last_page'
         render: () ->
             @el.empty()
             pages = []
-            for page in [1..Files.page_count()]
+            page_count = Files.page_count()
+
+            if page_count > 5
+                if Route.page > 6
+                    @el.append $('#PaginatorFirstPageTemplate').tmpl()
+
+            for page in [Route.page-5..Route.page+5]
+                if page < 1 or page > page_count
+                    continue
                 if parseInt(page) == parseInt(Route.page)
                     rn = $('#PaginatorCurrentPageTemplate').tmpl({page: page})
                 else
                     rn = $('#PaginatorPageTemplate').tmpl({page: page})
                 @el.append rn
+
+            if page_count > 5
+                if Route.page < page_count - 5
+                    @el.append $('#PaginatorLastPageTemplate').tmpl()
         page_click: (e) ->
-            Route.goto undefined, $(e.currentTarget).text()
+            page = parseInt($(e.currentTarget).text())
+            if not isNaN page
+                Route.goto undefined, page
+                e.preventDefault()
+        first_page: (e) ->
             e.preventDefault()
+            Route.goto undefined, 1
+        last_page: (e) ->
+            e.preventDefault()
+            Route.goto undefined, Files.page_count()
 
 
     Urls = Backbone.Router.extend
@@ -388,7 +411,7 @@ $ ->
             '*path/page-:page': 'do_browse'
             '*path': 'do_browse'
         do_browse: (path, page) ->
-            @page = if page? then page else 1
+            @page = if page? then parseInt(page) else 1
             if @do_reload or path isnt @path
                 @path = path
                 Dirs.el.find('.selected').removeClass('selected')
@@ -401,7 +424,7 @@ $ ->
                 Files.added()
             @do_reload = false
         goto: (path, page) ->
-            page = if page? then page else 1
+            page = if page? then parseInt(page) else 1
             path = if path? then path else @path
             @navigate "#{path}/page-#{page}", true
         reload: () ->
