@@ -1,16 +1,20 @@
 Django Basic File Manager
 =========================
 
-Features
---------
+Core Features
+-------------
 
 - Multifile Uploads (`Open File Dialog <https://github.com/simukis/django-bfm/blob/master/screenshots/Open%20Files.png>`_)
-- Live Upload Status report (`Multiple files <https://github.com/simukis/django-bfm/blob/master/screenshots/Upload2.gif>`_, `One file <https://github.com/simukis/django-bfm/blob/master/screenshots/Upload.gif>`_)
-- File browsing (`Parent directory <https://github.com/simukis/django-bfm/blob/master/screenshots/Basic%20File%20Manager%20-%20Browse.png>`_, `Child directory <https://github.com/simukis/django-bfm/blob/master/screenshots/Basic%20File%20Manager%20-%20Browse%20Directory.png>`_)
+- Live Upload Status report (`Upload applet <https://github.com/simukis/django-bfm/blob/master/screenshots/Upload.gif>`_)
+- File browsing (ScreenCast soon...)
 - Directory support
-- Image resizing/Thumbnailing (Uses PIL)
 - Core features has no dependencies (except for Django), lightweight
 - Looks like django admin (extends admin template)
+
+Additional Features (uses dependencies and are optional)
+--------------------------------------------------------
+
+- Image resizing (PIL)
 
 Requirements
 ------------
@@ -54,7 +58,12 @@ Things to note
 Tested Browsers
 ---------------
 
-- Chromium 15
+- Chromium 15, 16
 - Midori 0.4.0
 - Chrome 13
-- Firefox 6
+- Firefox 6, 7, 10
+
+Tested and does not work with
+-----------------------------
+
+- Opera 11.51 (Doesn't support new XHR specification, so uploads doesn't work.)

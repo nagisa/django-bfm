@@ -10,6 +10,12 @@ import utils
 import os
 from forms import UploadFileForm
 
+#Optional dependecy for image_actions
+try:
+    from PIL import Image
+except:
+    pass
+
 @login_required
 @staff_member_required
 def base(request):
@@ -67,3 +73,26 @@ def file_upload(request):
             f = storage.s.save(request.FILES['file'].name,request.FILES['file'])
             return HttpResponse(simplejson.dumps(f))
         return HttpResponse(simplejson.dumps(False))
+
+@login_required
+@staff_member_required
+def image_actions(request):
+    if not 'Image' in globals():
+        return HttpResponse(simplejson.dumps('Please install PIL!'))
+    directory = request.GET.get('directory', False)
+    f = request.GET.get('file', False)
+    if directory == False or f == False:
+        return HttpResponse(simplejson.dumps(False))
+    storage = utils.Directory(directory)
+    fpath = storage.s.path(f)
+    if request.GET.get('action', False) == 'info':
+        image = Image.open(fpath)
+        s = image.size
+        return HttpResponse(simplejson.dumps({'height': s[1], 'width': s[0]}))
+    if request.GET.get('action', False) == 'resize':
+        image = Image.open(fpath)
+        filtr = getattr(Image, request.GET['filter'])
+        size = (int(request.GET['new_w']), int(request.GET['new_h']))
+        image = image.resize(size, filtr)
+        image.save(storage.s.path(storage.s.get_available_name(f)))
+    return HttpResponse(simplejson.dumps(True))

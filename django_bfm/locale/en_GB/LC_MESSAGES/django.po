@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-09-29 22:09+0300\n"
+"POT-Creation-Date: 2011-09-30 21:59+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,7 +54,7 @@ msgstr "Touch"
 msgid "Rename"
 msgstr "Rename"
 
-#: templates/django_bfm/base.html:34
+#: templates/django_bfm/base.html:34 templates/django_bfm/base.html.py:70
 msgid "Resize"
 msgstr "Resize"
 
@@ -62,34 +62,72 @@ msgstr "Resize"
 msgid "Rename file"
 msgstr "Rename file"
 
-#: templates/django_bfm/base.html:47
+#: templates/django_bfm/base.html:47 templates/django_bfm/base.html.py:71
 msgid "Cancel"
 msgstr "Cancel"
 
-#: templates/django_bfm/base.html:51
+#: templates/django_bfm/base.html:50
+#, fuzzy
+msgid "Resize image"
+msgstr "Resize"
+
+#: templates/django_bfm/base.html:53
+msgid "New width"
+msgstr ""
+
+#: templates/django_bfm/base.html:56
+msgid "New height"
+msgstr ""
+
+#: templates/django_bfm/base.html:59
+msgid "Keep ratio"
+msgstr ""
+
+#: templates/django_bfm/base.html:62
+#, fuzzy
+msgid "Resize filter"
+msgstr "Rename file"
+
+#: templates/django_bfm/base.html:64
+msgid "Antialiasing"
+msgstr ""
+
+#: templates/django_bfm/base.html:65
+msgid "Bicubic"
+msgstr ""
+
+#: templates/django_bfm/base.html:66
+msgid "Bilinear"
+msgstr ""
+
+#: templates/django_bfm/base.html:67
+msgid "Nearest"
+msgstr ""
+
+#: templates/django_bfm/base.html:75
 msgid "Upload files"
 msgstr "Upload files"
 
-#: templates/django_bfm/base.html:57
+#: templates/django_bfm/base.html:81
 msgid "Uploading"
 msgstr "Uploading"
 
-#: templates/django_bfm/base.html:78
+#: templates/django_bfm/base.html:102
 msgid "First page"
 msgstr "First page"
 
-#: templates/django_bfm/base.html:81
+#: templates/django_bfm/base.html:105
 msgid "Last page"
 msgstr "Last page"
 
-#: templates/django_bfm/base.html:84
+#: templates/django_bfm/base.html:108
 msgid "Upload was completed successfully."
 msgstr "Upload was completed successfully."
 
-#: templates/django_bfm/base.html:87
+#: templates/django_bfm/base.html:111
 msgid "One or more errors occured!"
 msgstr "One or more errors occured!"
 
-#: templates/django_bfm/base.html:137
+#: templates/django_bfm/base.html:161
 msgid "Root directory"
 msgstr "Root directory"

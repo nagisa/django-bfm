@@ -6,4 +6,5 @@ urlpatterns = patterns('',
     url(r'^list_directories/$', 'django_bfm.views.list_directories'),
     url(r'^file/$', 'django_bfm.views.file_actions'),
     url(r'^upfile/$', 'django_bfm.views.file_upload'),
+    url(r'^image/$', 'django_bfm.views.image_actions'),
 )

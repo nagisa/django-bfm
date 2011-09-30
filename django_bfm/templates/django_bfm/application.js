@@ -1,5 +1,10 @@
 (function() {
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __indexOf = Array.prototype.indexOf || function(item) {
+    for (var i = 0, l = this.length; i < l; i++) {
+      if (this[i] === item) return i;
+    }
+    return -1;
+  };
   $(function() {
     var ChildDirectoriesView, D, Dialog, Directories, DirectoriesView, DirectoryView, Dirs, File, FileTableView, FileUploadView, FileView, Files, Paginator, PaginatorView, Route, Table, Uploader, UploaderView, Urls, readable_size;
     readable_size = function(size) {
@@ -51,17 +56,67 @@
         return Route.reload();
       },
       touch_file: function() {
-        $.ajax({
+        return $.ajax({
           url: this.url,
           data: {
             action: 'touch',
             file: this.get('filename'),
             directory: this.get('rel_dir')
+          },
+          success: function() {
+            return Route.reload();
           }
         });
-        return Route.reload();
       },
       url: 'file/',
+      resize_image: function() {
+        var dialog;
+        dialog = new Dialog({
+          url: 'image/',
+          model: this,
+          template: '#imageResizeTemplate',
+          callback: function(dialog_data) {
+            $.ajax({
+              url: 'image/',
+              data: "" + dialog_data + "&action=resize"
+            });
+            return Route.reload();
+          },
+          hook: function(dialog) {
+            $.ajax({
+              url: 'image/',
+              dataType: 'json',
+              data: {
+                action: 'info',
+                file: dialog.model.get('filename'),
+                directory: dialog.model.get('rel_dir')
+              },
+              success: function(data) {
+                $(dialog.el).find('input[name="new_h"]').val(data.height);
+                $(dialog.el).find('input[name="new_w"]').val(data.width);
+                return $(dialog.el).data('ratio', data.height / data.width);
+              }
+            });
+            $(dialog.el).find('input[name="new_h"]').keyup(function() {
+              var h, ratio;
+              if ($(dialog.el).find('input[name="keepratio"]').is(':checked')) {
+                ratio = $(dialog.el).data('ratio');
+                h = $(dialog.el).find('input[name="new_h"]').val();
+                return $(dialog.el).find('input[name="new_w"]').val(~~(h / ratio + 0.5));
+              }
+            });
+            return $(dialog.el).find('input[name="new_w"]').keyup(function() {
+              var ratio, w;
+              if ($(dialog.el).find('input[name="keepratio"]').is(':checked')) {
+                ratio = $(dialog.el).data('ratio');
+                w = $(dialog.el).find('input[name="new_w"]').val();
+                return $(dialog.el).find('input[name="new_h"]').val(~~(w * ratio + 0.5));
+              }
+            });
+          }
+        });
+        return dialog.render();
+      },
       parseDate: function() {
         var d;
         d = this.get("date");
@@ -303,13 +358,17 @@
         this.url = attrs.url;
         this.model = attrs.model;
         this.template = attrs.template;
-        return this.callback = attrs.callback;
+        this.callback = attrs.callback;
+        return this.hook = attrs.hook;
       },
       render: function() {
         var element;
         element = $(this.el).html($(this.template).tmpl(this.model.attributes));
         $('body').append(element.fadeIn(200));
-        return $('.block').css('display', 'block');
+        $('.block').css('display', 'block');
+        if (this.hook != null) {
+          return this.hook(this);
+        }
       }
     });
     FileView = Backbone.View.extend({
@@ -317,7 +376,8 @@
       events: {
         "click .delete": 'delete',
         "click .touch": 'touch',
-        "click .rename": 'rename'
+        "click .rename": 'rename',
+        "click .resize": 'resize'
       },
       "delete": function(e) {
         this.model.delete_file();
@@ -329,6 +389,9 @@
       rename: function(e) {
         return this.model.rename_file();
       },
+      resize: function(e) {
+        return this.model.resize_image();
+      },
       className: function() {
         return Table.get_row_class();
       },
@@ -338,8 +401,12 @@
         return this.model = attrs.model;
       },
       render: function() {
-        var elm;
+        var elm, resizable_mimetypes, _ref;
         elm = $(this.el).html($('#fileBrowseTemplate').tmpl(this.attrs));
+        resizable_mimetypes = ['image/png', 'image/jpeg', 'image/bmp', 'image/gif'];
+        if (_ref = this.attrs.mimetype, __indexOf.call(resizable_mimetypes, _ref) >= 0) {
+          elm.find('.icons .resize').css('display', 'inline-block');
+        }
         return this.table.append(elm);
       }
     });

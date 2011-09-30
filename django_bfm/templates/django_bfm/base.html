@@ -5,7 +5,7 @@
 {# No idea what to do with this one #}
 {% block breadcrumbs %}
     <div class="breadcrumbs">
-        <a href="..">{% trans "Basic file manager" %}</a>
+        <a href="#">{% trans "Basic file manager" %}</a>
         {% block crumbs %}{% endblock %}
     </div>
 {% endblock %}
@@ -44,6 +44,30 @@
         <input type="hidden" name="file" value="${filename}">
         <input type="hidden" name="directory" value="${rel_dir}">
         <input type="submit" class="submit" value="{% trans "Rename" %}">
+        <input type="submit" class="cancel" value="{% trans "Cancel" %}">
+    </script>
+    <script id="imageResizeTemplate" type="text/x-jquery-tmpl">
+        <h2>{% trans "Resize image" %}</h2>
+        <input type="hidden" name="file" value="${filename}">
+        <input type="hidden" name="directory" value="${rel_dir}">
+        {% trans "New width" %}
+        <input type="text" style="width:50px" name="new_w" value="">
+        <br />
+        {% trans "New height" %}
+        <input type="text" style="width:50px" name="new_h" value="">
+        <br />
+        {% trans "Keep ratio" %}
+        <input type="checkbox" name="keepratio" value="yes" checked>
+        <br />
+        {% trans "Resize filter" %}
+        <select name="filter">
+            <option value="ANTIALIAS">{% trans "Antialiasing" %}</option>
+            <option value="BICUBIC">{% trans "Bicubic" %}</option>
+            <option value="BILINEAR">{% trans "Bilinear" %}</option>
+            <option value="NEAREST">{% trans "Nearest" %}</option>
+        </select>
+        <br />
+        <input type="submit" class="submit" value="{% trans "Resize" %}">
         <input type="submit" class="cancel" value="{% trans "Cancel" %}">
     </script>
     <script id="startUploadTemplate" type="text/x-jquery-tmpl">

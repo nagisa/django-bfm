@@ -1,5 +1,4 @@
 #TODO: Admin Applet
-#TODO: Image Actions
 #TODO: Directory Actions
 $ ->
     readable_size = (size) ->
@@ -42,8 +41,42 @@ $ ->
                     action: 'touch'
                     file: @get('filename')
                     directory: @get('rel_dir')
-            Route.reload()
+                success: () ->
+                    Route.reload()
         url: 'file/'
+        resize_image: () ->
+            dialog = new Dialog
+                url: 'image/'
+                model: @
+                template: '#imageResizeTemplate'
+                callback: (dialog_data) ->
+                    $.ajax
+                        url: 'image/'
+                        data: "#{dialog_data}&action=resize"
+                    Route.reload()
+                hook: (dialog) ->
+                    $.ajax
+                        url: 'image/'
+                        dataType: 'json'
+                        data:
+                            action: 'info'
+                            file: dialog.model.get('filename')
+                            directory: dialog.model.get('rel_dir')
+                        success: (data) ->
+                            $(dialog.el).find('input[name="new_h"]').val(data.height)
+                            $(dialog.el).find('input[name="new_w"]').val(data.width)
+                            $(dialog.el).data 'ratio', data.height/data.width
+                    $(dialog.el).find('input[name="new_h"]').keyup ()->
+                        if $(dialog.el).find('input[name="keepratio"]').is(':checked')
+                            ratio = $(dialog.el).data 'ratio'
+                            h = $(dialog.el).find('input[name="new_h"]').val()
+                            $(dialog.el).find('input[name="new_w"]').val ~~(h/ratio+0.5)
+                    $(dialog.el).find('input[name="new_w"]').keyup ()->
+                        if $(dialog.el).find('input[name="keepratio"]').is(':checked')
+                            ratio = $(dialog.el).data 'ratio'
+                            w = $(dialog.el).find('input[name="new_w"]').val()
+                            $(dialog.el).find('input[name="new_h"]').val ~~(w*ratio+0.5)
+            dialog.render()
         parseDate: () ->
             d = @get("date")
             "#{d.getFullYear()}-#{d.getMonth()}-#{d.getDate()}"
@@ -218,10 +251,13 @@ $ ->
             @model = attrs.model
             @template = attrs.template
             @callback = attrs.callback
+            @hook = attrs.hook
         render: () ->
             element = $(@el).html($(@template).tmpl(@model.attributes))
             $('body').append(element.fadeIn(200))
             $('.block').css('display', 'block')
+            if @hook?
+                @hook @
 
     FileView = Backbone.View.extend
         tagName: 'tr'
@@ -229,6 +265,7 @@ $ ->
             "click .delete": 'delete'
             "click .touch": 'touch'
             "click .rename": 'rename'
+            "click .resize": 'resize'
         delete: (e)->
             @model.delete_file()
             @remove()
@@ -236,6 +273,8 @@ $ ->
             @model.touch_file()
         rename: (e) ->
             @model.rename_file()
+        resize: (e) ->
+            @model.resize_image()
         className: ->
             Table.get_row_class()
         initialize: (attrs) ->
@@ -244,9 +283,10 @@ $ ->
             @model = attrs.model
         render: () ->
             elm = $(@el).html($('#fileBrowseTemplate').tmpl(@attrs))
-            #For future - image resizing.
-            #if @attrs.mimetype.substring(0, 5) == "image"
-            #    elm.find('.icons .resize').css('display', 'inline-block')
+            resizable_mimetypes = ['image/png', 'image/jpeg',
+                                   'image/bmp', 'image/gif']
+            if @attrs.mimetype in resizable_mimetypes
+                elm.find('.icons .resize').css('display', 'inline-block')
             @table.append elm
 
 
@@ -422,7 +462,6 @@ $ ->
                 Files.set_directory(path)
                 Files.fetch()
             else
-                #only page number has changed...
                 Table.clear()
                 Files.added()
             @do_reload = false
