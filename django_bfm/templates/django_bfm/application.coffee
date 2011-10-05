@@ -33,7 +33,8 @@ $ ->
             $.ajax
                 url: @url
                 data: "#{dialog_data}&action=rename"
-            Route.reload()
+                success: () ->
+                    Route.reload()
         touch_file: () ->
             $.ajax
                 url: @url
@@ -127,7 +128,7 @@ $ ->
                 asc: (model) ->
                     model.get('mimetype')
         model: File
-        models_in_page: 20
+        models_in_page: BFMOptions.files_in_page
         get_page: (page)->
             page -= 1
             start = @models_in_page * page
@@ -285,7 +286,7 @@ $ ->
             elm = $(@el).html($('#fileBrowseTemplate').tmpl(@attrs))
             resizable_mimetypes = ['image/png', 'image/jpeg',
                                    'image/bmp', 'image/gif']
-            if @attrs.mimetype in resizable_mimetypes
+            if @attrs.mimetype in resizable_mimetypes and BFMOptions.pil
                 elm.find('.icons .resize').css('display', 'inline-block')
             @table.append elm
 
@@ -334,8 +335,8 @@ $ ->
             @el.find('.progress').stop(true).animate({
                 width: "#{percentage}%"
                 }, new Date()-@stats.last_call)
-            #Set new stats
-            if time_difference > 3000
+            #Set new stats (Some averagization)
+            if time_difference > 10000
                 @stats.last_report = new Date()
                 @stats.last_loaded = e.loaded
             @stats.last_call = new Date() - 50
@@ -457,7 +458,8 @@ $ ->
             @page = if page? then parseInt(page) else 1
             if @do_reload or path isnt @path
                 @path = path
-                Dirs.el.find('.selected').removeClass('selected')
+                if not @do_reload
+                    Dirs.el.find('.selected').removeClass('selected')
                 Table.clear()
                 Files.set_directory(path)
                 Files.fetch()

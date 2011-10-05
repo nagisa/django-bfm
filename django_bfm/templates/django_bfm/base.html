@@ -2,7 +2,7 @@
 {% load i18n %}
 {% block title %}{% trans "Basic file manager" %}{% endblock %}
 
-{# No idea what to do with this one #}
+{# Should I remove it? #}
 {% block breadcrumbs %}
     <div class="breadcrumbs">
         <a href="#">{% trans "Basic file manager" %}</a>
@@ -18,7 +18,12 @@
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.5.3/backbone-min.js"></script>
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2.js"></script>
     <script type="text/javascript" src="https://raw.github.com/jquery/jquery-tmpl/master/jquery.tmpl.min.js"></script>
-    <script>{% include 'django_bfm/application.js' %}</script>
+    <script type="text/javascript">
+        window.BFMOptions = {{ settings|safe }}
+    </script>
+    <script type="text/javascript">
+        {% include 'django_bfm/application.js' %}
+    </script>
     <script id="fileBrowseHeadTemplate" type="text/x-jquery-tmpl">
         <th>{% trans "Actions" %}</th>
         <th class="${filename}" data-name="filename"><a>{% trans "Filename" %}</a></th>

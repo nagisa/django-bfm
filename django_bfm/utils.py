@@ -29,10 +29,10 @@ class Directory(object):
             mimetype = guess_mimetype(f)[0] or "application/octet-stream"
             date = self.s.created_time(f).ctime()
             ###
-            files[key] = {'filename': f, 'size': self.s.size(f),
-                          'rel_dir': self.rel_dir,
-                          'date': date,
-                          'extension': os.path.splitext(f)[1],
-                          'mimetype': mimetype,
-                          'url': self.s.url(f)}
+            files[key] = {  'filename': f, 'size': self.s.size(f),
+                            'rel_dir': self.rel_dir,
+                            'date': date,
+                            'extension': os.path.splitext(f)[1],
+                            'mimetype': mimetype,
+                            'url': self.s.url(f)}
         return files

@@ -49,11 +49,13 @@
         return dialog.render();
       },
       rename_file_callback: function(dialog_data) {
-        $.ajax({
+        return $.ajax({
           url: this.url,
-          data: "" + dialog_data + "&action=rename"
+          data: "" + dialog_data + "&action=rename",
+          success: function() {
+            return Route.reload();
+          }
         });
-        return Route.reload();
       },
       touch_file: function() {
         return $.ajax({
@@ -190,7 +192,7 @@
         }
       },
       model: File,
-      models_in_page: 20,
+      models_in_page: BFMOptions.files_in_page,
       get_page: function(page) {
         var end, start;
         page -= 1;
@@ -404,7 +406,7 @@
         var elm, resizable_mimetypes, _ref;
         elm = $(this.el).html($('#fileBrowseTemplate').tmpl(this.attrs));
         resizable_mimetypes = ['image/png', 'image/jpeg', 'image/bmp', 'image/gif'];
-        if (_ref = this.attrs.mimetype, __indexOf.call(resizable_mimetypes, _ref) >= 0) {
+        if ((_ref = this.attrs.mimetype, __indexOf.call(resizable_mimetypes, _ref) >= 0) && BFMOptions.pil) {
           elm.find('.icons .resize').css('display', 'inline-block');
         }
         return this.table.append(elm);
@@ -472,7 +474,7 @@
         this.el.find('.progress').stop(true).animate({
           width: "" + percentage + "%"
         }, new Date() - this.stats.last_call);
-        if (time_difference > 3000) {
+        if (time_difference > 10000) {
           this.stats.last_report = new Date();
           this.stats.last_loaded = e.loaded;
         }
@@ -637,7 +639,9 @@
         this.page = page != null ? parseInt(page) : 1;
         if (this.do_reload || path !== this.path) {
           this.path = path;
-          Dirs.el.find('.selected').removeClass('selected');
+          if (!this.do_reload) {
+            Dirs.el.find('.selected').removeClass('selected');
+          }
           Table.clear();
           Files.set_directory(path);
           Files.fetch();

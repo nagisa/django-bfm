@@ -9,6 +9,7 @@ from django.core.paginator import Paginator
 import utils
 import os
 from forms import UploadFileForm
+import settings
 
 #Optional dependecy for image_actions
 try:
@@ -21,6 +22,7 @@ except:
 def base(request):
     c={}
     c.update(csrf(request))
+    c['settings'] = settings.JSON
     return render_to_response('django_bfm/base.html', c)
 
 @login_required
