@@ -52,9 +52,9 @@
         return $.ajax({
           url: this.url,
           data: "" + dialog_data + "&action=rename",
-          success: function() {
+          success: __bind(function() {
             return Route.reload();
-          }
+          }, this)
         });
       },
       touch_file: function() {
@@ -65,9 +65,9 @@
             file: this.get('filename'),
             directory: this.get('rel_dir')
           },
-          success: function() {
+          success: __bind(function() {
             return Route.reload();
-          }
+          }, this)
         });
       },
       url: 'file/',
@@ -78,11 +78,13 @@
           model: this,
           template: '#imageResizeTemplate',
           callback: function(dialog_data) {
-            $.ajax({
+            return $.ajax({
               url: 'image/',
-              data: "" + dialog_data + "&action=resize"
+              data: "" + dialog_data + "&action=resize",
+              success: __bind(function() {
+                return Route.reload();
+              }, this)
             });
-            return Route.reload();
           },
           hook: function(dialog) {
             $.ajax({

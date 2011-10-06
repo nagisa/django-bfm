@@ -16,7 +16,7 @@ setup(
     author = __author__,
     author_email = __email__,
     description = ("Basic Django File Manager with multifile uploads, live file status, and file deleting."),
-    license = "GPL",
+    license = "Apache",
     keywords = "django file manager",
     url = "https://github.com/simukis/django-bfm",
     packages=['django_bfm'],

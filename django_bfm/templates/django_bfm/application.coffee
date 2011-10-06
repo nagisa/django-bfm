@@ -33,8 +33,7 @@ $ ->
             $.ajax
                 url: @url
                 data: "#{dialog_data}&action=rename"
-                success: () ->
-                    Route.reload()
+                success: => Route.reload()
         touch_file: () ->
             $.ajax
                 url: @url
@@ -42,8 +41,7 @@ $ ->
                     action: 'touch'
                     file: @get('filename')
                     directory: @get('rel_dir')
-                success: () ->
-                    Route.reload()
+                success: => Route.reload()
         url: 'file/'
         resize_image: () ->
             dialog = new Dialog
@@ -54,7 +52,7 @@ $ ->
                     $.ajax
                         url: 'image/'
                         data: "#{dialog_data}&action=resize"
-                    Route.reload()
+                        success: => Route.reload()
                 hook: (dialog) ->
                     $.ajax
                         url: 'image/'
