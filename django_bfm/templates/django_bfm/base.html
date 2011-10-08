@@ -115,6 +115,9 @@
     <script id="UploadFailTemplate" type="text/x-jquery-tmpl">
         <span>{% trans "One or more errors occured!" %}</span>
     </script>
+    <script id="uploadExitMessageTemplate" type="text/x-jquery-tmpl">
+        <span>{% trans "Uploading in progress!" %}</span>
+    </script>
 {% endblock %}
 
 {% block extrastyle %}
@@ -154,7 +157,6 @@
     </style>
 {% endblock %}
 
-{# ??? #}
 {% block pretitle %}{% endblock %}
 
 {# It's main part #}

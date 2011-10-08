@@ -514,7 +514,7 @@
       uploadingevents: {
         'click .minimize': 'minimize',
         'click .maximize': 'maximize',
-        'click .refresh': 'karakiri'
+        'click .refresh': 'rebirth'
       },
       minimize: function(e) {
         this.el.addClass('minimized');
@@ -524,7 +524,7 @@
         this.el.removeClass('minimized');
         return $(e.currentTarget).removeClass('maximize').addClass('minimize');
       },
-      karakiri: function(e) {
+      rebirth: function(e) {
         var Uploader;
         Uploader = new UploaderView();
         return Uploader.render(this.el);
@@ -553,7 +553,10 @@
           table.append(uploadable.renders());
         }
         this.uploadlist.reverse();
-        return this.uploadlist.pop().do_upload();
+        this.uploadlist.pop().do_upload();
+        return window.onbeforeunload = function(e) {
+          return $('#uploadExitMessageTemplate').tmpl().text();
+        };
       },
       upload_next: function() {
         var template, text;
@@ -564,6 +567,7 @@
           text = $(template).tmpl();
           this.el.find('.status').html(text);
           this.el.filter('.uploadinghead').find('.icon').removeClass('minimize maximize').addClass('refresh');
+          window.onbeforeunload = null;
           return Route.reload();
         }
       },

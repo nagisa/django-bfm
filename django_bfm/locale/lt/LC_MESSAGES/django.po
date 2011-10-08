@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-09-30 22:00+0300\n"
+"POT-Creation-Date: 2011-10-08 19:43+0300\n"
 "PO-Revision-Date: 2011-09-29 22:06+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,111 +23,115 @@ msgstr ""
 msgid "Basic file manager"
 msgstr "Paprasta failų tvarkyklė"
 
-#: templates/django_bfm/base.html:23
+#: templates/django_bfm/base.html:28
 msgid "Actions"
 msgstr "Veiksmai"
 
-#: templates/django_bfm/base.html:24
+#: templates/django_bfm/base.html:29
 msgid "Filename"
 msgstr "Pavadinimas"
 
-#: templates/django_bfm/base.html:25
+#: templates/django_bfm/base.html:30
 msgid "Size"
 msgstr "Dydis"
 
-#: templates/django_bfm/base.html:26
+#: templates/django_bfm/base.html:31
 msgid "Date"
 msgstr "Data"
 
-#: templates/django_bfm/base.html:27
+#: templates/django_bfm/base.html:32
 msgid "Type"
 msgstr "Tipas"
 
-#: templates/django_bfm/base.html:31
+#: templates/django_bfm/base.html:36
 msgid "Delete"
 msgstr "Ištrinti"
 
-#: templates/django_bfm/base.html:32
+#: templates/django_bfm/base.html:37
 msgid "Touch"
 msgstr "Priliesti"
 
-#: templates/django_bfm/base.html:33 templates/django_bfm/base.html.py:46
+#: templates/django_bfm/base.html:38 templates/django_bfm/base.html.py:51
 msgid "Rename"
 msgstr "Pervadinti"
 
-#: templates/django_bfm/base.html:34 templates/django_bfm/base.html.py:70
+#: templates/django_bfm/base.html:39 templates/django_bfm/base.html.py:75
 msgid "Resize"
 msgstr "Pakeisti dydį"
 
-#: templates/django_bfm/base.html:42
+#: templates/django_bfm/base.html:47
 msgid "Rename file"
 msgstr "Pervadinti bylą"
 
-#: templates/django_bfm/base.html:47 templates/django_bfm/base.html.py:71
+#: templates/django_bfm/base.html:52 templates/django_bfm/base.html.py:76
 msgid "Cancel"
 msgstr "Atšaukti"
 
-#: templates/django_bfm/base.html:50
+#: templates/django_bfm/base.html:55
 msgid "Resize image"
 msgstr "Pakeisti paveiksliuko dydį"
 
-#: templates/django_bfm/base.html:53
+#: templates/django_bfm/base.html:58
 msgid "New width"
 msgstr "Naujas plotis"
 
-#: templates/django_bfm/base.html:56
+#: templates/django_bfm/base.html:61
 msgid "New height"
 msgstr "Naujas aukštis"
 
-#: templates/django_bfm/base.html:59
+#: templates/django_bfm/base.html:64
 msgid "Keep ratio"
 msgstr "Išlaikyti proporciją"
 
-#: templates/django_bfm/base.html:62
+#: templates/django_bfm/base.html:67
 #, fuzzy
 msgid "Resize filter"
 msgstr "Pervadinti bylą"
 
-#: templates/django_bfm/base.html:64
+#: templates/django_bfm/base.html:69
 msgid "Antialiasing"
 msgstr "Išlyginimas"
 
-#: templates/django_bfm/base.html:65
+#: templates/django_bfm/base.html:70
 msgid "Bicubic"
 msgstr "Kubinis"
 
-#: templates/django_bfm/base.html:66
+#: templates/django_bfm/base.html:71
 msgid "Bilinear"
 msgstr "Linijinis"
 
-#: templates/django_bfm/base.html:67
+#: templates/django_bfm/base.html:72
 msgid "Nearest"
 msgstr "Arčiausias"
 
-#: templates/django_bfm/base.html:75
+#: templates/django_bfm/base.html:80
 msgid "Upload files"
 msgstr "Įkelti failus"
 
-#: templates/django_bfm/base.html:81
+#: templates/django_bfm/base.html:86
 msgid "Uploading"
 msgstr "Įkeliama"
 
-#: templates/django_bfm/base.html:102
+#: templates/django_bfm/base.html:107
 msgid "First page"
 msgstr "Pirmas puslapis"
 
-#: templates/django_bfm/base.html:105
+#: templates/django_bfm/base.html:110
 msgid "Last page"
 msgstr "Paskutinis puslapis"
 
-#: templates/django_bfm/base.html:108
+#: templates/django_bfm/base.html:113
 msgid "Upload was completed successfully."
 msgstr "Įkelimas atliktas sėkmingai."
 
-#: templates/django_bfm/base.html:111
+#: templates/django_bfm/base.html:116
 msgid "One or more errors occured!"
 msgstr "Įvyko viena ar daugiau klaidų!"
 
-#: templates/django_bfm/base.html:161
+#: templates/django_bfm/base.html:119
+msgid "Uploading in progress!"
+msgstr "Vyksta įkėlimas!"
+
+#: templates/django_bfm/base.html:169
 msgid "Root directory"
 msgstr "Pradinis aplankas"

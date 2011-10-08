@@ -364,14 +364,14 @@ $ ->
         uploadingevents:
             'click .minimize': 'minimize'
             'click .maximize': 'maximize'
-            'click .refresh': 'karakiri'
+            'click .refresh': 'rebirth'
         minimize: (e) ->
             @el.addClass('minimized')
             $(e.currentTarget).removeClass('minimize').addClass('maximize')
         maximize: (e) ->
             @el.removeClass('minimized')
             $(e.currentTarget).removeClass('maximize').addClass('minimize')
-        karakiri: (e) ->
+        rebirth: (e) ->
             Uploader = new UploaderView()
             Uploader.render(@el)
         render: (elm) ->
@@ -391,6 +391,8 @@ $ ->
                 table.append uploadable.renders()
             @uploadlist.reverse()
             @uploadlist.pop().do_upload()
+            window.onbeforeunload = (e) ->
+                $('#uploadExitMessageTemplate').tmpl().text()
         upload_next: () ->
             if @uploadlist and @uploadlist.length > 0
                 @uploadlist.pop().do_upload()
@@ -399,6 +401,7 @@ $ ->
                 text = $(template).tmpl()
                 @el.find('.status').html(text)
                 @el.filter('.uploadinghead').find('.icon').removeClass('minimize maximize').addClass('refresh')
+                window.onbeforeunload = null
                 Route.reload()
         report_speed: (speed) ->
             @el.find('.status .speed').text("#{readable_size(speed)}/s")
