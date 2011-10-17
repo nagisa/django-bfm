@@ -17,43 +17,42 @@
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.1.7/underscore-min.js"></script>
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.5.3/backbone-min.js"></script>
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2.js"></script>
-    <script type="text/javascript" src="https://raw.github.com/jquery/jquery-tmpl/master/jquery.tmpl.min.js"></script>
     <script type="text/javascript">
         window.BFMOptions = {{ settings|safe }}
     </script>
     <script type="text/javascript">
         {% include 'django_bfm/application.js' %}
     </script>
-    <script id="fileBrowseHeadTemplate" type="text/x-jquery-tmpl">
+    <script id="browse_head_tpl" type="text/template">
         <th>{% trans "Actions" %}</th>
-        <th class="${filename}" data-name="filename"><a>{% trans "Filename" %}</a></th>
-        <th class="${size}" data-name="size"><a>{% trans "Size" %}</a></th>
-        <th class="${date}" data-name="date"><a>{% trans "Date" %}</a></th>
-        <th class="${mime}" data-name="mime"><a>{% trans "Type" %}</a></th>
+        <th class="<%= filename %>" data-name="filename"><a>{% trans "Filename" %}</a></th>
+        <th class="<%= size %>" data-name="size"><a>{% trans "Size" %}</a></th>
+        <th class="<%= date %>" data-name="date"><a>{% trans "Date" %}</a></th>
+        <th class="<%= mime %>" data-name="mime"><a>{% trans "Type" %}</a></th>
     </script>
-    <script id="fileBrowseTemplate" type="text/x-jquery-tmpl">
+    <script id="browse_file_tpl" type="text/template">
         <td class="tight icons">
             <a class="delete" title="{% trans "Delete" %}"></a>
             <a class="touch" title="{% trans "Touch" %}"></a>
             <a class="rename" title="{% trans "Rename" %}"></a>
             <a class="resize" title="{% trans "Resize" %}"></a>
         </td>
-        <td><a href="${url}" target="_blank">${filename}</a></td>
-        <td class="tight">${psize}</td>
-        <td class="tight">${pdate}</td>
-        <td class="tight">${mimetype}</td>
+        <td><a href="<%= url %>" target="_blank"><%= filename %></a></td>
+        <td class="tight"><%= psize %></td>
+        <td class="tight"><%= pdate %></td>
+        <td class="tight"><%= mimetype %></td>
     </script>
-    <script id="fileRenameTemplate" type="text/x-jquery-tmpl">
+    <script id="file_rename_tpl" type="text/template">
         <h2>{% trans "Rename file" %}</h2>
-        <input type="text" name="new" value="${filename}">
-        <input type="hidden" name="file" value="${filename}">
+        <input type="text" name="new" value="<%= filename %>">
+        <input type="hidden" name="file" value="<%= filename %>">
         <input type="hidden" name="directory" value="${rel_dir}">
         <input type="submit" class="submit" value="{% trans "Rename" %}">
         <input type="submit" class="cancel" value="{% trans "Cancel" %}">
     </script>
-    <script id="imageResizeTemplate" type="text/x-jquery-tmpl">
+    <script id="image_resize_tpl" type="text/template">
         <h2>{% trans "Resize image" %}</h2>
-        <input type="hidden" name="file" value="${filename}">
+        <input type="hidden" name="file" value="<%= filename %>">
         <input type="hidden" name="directory" value="${rel_dir}">
         {% trans "New width" %}
         <input type="text" style="width:50px" name="new_w" value="">
@@ -75,13 +74,13 @@
         <input type="submit" class="submit" value="{% trans "Resize" %}">
         <input type="submit" class="cancel" value="{% trans "Cancel" %}">
     </script>
-    <script id="startUploadTemplate" type="text/x-jquery-tmpl">
+    <script id="uploader_start_tpl" type="text/template">
         <form>
             <div class="button submit">{% trans "Upload files" %}</div>
             <input type="file" class="selector" multiple />
         </form>
     </script>
-    <script id="UploadablesTemplate" type="text/x-jquery-tmpl">
+    <script id="uploader_uploading_tpl" type="text/template">
         <div class="uploadinghead">
             <div class="status">{% trans "Uploading" %}&nbsp;(<span class="speed">0 B/s</span>)</div>
             <div class="controls"><a class="icon minimize"></a></div>
@@ -90,33 +89,33 @@
             <table></table>
         </div>
     </script>
-    <script id="UploadableTemplate" type="text/x-jquery-tmpl">
+    <script id="file_upload_tpl" type="text/template">
         <tr>
-            <td>${filename}</td>
+            <td><%= filename %></td>
             <td class="tight"><a class="icon stop"></a></td>
         </tr>
         <tr class="uploadstatus"><td colspan="2"><span class="progress"></span></td></tr>
     </script>
-    <script id="PaginatorCurrentPageTemplate" type="text/x-jquery-tmpl">
-        <span class="this-page">${page}</span>&nbsp;
+    <script id="pgn_current_page_tpl" type="text/template">
+        <span class="this-page"><%= page %></span>&nbsp;
     </script>
-    <script id="PaginatorPageTemplate" type="text/x-jquery-tmpl">
-        <a href="#">${page}</a>&nbsp;
+    <script id="pgn_page_tpl" type="text/template">
+        <a href="#"><%= page %></a>&nbsp;
     </script>
-    <script id="PaginatorFirstPageTemplate" type="text/x-jquery-tmpl">
+    <script id="pgn_first_page_tpl" type="text/template">
         <a href="#" class="firstpage">{% trans "First page" %}</a>&nbsp;
     </script>
-    <script id="PaginatorLastPageTemplate" type="text/x-jquery-tmpl">
+    <script id="pgn_last_page_tpl" type="text/template">
         <a href="#" class="lastpage">{% trans "Last page" %}</a>&nbsp;
     </script>
-    <script id="UploadSuccessTemplate" type="text/x-jquery-tmpl">
-        <span>{% trans "Upload was completed successfully." %}</span>
+    <script id="upload_success_tpl" type="text/template">
+        {% trans "Upload was completed successfully." %}
     </script>
-    <script id="UploadFailTemplate" type="text/x-jquery-tmpl">
-        <span>{% trans "One or more errors occured!" %}</span>
+    <script id="upload_fail_tpl" type="text/template">
+        {% trans "One or more errors occured!" %}
     </script>
-    <script id="uploadExitMessageTemplate" type="text/x-jquery-tmpl">
-        <span>{% trans "Uploading in progress!" %}</span>
+    <script id="upload_cancel_tpl" type="text/template">
+        {% trans "Uploading in progress!" %}
     </script>
 {% endblock %}
 
@@ -126,10 +125,10 @@
         td.tight{width: 1px; white-space: nowrap;}
         .directory{display:block; overflow:hidden;}
         h2 a{color:#fff!important;}
-        .dialog{position:fixed; top:0; left:50%; margin-left:-200px; width:400px; background:#fff; padding: 5px; border: 1px solid #ddd; border-top:none; overflow:hidden;}
+        .dialog{position:fixed; top:0; left:50%; z-index:10010; margin-left:-200px; width:400px; background:#fff; padding: 5px; border: 1px solid #ddd; border-top:none; overflow:hidden;}
         .dialog input[type=text]{width:390px;}
         .dialog h2{margin-top:.5em;}
-        .block{position:fixed; width:100%; height:100%; top:0; left:0; display:none;}
+        .block{position:fixed; width:100%; height:100%; top:0; left:0; display:none; background:rgba(0,0,0,.2); z-index:10005;}
         .directory.selected{border-left: 5px solid #CCC; padding-left: 5px; margin-left: -10px; color: #5B80B2 !important}
         .icons a, .icon{margin: -2px 1px; height: 16px; width: 16px; display:inline-block;}
         a.delete{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAJdSURBVDjLpZP7S1NhGMf9W7YfogSJboSEUVCY8zJ31trcps6zTI9bLGJpjp1hmkGNxVz4Q6ildtXKXzJNbJRaRmrXoeWx8tJOTWptnrNryre5YCYuI3rh+8vL+/m8PA/PkwIg5X+y5mJWrxfOUBXm91QZM6UluUmthntHqplxUml2lciF6wrmdHriI0Wx3xw2hAediLwZRWRkCPzdDswaSvGqkGCfq8VEUsEyPF1O8Qu3O7A09RbRvjuIttsRbT6HHzebsDjcB4/JgFFlNv9MnkmsEszodIIY7Oaut2OJcSF68Qx8dgv8tmqEL1gQaaARtp5A+N4NzB0lMXxon/uxbI8gIYjB9HytGYuusfiPIQcN71kjgnW6VeFOkgh3XcHLvAwMSDPohOADdYQJdF1FtLMZPmslvhZJk2ahkgRvq4HHUoWHRDqTEDDl2mDkfheiDgt8pw340/EocuClCuFvboQzb0cwIZgki4KhzlaE6w0InipbVzBfqoK/qRH94i0rgokSFeO11iBkp8EdV8cfJo0yD75aE2ZNRvSJ0lZKcBXLaUYmQrCzDT6tDN5SyRqYlWeDLZAg0H4JQ+Jt6M3atNLE10VSwQsN4Z6r0CBwqzXesHmV+BeoyAUri8EyMfi2FowXS5dhd7doo2DVII0V5BAjigP89GEVAtda8b2ehodU4rNaAW+dGfzlFkyo89GTlcrHYCLpKD+V7yeeHNzLjkp24Uu1Ed6G8/F8qjqGRzlbl2H2dzjpMg1KdwsHxOlmJ7GTeZC/nesXbeZ6c9OYnuxUc3fmBuFft/Ff8xMd0s65SXIb/gAAAABJRU5ErkJggg==);}

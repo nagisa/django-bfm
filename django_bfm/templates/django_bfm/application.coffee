@@ -26,7 +26,7 @@ $ ->
             dialog = new Dialog
                 url: @url
                 model: @
-                template: '#fileRenameTemplate'
+                template: '#file_rename_tpl'
                 callback: @rename_file_callback
             dialog.render()
         rename_file_callback: (dialog_data) ->
@@ -47,7 +47,7 @@ $ ->
             dialog = new Dialog
                 url: 'image/'
                 model: @
-                template: '#imageResizeTemplate'
+                template: '#image_resize_tpl'
                 callback: (dialog_data) ->
                     $.ajax
                         url: 'image/'
@@ -179,9 +179,10 @@ $ ->
         prepend: (element) ->
             @el.prepend element
         draw_head: () ->
-            c = {}
-            c[@ord[0]] = "#{if @ord[1] then 'descending' else 'ascending'} sorted"
-            @el.find('tr:first').append($('#fileBrowseHeadTemplate').tmpl(c))
+            c = {filename: '', size: '', date: '', mime: ''}
+            c[@ord[0]]="#{if @ord[1] then 'descending' else 'ascending'} sorted"
+            tpl = _.template($('#browse_head_tpl').html(), c)
+            @el.find('tr:first').append(tpl)
         get_row_class: () ->
             @current_row = ((@current_row+1)%2)
             return "row#{@current_row+1}"
@@ -237,7 +238,7 @@ $ ->
             "click .cancel": 'cancel'
         tear_down: () ->
             $(@el).fadeOut(200, => @remove())
-            $('.block').css('display', 'none')
+            $('.block').fadeOut(200)
         cancel: (e) ->
             @tear_down()
             e.preventDefault()
@@ -252,9 +253,10 @@ $ ->
             @callback = attrs.callback
             @hook = attrs.hook
         render: () ->
-            element = $(@el).html($(@template).tmpl(@model.attributes))
+            tpl = _.template($(@template).html(), @model.attributes)
+            element = $(@el).html(tpl)
             $('body').append(element.fadeIn(200))
-            $('.block').css('display', 'block')
+            $('.block').fadeIn(300)
             if @hook?
                 @hook @
 
@@ -281,7 +283,8 @@ $ ->
             @attrs = attrs.model.attributes
             @model = attrs.model
         render: () ->
-            elm = $(@el).html($('#fileBrowseTemplate').tmpl(@attrs))
+            tpl = _.template($('#browse_file_tpl').html(), @attrs)
+            elm = $(@el).html(tpl)
             resizable_mimetypes = ['image/png', 'image/jpeg',
                                    'image/bmp', 'image/gif']
             if @attrs.mimetype in resizable_mimetypes and BFMOptions.pil
@@ -298,7 +301,7 @@ $ ->
             'click a': 'abort'
         renders: () ->
             filename = if @file.name? then @file.name else @file.fileName
-            @el = $('#UploadableTemplate').tmpl({'filename': filename})
+            @el = $(_.template($('#file_upload_tpl').html(), {filename: filename}))
             @delegateEvents @events
             @el
         do_upload: () ->
@@ -375,11 +378,11 @@ $ ->
             Uploader = new UploaderView()
             Uploader.render(@el)
         render: (elm) ->
-            @el.html $('#startUploadTemplate').tmpl()
+            @el.html _.template($('#uploader_start_tpl').html())()
             if elm?
                 elm.replaceWith(@el)
         selected: (e) ->
-            tmpl = $('#UploadablesTemplate').tmpl()
+            tmpl = $(_.template($('#uploader_uploading_tpl').html())())
             @el.replaceWith tmpl
             @el = tmpl
             @delegateEvents @uploadingevents
@@ -392,13 +395,13 @@ $ ->
             @uploadlist.reverse()
             @uploadlist.pop().do_upload()
             window.onbeforeunload = (e) ->
-                $('#uploadExitMessageTemplate').tmpl().text()
+                $.trim($('#upload_cancel_tpl').text())
         upload_next: () ->
             if @uploadlist and @uploadlist.length > 0
                 @uploadlist.pop().do_upload()
             else
-                template = if not @errors then '#UploadSuccessTemplate' else '#UploadFailTemplate'
-                text = $(template).tmpl()
+                template = if not @errors then '#upload_success_tpl' else '#upload_fail_tpl'
+                text = $.trim($(template).text())
                 @el.find('.status').html(text)
                 @el.filter('.uploadinghead').find('.icon').removeClass('minimize maximize').addClass('refresh')
                 window.onbeforeunload = null
@@ -422,20 +425,20 @@ $ ->
 
             if page_count > 5
                 if Route.page > 6
-                    @el.append $('#PaginatorFirstPageTemplate').tmpl()
+                    @el.append _.template($('#pgn_first_page_tpl').html())()
 
             for page in [Route.page-5..Route.page+5]
                 if page < 1 or page > page_count
                     continue
                 if parseInt(page) == parseInt(Route.page)
-                    rn = $('#PaginatorCurrentPageTemplate').tmpl({page: page})
+                    rn = _.template($('#pgn_current_page_tpl').html(), {page: page})
                 else
-                    rn = $('#PaginatorPageTemplate').tmpl({page: page})
+                    rn = _.template($('#pgn_page_tpl').html(), {page: page})
                 @el.append rn
 
             if page_count > 5
                 if Route.page < page_count - 5
-                    @el.append $('#PaginatorLastPageTemplate').tmpl()
+                    @el.append _.template($('#pgn_last_page_tpl').html())()
         page_click: (e) ->
             page = parseInt($(e.currentTarget).text())
             if not isNaN page
