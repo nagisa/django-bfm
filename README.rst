@@ -12,7 +12,7 @@ Core Features
 - Looks like django admin (extends admin template)
 
 Additional Features (uses dependencies and/or are optional)
---------------------------------------------------------
+-----------------------------------------------------------
 
 - Image resizing (PIL)
 - Admin upload applet
