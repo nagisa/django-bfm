@@ -73,7 +73,8 @@ def file_upload(request):
         storage = utils.Directory(directory)
         if form.is_valid():
             f = storage.s.save(request.FILES['file'].name,request.FILES['file'])
-            return HttpResponse(simplejson.dumps(f))
+            resp = {"filename": f, "url": storage.s.url(f)}
+            return HttpResponse(simplejson.dumps(resp))
         return HttpResponse(simplejson.dumps(False))
 
 @login_required

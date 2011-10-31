@@ -451,8 +451,8 @@
           progress: (__bind(function(e, stats) {
             return this.report_progress(e, stats);
           }, this)),
-          complete: (__bind(function(e) {
-            return this.upload_complete(e);
+          complete: (__bind(function(e, data) {
+            return this.upload_complete(e, data);
           }, this)),
           error: (__bind(function(e) {
             return this.upload_error(e);
@@ -480,7 +480,8 @@
         this.el.find('.progress').css('background', '#FF6600');
         return this.upload_next();
       },
-      upload_complete: function(e) {
+      upload_complete: function(e, data) {
+        this.el.find('.fname').html("<a href=\"" + data.url + "\" target=\"_blank\">" + data.filename + "</a>");
         this.el.find('.progress').stop(true).animate({
           width: "100%"
         }, 300);
