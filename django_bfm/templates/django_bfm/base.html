@@ -21,6 +21,7 @@
         window.BFMOptions = {{ settings|safe }}
     </script>
     <script type="text/javascript" src="{{ STATIC_URL }}django_bfm/application.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}django_bfm/upload.jquery.js"></script>
     <script id="browse_head_tpl" type="text/template">
         <th>{% trans "Actions" %}</th>
         <th class="<%= filename %>" data-name="filename"><a>{% trans "Filename" %}</a></th>

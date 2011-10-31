@@ -305,42 +305,23 @@ $ ->
             @delegateEvents @events
             @el
         do_upload: () ->
-            @xhr = xhr = new XMLHttpRequest()
-            form = new FormData()
             csrf_token = $('input[name=csrfmiddlewaretoken]').val()
-            form.append "file", @file;
-            xhr.upload.addEventListener "progress", ((e) => @report_progress(e)), false
-            xhr.addEventListener "load", ((e) => @upload_complete(e)), false
-            xhr.addEventListener "error", ((e) => @upload_error(e)), false
-            xhr.addEventListener "abort", ((e) => @upload_abort(e)), false
-            @stats =
-                start: new Date()
-                last_report: new Date()
-                last_call: new Date() - 50
-                last_loaded: 0
-            xhr.open "POST", "upfile/?directory="+@directory
-            xhr.setRequestHeader "X-CSRFToken", csrf_token
-            xhr.send(form)
+            @xhr = $.ajax_upload @file, {
+                url: "upfile/?directory=#{@directory}"
+                headers:
+                    "X-CSRFToken": csrf_token
+                progress: ((e, stats) => @report_progress(e, stats))
+                complete: ((e) => @upload_complete(e))
+                error: ((e) => @upload_error(e))
+                abort: ((e) => @upload_abort(e))
+            }
         abort: (e) ->
             @xhr.abort()
-        report_progress: (e) ->
-            #Report upload speed
-            time_difference = new Date() - @stats.last_report
-            size_difference = e.loaded - @stats.last_loaded
-            speed = ~~((size_difference*1000/time_difference)+0.5)
-            @parent.report_speed(speed)
-            #Report file status
-            percentage = (e.loaded*100/@file.size).toFixed(1)
-            if percentage > 100
-                percentage = 100
+        report_progress: (e, stats) ->
+            @parent.report_speed(stats.speed)
             @el.find('.progress').stop(true).animate({
-                width: "#{percentage}%"
-                }, new Date()-@stats.last_call)
-            #Set new stats (Some averagization)
-            if time_difference > 10000
-                @stats.last_report = new Date()
-                @stats.last_loaded = e.loaded
-            @stats.last_call = new Date() - 50
+                width: "#{stats.completion*100}%"
+                }, stats.last_call)
         upload_error: (e) ->
             @el.find('.progress').css('background', '#CC0000')
             @parent.report_errors()

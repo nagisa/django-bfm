@@ -441,54 +441,35 @@
         return this.el;
       },
       do_upload: function() {
-        var csrf_token, form, xhr;
-        this.xhr = xhr = new XMLHttpRequest();
-        form = new FormData();
+        var csrf_token;
         csrf_token = $('input[name=csrfmiddlewaretoken]').val();
-        form.append("file", this.file);
-        xhr.upload.addEventListener("progress", (__bind(function(e) {
-          return this.report_progress(e);
-        }, this)), false);
-        xhr.addEventListener("load", (__bind(function(e) {
-          return this.upload_complete(e);
-        }, this)), false);
-        xhr.addEventListener("error", (__bind(function(e) {
-          return this.upload_error(e);
-        }, this)), false);
-        xhr.addEventListener("abort", (__bind(function(e) {
-          return this.upload_abort(e);
-        }, this)), false);
-        this.stats = {
-          start: new Date(),
-          last_report: new Date(),
-          last_call: new Date() - 50,
-          last_loaded: 0
-        };
-        xhr.open("POST", "upfile/?directory=" + this.directory);
-        xhr.setRequestHeader("X-CSRFToken", csrf_token);
-        return xhr.send(form);
+        return this.xhr = $.ajax_upload(this.file, {
+          url: "upfile/?directory=" + this.directory,
+          headers: {
+            "X-CSRFToken": csrf_token
+          },
+          progress: (__bind(function(e, stats) {
+            return this.report_progress(e, stats);
+          }, this)),
+          complete: (__bind(function(e) {
+            return this.upload_complete(e);
+          }, this)),
+          error: (__bind(function(e) {
+            return this.upload_error(e);
+          }, this)),
+          abort: (__bind(function(e) {
+            return this.upload_abort(e);
+          }, this))
+        });
       },
       abort: function(e) {
         return this.xhr.abort();
       },
-      report_progress: function(e) {
-        var percentage, size_difference, speed, time_difference;
-        time_difference = new Date() - this.stats.last_report;
-        size_difference = e.loaded - this.stats.last_loaded;
-        speed = ~~((size_difference * 1000 / time_difference) + 0.5);
-        this.parent.report_speed(speed);
-        percentage = (e.loaded * 100 / this.file.size).toFixed(1);
-        if (percentage > 100) {
-          percentage = 100;
-        }
-        this.el.find('.progress').stop(true).animate({
-          width: "" + percentage + "%"
-        }, new Date() - this.stats.last_call);
-        if (time_difference > 10000) {
-          this.stats.last_report = new Date();
-          this.stats.last_loaded = e.loaded;
-        }
-        return this.stats.last_call = new Date() - 50;
+      report_progress: function(e, stats) {
+        this.parent.report_speed(stats.speed);
+        return this.el.find('.progress').stop(true).animate({
+          width: "" + (stats.completion * 100) + "%"
+        }, stats.last_call);
       },
       upload_error: function(e) {
         this.el.find('.progress').css('background', '#CC0000');
