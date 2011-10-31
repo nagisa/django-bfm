@@ -27,7 +27,7 @@
           var csrf_token;
           csrf_token = $('input[name=csrfmiddlewaretoken]').val();
           return this.xhr = $.ajax_upload(this.file, {
-            url: "/files/upfile/?directory=",
+            url: "" + BFMAdminOptions.upload + "?directory=" + BFMAdminOptions.updir,
             headers: {
               "X-CSRFToken": csrf_token
             },

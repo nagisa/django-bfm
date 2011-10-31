@@ -42,7 +42,7 @@ django.jQuery ->
             upload: () ->
                 csrf_token = $('input[name=csrfmiddlewaretoken]').val()
                 @xhr = $.ajax_upload @file, {
-                    url: "/files/upfile/?directory="
+                    url: "#{BFMAdminOptions.upload}?directory=#{BFMAdminOptions.updir}"
                     headers:
                         "X-CSRFToken": csrf_token
                     progress: ((e, stats) => @report_progress(e, stats))

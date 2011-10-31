@@ -13,6 +13,8 @@ MEDIA_URL = getattr(settings, "BFM_MEDIA_URL", '')
 if not MEDIA_URL and MEDIA_DIRECTORY == settings.MEDIA_ROOT:
     MEDIA_URL = settings.MEDIA_URL
 
+ADMIN_UPDIR = getattr(settings, "BFM_ADMIN_UPLOAD_DIR", '')
+
 #PIL installed? Optional dependency.
 try:
     from PIL import Image

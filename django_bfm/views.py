@@ -5,6 +5,7 @@ from django.utils import simplejson
 from django.http import HttpResponse
 from django.core.paginator import Paginator
 from django.template import RequestContext
+from django.core.urlresolvers import reverse
 
 import utils
 import os
@@ -24,6 +25,14 @@ def base(request):
         'settings': settings.JSON,
     })
     return render_to_response('django_bfm/base.html', c)
+
+def admin_options(request):
+    opt = {
+        "updir": settings.ADMIN_UPDIR,
+        "upload": reverse("bfm_upload")
+    }
+    options = "BFMAdminOptions = "+simplejson.dumps(opt)+";"
+    return HttpResponse(options)
 
 @login_required
 @staff_member_required
