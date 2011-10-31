@@ -311,7 +311,7 @@ $ ->
                 headers:
                     "X-CSRFToken": csrf_token
                 progress: ((e, stats) => @report_progress(e, stats))
-                complete: ((e) => @upload_complete(e))
+                complete: ((e, data) => @upload_complete(e, data))
                 error: ((e) => @upload_error(e))
                 abort: ((e) => @upload_abort(e))
             }
@@ -329,7 +329,8 @@ $ ->
         upload_abort: (e) ->
             @el.find('.progress').css('background', '#FF6600')
             @upload_next()
-        upload_complete: (e) ->
+        upload_complete: (e, data) ->
+            @el.find('.fname').html """<a href="#{data.url}" target="_blank">#{data.filename}</a>"""
             @el.find('.progress').stop(true).animate({
                 width: "100%"
                 }, 300)
