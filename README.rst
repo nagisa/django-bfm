@@ -11,10 +11,11 @@ Core Features
 - Core features has no dependencies (except for Django), lightweight
 - Looks like django admin (extends admin template)
 
-Additional Features (uses dependencies and are optional)
+Additional Features (uses dependencies and/or are optional)
 --------------------------------------------------------
 
 - Image resizing (PIL)
+- Admin upload applet
 
 Requirements
 ------------
@@ -25,27 +26,12 @@ Requirements
 Usage/Install
 -------------
 
-- Install it with either of:
-    + ``pip install django_bfm``
-    + ``easy_install django_bfm``
-    + You can also put django_bfm directory directly into your project directory, if you want.
-- Add following to ``INSTALLED_APPS`` in your project settings.py. ::
-
-    'django_bfm',
-
-- Add following to ``urlpatterns`` in urls.py ::
-
-    url(r'^files/', include('django_bfm.urls')),
+Istallation instructions can be found here: `Installation Instructions <https://github.com/simukis/django-bfm/wiki/Installation>`_
 
 Settings
 --------
 
-Variables in settings.py, that influence behavior of BFM. `Wiki <https://github.com/simukis/django-bfm/wiki/Settings>`_ has more extensive explanation, so you may want to look at it.
-
-- ``BFM_MEDIA_DIRECTORY`` (if not set, then ``MEDIA_ROOT`` is used) - absolute path to directory, where uploaded files are.
-- ``BFM_MEDIA_URL`` (may use ``MEDIA_URL`` as value) - Let's BFM to construct clickable links to files.
-- ``BFM_FILES_IN_PAGE`` (default - ``20``) - integer. Tells BFM, how much files to show in one page.
-- ``LOGIN_URL`` - user will be redirected there if not logged in.
+Variables in settings.py, that influence behavior of BFM are in `Wiki <https://github.com/simukis/django-bfm/wiki/Settings>`_
 
 Things to note
 --------------
@@ -57,12 +43,4 @@ Things to note
 Tested Browsers
 ---------------
 
-- Chromium 15, 16
-- Midori 0.4.0
-- Chrome 13
-- Firefox 6, 7, 10
-
-Tested and (all or some) features does not work
------------------------------------------------
-
-- Opera 11.51 and below (Doesn't support new XHR specification, so uploads do not work)
+You can check browser support at `Browser support wiki page <https://github.com/simukis/django-bfm/wiki/Browser-support>`_
