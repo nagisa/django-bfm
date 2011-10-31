@@ -1,10 +1,10 @@
 from django.shortcuts import render_to_response
-from django.core.context_processors import csrf
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.utils import simplejson
 from django.http import HttpResponse
 from django.core.paginator import Paginator
+from django.template import RequestContext
 
 import utils
 import os
@@ -20,9 +20,9 @@ except:
 @login_required
 @staff_member_required
 def base(request):
-    c={}
-    c.update(csrf(request))
-    c['settings'] = settings.JSON
+    c = RequestContext(request, {
+        'settings': settings.JSON,
+    })
     return render_to_response('django_bfm/base.html', c)
 
 @login_required
