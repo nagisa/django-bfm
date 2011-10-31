@@ -1,7 +1,4 @@
 from django.conf.urls.defaults import patterns, include, url
-from django.conf import settings
-if settings.DEBUG:
-    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = patterns('',
     url(r'^$', 'django_bfm.views.base'),
@@ -12,5 +9,3 @@ urlpatterns = patterns('',
     url(r'^image/$', 'django_bfm.views.image_actions'),
     url(r'^admin_options/$', 'django_bfm.views.admin_options', name="bfm_opt")
 )
-if settings.DEBUG:
-    urlpatterns += staticfiles_urlpatterns()
