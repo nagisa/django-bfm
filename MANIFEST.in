@@ -1,2 +1,4 @@
 include README.rst
 recursive-include django_bfm/templates *
+recursive-include django_bfm/static *
+global-exclude *.coffee
