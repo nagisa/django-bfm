@@ -31,7 +31,7 @@ Istallation instructions can be found here: `Installation Instructions <https://
 Settings
 --------
 
-Variables in settings.py, that influence behavior of BFM are in `Wiki <https://github.com/simukis/django-bfm/wiki/Settings>`_
+Variables in settings.py, that influence behavior of BFM are in `Wiki <https://github.com/simukis/django-bfm/wiki/Settings-variables>`_
 
 Things to note
 --------------
