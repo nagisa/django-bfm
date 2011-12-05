@@ -4,7 +4,11 @@ else
     $ = django.jQuery
 $ ->
     $.ajax_upload = (file, options) ->
+        # jQuery method. Handles file upload with status reporting.
+
         stats_averages = (time, loaded) ->
+            # Averagerizes stats.
+            # Takes in new values of time and loaded ammount as arguments.
             stats.push
                 time: time
                 loaded: loaded
@@ -19,9 +23,13 @@ $ ->
             last_call = time - stats[stats.length-2].time
             last_call = last_call + last_call/10
             return completion: completion, speed: speed, last_call: last_call
+
         progress = (e) ->
+            # Reports progress to callback passed to this function.
             settings.progress e, stats_averages(new Date(), e.loaded)
+
         complete = (e) ->
+            # Reports to outside, that uploading has finished...
             data = JSON.parse(xhr.response)
             settings.complete e, data
 
@@ -33,7 +41,6 @@ $ ->
             complete: ->
             error: ->
             abort: ->
-
         $.extend(settings, options)
 
         xhr = new XMLHttpRequest()
@@ -43,6 +50,7 @@ $ ->
             time: new Date()
             loaded: 0
         ]
+        # Add events.
         xhr.upload.addEventListener "progress", ((e) => progress(e)), false
         xhr.addEventListener "load", ((e) => complete(e)), false
         xhr.addEventListener "error", ((e) => settings.error(e)), false
