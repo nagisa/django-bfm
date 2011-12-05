@@ -23,6 +23,7 @@ except:
 def base(request):
     c = RequestContext(request, {
         'settings': settings.JSON,
+        'root': reverse("bfm_base")
     })
     return render_to_response('django_bfm/base.html', c)
 

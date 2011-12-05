@@ -8,20 +8,20 @@ from urlparse import urljoin
 class Directory(object):
 
     def __init__(self, rel_dir):
-        self.rel_dir = (rel_dir+"/").lstrip('/')
+        self.rel_dir = (rel_dir + "/").lstrip('/')
         directory = os.path.join(settings.MEDIA_DIRECTORY, self.rel_dir)
         url = urljoin(settings.MEDIA_URL, self.rel_dir)
         self.s = FileSystemStorage(directory, url)
 
     def collect_dirs(self):
-        def childs(path):
+        def children(path):
             return [{'name': name,
-                    'childs': childs(os.path.join(path, name)),
+                    'children': children(os.path.join(path, name)),
                     'rel_dir': os.path.relpath(os.path.join(path, name),
                                                self.s.path(''))}
                     for name in os.listdir(path)
                     if os.path.isdir(os.path.join(path, name))]
-        return childs(self.s.path(''))
+        return children(self.s.path(''))
 
     def collect_files(self):
         files = self.s.listdir('')[1]
@@ -29,7 +29,7 @@ class Directory(object):
             mimetype = guess_mimetype(f)[0] or "application/octet-stream"
             date = self.s.created_time(f).ctime()
             ###
-            files[key] = {  'filename': f, 'size': self.s.size(f),
+            files[key] = {'filename': f, 'size': self.s.size(f),
                             'rel_dir': self.rel_dir,
                             'date': date,
                             'extension': os.path.splitext(f)[1],

@@ -2,7 +2,6 @@
 {% load i18n %}
 {% block title %}{% trans "Basic file manager" %}{% endblock %}
 
-{# Should I remove it? #}
 {% block breadcrumbs %}
     <div class="breadcrumbs">
         <a href="#">{% trans "Basic file manager" %}</a>
@@ -10,18 +9,19 @@
     </div>
 {% endblock %}
 
-{# Scripts'n'Templates #}
 {% block extrahead %}
     {{ block.super }}
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.1.7/underscore-min.js"></script>
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.5.3/backbone-min.js"></script>
-    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2.js"></script>
     <script type="text/javascript">
         window.BFMOptions = {{ settings|safe }}
+        window.BFMRoot = "{{ root }}"
     </script>
     <script type="text/javascript" src="{{ STATIC_URL }}django_bfm/application.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}django_bfm/upload.jquery.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}django_bfm/upload.jquery.js"></script>
+
+
     <script id="browse_head_tpl" type="text/template">
         <th>{% trans "Actions" %}</th>
         <th class="<%= filename %>" data-name="filename"><a>{% trans "Filename" %}</a></th>
@@ -29,18 +29,22 @@
         <th class="<%= date %>" data-name="date"><a>{% trans "Date" %}</a></th>
         <th class="<%= mime %>" data-name="mime"><a>{% trans "Type" %}</a></th>
     </script>
+
+
     <script id="browse_file_tpl" type="text/template">
         <td class="tight icons">
-            <a class="delete" title="{% trans "Delete" %}"></a>
-            <a class="touch" title="{% trans "Touch" %}"></a>
-            <a class="rename" title="{% trans "Rename" %}"></a>
-            <a class="resize" title="{% trans "Resize" %}"></a>
+            <a class="delete iconic trash" title="{% trans "Delete" %}"></a>
+            <a class="touch iconic pin" title="{% trans "Touch" %}"></a>
+            <a class="rename iconic tag" title="{% trans "Rename" %}"></a>
+            <a class="resize iconic image" title="{% trans "Resize" %}"></a>
         </td>
         <td><a href="<%= url %>" target="_blank"><%= filename %></a></td>
         <td class="tight"><%= psize %></td>
         <td class="tight"><%= pdate %></td>
         <td class="tight"><%= mimetype %></td>
     </script>
+
+
     <script id="file_rename_tpl" type="text/template">
         <h2>{% trans "Rename file" %}</h2>
         <input type="text" name="new" value="<%= filename %>">
@@ -49,6 +53,8 @@
         <input type="submit" class="submit" value="{% trans "Rename" %}">
         <input type="submit" class="cancel" value="{% trans "Cancel" %}">
     </script>
+
+
     <script id="image_resize_tpl" type="text/template">
         <h2>{% trans "Resize image" %}</h2>
         <input type="hidden" name="file" value="<%= filename %>">
@@ -73,49 +79,81 @@
         <input type="submit" class="submit" value="{% trans "Resize" %}">
         <input type="submit" class="cancel" value="{% trans "Cancel" %}">
     </script>
-    <script id="uploader_start_tpl" type="text/template">
-        <form>
-            <div class="button submit">{% trans "Upload files" %}</div>
-            <input type="file" class="selector" multiple />
-        </form>
-    </script>
-    <script id="uploader_uploading_tpl" type="text/template">
-        <div class="uploadinghead">
-            <div class="status">{% trans "Uploading" %}&nbsp;(<span class="speed">0 B/s</span>)</div>
-            <div class="controls"><a class="icon minimize"></a></div>
+
+
+    <script id="uploader_tpl" type="text/template">
+        <div class="uploader-head">
+            {% trans "Uploader" %}
+            <a class="control iconic fullscreen" title="{% trans "Expand uploader" %}" data-alttitle="{% trans "Minimize uploader" %}"></a>
         </div>
-        <div class="uploading">
-            <table></table>
+        <div class="uploader-controls breadcrumbs">
+            <form class="selector">
+                <input type="file" multiple>
+                <a class="iconic plus" href="#"> {% trans "Add files" %}</a>
+            </form>
+            <form class="selector directory">
+                <input type="file"  webkitdirectory directory mozdirectory>
+                <a class="iconic plus" href="#"> {% trans "Add folder (experimental)" %}</a>
+            </form>
+            <a class="iconic trash finished" href="#"> {% trans "Clear finished" %}</a>
+            <a class="iconic trash rqueued" href="#"> {% trans "Remove queued" %}</a>
+        </div>
+        <div class="uploader-table-container">
+            <div class="uploader-table">
+            </div>
         </div>
     </script>
+
+
     <script id="file_upload_tpl" type="text/template">
-        <tr>
-            <td class="fname"><%= filename %></td>
-            <td class="tight"><a class="icon stop"></a></td>
-        </tr>
-        <tr class="uploadstatus"><td colspan="2"><span class="progress"></span></td></tr>
+        <div class="file">
+            <div class="status"></div>
+            <a class="abort iconic x" title="{% trans "Cancel this upload" %}"></a>
+            <%= filename %>
+            <span class="indicators">
+                (<span class="percent">0</span>% @ <span class="speed">0 B/s</span>)
+            </span>
+            <span class="failed">({% trans "Failed" %})</span>
+            <span class="aborted">({% trans "Aborted" %})</span>
+        </div>
     </script>
+
+
     <script id="pgn_current_page_tpl" type="text/template">
         <span class="this-page"><%= page %></span>&nbsp;
     </script>
+
+
     <script id="pgn_page_tpl" type="text/template">
         <a href="#"><%= page %></a>&nbsp;
     </script>
+
+
     <script id="pgn_first_page_tpl" type="text/template">
         <a href="#" class="firstpage">{% trans "First page" %}</a>&nbsp;
     </script>
+
+
     <script id="pgn_last_page_tpl" type="text/template">
         <a href="#" class="lastpage">{% trans "Last page" %}</a>&nbsp;
     </script>
+
+
     <script id="upload_success_tpl" type="text/template">
         {% trans "Upload was completed successfully." %}
     </script>
+
+
     <script id="upload_fail_tpl" type="text/template">
         {% trans "One or more errors occured!" %}
     </script>
+
+
     <script id="upload_cancel_tpl" type="text/template">
         {% trans "Uploading in progress!" %}
     </script>
+
+
 {% endblock %}
 
 {% block extrastyle %}
@@ -145,5 +183,4 @@
         </div>
     </div>
     <div class="block"></div>
-    <div class="uploader"></div>
 {% endblock %}
