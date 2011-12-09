@@ -36,8 +36,11 @@ FileUploadView = Backbone.View.extend
         if @aborted?
             return false
         csrf_token = $('input[name=csrfmiddlewaretoken]').val()
+        url = "upfile/?directory=#{@directory}"
+        if BFMAdminOptions?
+            url = "#{BFMAdminOptions.upload}?directory=#{@directory}"
         @xhr = $.ajax_upload @file, {
-            url: "upfile/?directory=#{@directory}"
+            url: url
             headers:
                 "X-CSRFToken": csrf_token
             progress: ((e, stats) => @report_progress(e, stats))
@@ -58,7 +61,8 @@ FileUploadView = Backbone.View.extend
         @el.find('.abort').hide()
         @update_status_bar(1, 100)
         #Reload file browser!
-        FileBrowser.files.fetch()
+        if !(BFMAdminOptions?)
+            FileBrowser.files.fetch()
         #Report finished...
         FileUploader.uploader.report_finished(@)
 

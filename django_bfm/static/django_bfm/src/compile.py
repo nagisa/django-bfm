@@ -18,6 +18,8 @@ app_files = [os.path.abspath(x) for x in [
 ]]
 
 admin_files = [os.path.abspath(x) for x in [
+    'utils.coffee',
+    'uploader.coffee',
     'admin.coffee'
 ]]
 
@@ -58,9 +60,9 @@ class ModifyHandler(pyinotify.ProcessEvent):
             return
         if event.pathname in app_files:
             self.compile_app()
-        elif event.pathname in admin_files:
+        if event.pathname in admin_files:
             self.compile_admin()
-        elif event.pathname in uploader_files:
+        if event.pathname in uploader_files:
             self.compile_uploader()
         else:
             return

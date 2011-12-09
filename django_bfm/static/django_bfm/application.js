@@ -492,13 +492,17 @@
       return this.el;
     },
     do_upload: function() {
-      var csrf_token;
+      var csrf_token, url;
       if (this.aborted != null) {
         return false;
       }
       csrf_token = $('input[name=csrfmiddlewaretoken]').val();
+      url = "upfile/?directory=" + this.directory;
+      if (typeof BFMAdminOptions !== "undefined" && BFMAdminOptions !== null) {
+        url = "" + BFMAdminOptions.upload + "?directory=" + this.directory;
+      }
       this.xhr = $.ajax_upload(this.file, {
-        url: "upfile/?directory=" + this.directory,
+        url: url,
         headers: {
           "X-CSRFToken": csrf_token
         },
@@ -527,7 +531,9 @@
       this.el.removeClass('current');
       this.el.find('.abort').hide();
       this.update_status_bar(1, 100);
-      FileBrowser.files.fetch();
+      if (!(typeof BFMAdminOptions !== "undefined" && BFMAdminOptions !== null)) {
+        FileBrowser.files.fetch();
+      }
       return FileUploader.uploader.report_finished(this);
     },
     upload_abort: function(e) {

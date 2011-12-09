@@ -176,6 +176,7 @@ h2 a{
   position:relative;
   float:left;
   overflow:hidden;
+  width:auto;
 }
 
 .uploader-controls .selector>input[type='file']{

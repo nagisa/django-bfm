@@ -29,12 +29,14 @@ def base(request):
 
 
 def admin_options(request):
-    opt = {
-        "updir": settings.ADMIN_UPDIR,
+    admin_options = {
         "upload": reverse("bfm_upload")
     }
-    options = "BFMAdminOptions = " + simplejson.dumps(opt) + ";"
-    return HttpResponse(options)
+    c = RequestContext(request, {
+        'settings': settings.JSON,
+        'admin_options': simplejson.dumps(admin_options)
+    })
+    return render_to_response('django_bfm/admin.js', c)
 
 
 @login_required
