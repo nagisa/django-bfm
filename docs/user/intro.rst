@@ -53,9 +53,7 @@ which is used to report upload status.
 Python/Django
 -------------
 
-BFM was tested only with Django 1.3 running on Python 2.6 and Python 2.7
-
-So it is safe to assume, that dependencies are as follows:
+BFM was only tested on Python 2.6 and Python 2.7, so it is safe to assume, that dependencies are as follows:
 
 - Python 2.6 or 2.7
 - Django 1.3
