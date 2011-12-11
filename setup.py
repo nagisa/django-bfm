@@ -32,5 +32,5 @@ setup(
           'Topic :: Software Development :: Libraries :: Python Modules'],
     long_description=read('README.rst'),
     include_package_data=True,
-    requires=['Django>=1.3']
+    install_requires=['Django>=1.3']
 )
