@@ -5,13 +5,13 @@ MEDIA_DIRECTORY = getattr(settings,
                           "BFM_MEDIA_DIRECTORY",
                           settings.MEDIA_ROOT)
 
-FILES_IN_PAGE = int(getattr(settings,
-                        "BFM_FILES_IN_PAGE",
-                        20))
-
 MEDIA_URL = getattr(settings, "BFM_MEDIA_URL", '')
 if not MEDIA_URL and MEDIA_DIRECTORY == settings.MEDIA_ROOT:
     MEDIA_URL = settings.MEDIA_URL
+
+FILES_IN_PAGE = int(getattr(settings,
+                        "BFM_FILES_IN_PAGE",
+                        20))
 
 UPLOADS_AT_ONCE = int(getattr(settings, "BFM_UPLOADS_AT_ONCE", 2))
 
