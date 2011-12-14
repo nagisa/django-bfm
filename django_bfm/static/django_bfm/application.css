@@ -284,6 +284,15 @@ h2 a{
   color:#F60;
 }
 
+.uploader-table .file a.filename{
+  color:#555;
+  text-decoration:underline;
+}
+
+.uploader-table .file a.filename:hover{
+  color:#888;
+}
+
 /* Fixing some glitches... */
 
 td.tight.icons,

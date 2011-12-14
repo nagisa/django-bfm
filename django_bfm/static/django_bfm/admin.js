@@ -119,8 +119,14 @@
       return this.indicators.speed.text("" + (readable_size(stats.speed)) + "/s");
     },
     upload_complete: function(e, data) {
+      var link;
       this.el.removeClass('current');
       this.el.find('.abort').hide();
+      link = $('<a />', {
+        "class": 'filename',
+        href: data.url
+      }).text(data.filename);
+      this.el.find('.filename').replaceWith(link);
       this.update_status_bar(1, 100);
       if (!(typeof BFMAdminOptions !== "undefined" && BFMAdminOptions !== null)) {
         FileBrowser.files.fetch();

@@ -59,6 +59,8 @@ FileUploadView = Backbone.View.extend
     upload_complete: (e, data) ->
         @el.removeClass('current')
         @el.find('.abort').hide()
+        link = $('<a />', class: 'filename', href: data.url).text(data.filename)
+        @el.find('.filename').replaceWith(link)
         @update_status_bar(1, 100)
         #Reload file browser!
         if !(BFMAdminOptions?)
