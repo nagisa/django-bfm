@@ -10,12 +10,12 @@ Core Features
 - Directory support
 - Core features has no dependencies (except for Django), lightweight
 - Looks like django admin (extends admin template)
+- Admin upload applet
 
-Additional Features (uses dependencies and/or are optional)
------------------------------------------------------------
+Additional Features (uses additional dependencies)
+--------------------------------------------------
 
 - Image resizing (PIL)
-- Admin upload applet
 
 Requirements
 ------------

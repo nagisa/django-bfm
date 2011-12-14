@@ -50,8 +50,10 @@ Safari                      ?                           5.0 +
 \* Opera and IE 9 and below doesn't support `XHR2 <http://www.w3.org/TR/XMLHttpRequest2/>`_,
 which is used to report upload status.
 
-Python/Django
--------------
+.. _core_dependencies:
+
+Core dependencies
+-----------------
 
 BFM was only tested on Python 2.6 and Python 2.7, so it is safe to assume, that dependencies are as follows:
 

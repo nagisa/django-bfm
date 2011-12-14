@@ -25,8 +25,8 @@ Core Features
 - Directory browsing,
 - Admin applet (You can make Uploader appear in any admin page).
 
-Core features requires no optional dependencies, however core dependencies are
-required.
+Core features requires no optional dependencies, however
+:ref:`core_dependencies` are required.
 
 Next steps
 ----------
