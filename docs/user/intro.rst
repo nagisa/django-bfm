@@ -6,12 +6,11 @@ Introduction
 Why another? There's `adminfiles <https://bitbucket.org/carljm/django-adminfiles/src>`_ and `filebrowser <https://github.com/sehmaschine/django-filebrowser>`_ already.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Why software gets created? Because someone were unhappy with already existing software.
+Why software gets created? Because someone were unhappy with already existing
+software.
 
-That was case for me too - I found it hard to make both those to work the way I want.
-
-Also, *filebrowser* uses flash uploader, which I cannot use as I don't want to have Flash installed.
-As for *adminfiles*, I even couldn't make it work.
+That was case for me too - I found it hard to make both those to work the way I
+want, so I made my own filebrowser.
 
 Why use BFM?
 ------------
