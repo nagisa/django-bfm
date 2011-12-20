@@ -63,7 +63,7 @@ FileUploadView = Backbone.View.extend
         @el.find('.filename').replaceWith(link)
         @update_status_bar(1, 100)
         #Reload file browser!
-        if !(BFMAdminOptions?)
+        if(!(BFMAdminOptions?) and @directory == FileBrowser.path)
             _.defer(=>
                 FileBrowser.files.add(data)
                 FileBrowser.files.sort()
