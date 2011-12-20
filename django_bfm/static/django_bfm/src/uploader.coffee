@@ -64,7 +64,10 @@ FileUploadView = Backbone.View.extend
         @update_status_bar(1, 100)
         #Reload file browser!
         if !(BFMAdminOptions?)
-            FileBrowser.files.fetch()
+            _.defer(=>
+                FileBrowser.files.add(data)
+                FileBrowser.files.sort()
+            )
         #Report finished...
         FileUploader.uploader.report_finished(@)
 

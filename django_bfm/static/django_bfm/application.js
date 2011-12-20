@@ -538,7 +538,10 @@
       this.el.find('.filename').replaceWith(link);
       this.update_status_bar(1, 100);
       if (!(typeof BFMAdminOptions !== "undefined" && BFMAdminOptions !== null)) {
-        FileBrowser.files.fetch();
+        _.defer(__bind(function() {
+          FileBrowser.files.add(data);
+          return FileBrowser.files.sort();
+        }, this));
       }
       return FileUploader.uploader.report_finished(this);
     },

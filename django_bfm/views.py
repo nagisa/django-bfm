@@ -91,7 +91,7 @@ def file_upload(request):
         if form.is_valid():
             f = storage.s.save(request.FILES['file'].name,
                                                         request.FILES['file'])
-            resp = {"filename": f, "url": storage.s.url(f)}
+            resp = storage.file_metadata(f)
             return HttpResponse(simplejson.dumps(resp))
         return HttpResponse(simplejson.dumps(False))
 
