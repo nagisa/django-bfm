@@ -12,13 +12,13 @@ $ ->
             stats.push
                 time: time
                 loaded: loaded
-            while time - stats[0].time > 10000
+            while(time - stats[0].time > 10000)
                 stats.shift()
             time_diff = time - stats[0].time
             size_diff = loaded - stats[0].loaded
-            speed = ~~((size_diff*1000/time_diff)+0.5)
+            speed = ~~((size_diff*1000/time_diff)+0.5) # Double bitwise NOT
             completion = loaded/file.size
-            if completion > 1
+            if(completion > 1)
                 completion = 1
             last_call = time - stats[stats.length-2].time
             last_call = last_call + last_call/10
@@ -26,12 +26,15 @@ $ ->
 
         progress = (e) ->
             # Reports progress to callback passed to this function.
-            settings.progress e, stats_averages(new Date(), e.loaded)
+            settings.progress(e, stats_averages(new Date(), e.loaded))
 
         complete = (e) ->
             # Reports to outside, that uploading has finished...
-            data = JSON.parse(xhr.response)
-            settings.complete e, data
+            if(xhr.status == 200)
+                data = JSON.parse(xhr.response)
+                settings.complete(e, data)
+            else
+                settings.fail(e)
 
         settings =
             headers:
@@ -41,8 +44,9 @@ $ ->
             complete: ->
             error: ->
             abort: ->
+            fail: (e) -> settings.error(e) # If someone someday would need
+                                           # optimization.
         $.extend(settings, options)
-
         xhr = new XMLHttpRequest()
         form = new FormData()
         form.append "file", file
@@ -50,7 +54,7 @@ $ ->
             time: new Date()
             loaded: 0
         ]
-        # Add events.
+
         xhr.upload.addEventListener "progress", ((e) => progress(e)), false
         xhr.addEventListener "load", ((e) => complete(e)), false
         xhr.addEventListener "error", ((e) => settings.error(e)), false

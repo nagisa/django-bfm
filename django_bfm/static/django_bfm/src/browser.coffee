@@ -38,30 +38,34 @@ File = Backbone.Model.extend
             success: ()=>
                 FileBrowser.files.remove(@)
 
-    rename_file: () ->
+    rename_file: ()->
         dialog = new Dialog
             url: @url
             model: @
             template: '#file_rename_tpl'
-            callback: @rename_file_callback
+            callback: (data)=> @rename_file_callback(data)
         dialog.render()
 
-    rename_file_callback: (dialog_data) ->
+    rename_file_callback: (dialog_data)->
         $.ajax
             url: @url
             data: "#{dialog_data}&action=rename"
-            success: =>
-                FileBrowser.files.fetch()
+            success: (data)=>
+                @set(JSON.parse(data))
+                @initialize()
+                FileBrowser.files.sort()
 
-    touch_file: () ->
+    touch_file: ()->
         $.ajax
             url: @url
             data:
                 action: 'touch'
                 file: @get('filename')
                 directory: @get('rel_dir')
-            success: ()=>
-                FileBrowser.files.fetch()
+            success: (data)=>
+                @set(JSON.parse(data))
+                @initialize()
+                FileBrowser.files.sort()
 
     resize_image: () ->
         dialog = new Dialog
@@ -72,8 +76,9 @@ File = Backbone.Model.extend
                 $.ajax
                     url: 'image/'
                     data: "#{dialog_data}&action=resize"
-                    success: =>
-                        FileBrowser.files.fetch()
+                    success: (data)=>
+                        FileBrowser.files.add(JSON.parse(data))
+                        FileBrowser.files.sort()
             hook: (dialog) ->
                 $.ajax
                     url: 'image/'

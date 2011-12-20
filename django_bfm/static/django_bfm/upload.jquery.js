@@ -38,8 +38,12 @@
       };
       complete = function(e) {
         var data;
-        data = JSON.parse(xhr.response);
-        return settings.complete(e, data);
+        if (xhr.status === 200) {
+          data = JSON.parse(xhr.response);
+          return settings.complete(e, data);
+        } else {
+          return settings.fail(e);
+        }
       };
       settings = {
         headers: {
@@ -49,7 +53,10 @@
         progress: function() {},
         complete: function() {},
         error: function() {},
-        abort: function() {}
+        abort: function() {},
+        fail: function(e) {
+          return settings.error(e);
+        }
       };
       $.extend(settings, options);
       xhr = new XMLHttpRequest();

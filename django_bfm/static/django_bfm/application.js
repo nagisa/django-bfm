@@ -44,7 +44,9 @@
         url: this.url,
         model: this,
         template: '#file_rename_tpl',
-        callback: this.rename_file_callback
+        callback: __bind(function(data) {
+          return this.rename_file_callback(data);
+        }, this)
       });
       return dialog.render();
     },
@@ -52,8 +54,10 @@
       return $.ajax({
         url: this.url,
         data: "" + dialog_data + "&action=rename",
-        success: __bind(function() {
-          return FileBrowser.files.fetch();
+        success: __bind(function(data) {
+          this.set(JSON.parse(data));
+          this.initialize();
+          return FileBrowser.files.sort();
         }, this)
       });
     },
@@ -65,8 +69,10 @@
           file: this.get('filename'),
           directory: this.get('rel_dir')
         },
-        success: __bind(function() {
-          return FileBrowser.files.fetch();
+        success: __bind(function(data) {
+          this.set(JSON.parse(data));
+          this.initialize();
+          return FileBrowser.files.sort();
         }, this)
       });
     },
@@ -80,8 +86,9 @@
           return $.ajax({
             url: 'image/',
             data: "" + dialog_data + "&action=resize",
-            success: __bind(function() {
-              return FileBrowser.files.fetch();
+            success: __bind(function(data) {
+              FileBrowser.files.add(JSON.parse(data));
+              return FileBrowser.files.sort();
             }, this)
           });
         },
