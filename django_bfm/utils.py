@@ -14,14 +14,20 @@ class Directory(object):
         self.s = FileSystemStorage(directory, url)
 
     def collect_dirs(self):
-        def children(path):
-            return [{'name': name,
-                    'children': children(os.path.join(path, name)),
-                    'rel_dir': os.path.relpath(os.path.join(path, name),
-                                               self.s.path(''))}
-                    for name in os.listdir(path)
-                    if os.path.isdir(os.path.join(path, name))]
-        return children(self.s.path(''))
+        directories = {}
+        base = self.s.path('')
+        for root, dirs, _ in os.walk(base):
+            for dir_name in dirs:
+                rel_dir = os.path.relpath(os.path.join(root, dir_name), base)
+                directories[rel_dir] = {
+                    'name': dir_name,
+                    'rel_dir': rel_dir,
+                    'children': []
+                }
+                if root != base:
+                    parent_dir = os.path.dirname(rel_dir)
+                    directories[parent_dir]['children'].append(rel_dir)
+        return directories.values()
 
     def collect_files(self):
         files = self.s.listdir('')[1]

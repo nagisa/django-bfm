@@ -1,3 +1,10 @@
+Directory = Backbone.Model.extend
+    url: 'directory/'
+    initialize: ()->
+        @id = @get('rel_dir')
+        @is_child = if @get('rel_dir').indexOf('/') == -1 then false else true
+
+
 DirectoryCollection = Backbone.Collection.extend
     # Collection responsible for all directory models.
     #
@@ -5,13 +12,15 @@ DirectoryCollection = Backbone.Collection.extend
     #
     # added - event callback, called everytime directory list changes.
     url: 'list_directories/'
+    model: Directory
 
     initialize: (attrs)->
         @bind('reset', @added)
 
     added: ()->
         _.forEach(@models, (model)=>
-            DirectoryBrowser.sidebar.append_directory(model)
+            if !model.is_child
+                DirectoryBrowser.sidebar.append_directory(model)
         )
         DirectoryBrowser.sidebar.set_active DirectoryBrowser.path
 
@@ -32,20 +41,19 @@ DirectoriesView = Backbone.View.extend
         @el = $ '.directory-list'
 
     append_directory: (model)->
-        attr = model.attributes
-        view = new DirectoryView('model': attr)
-        @dirs[attr.rel_dir] = view
+        view = new DirectoryView('model': model)
+        @dirs[model.id] = view
         @el.append view.srender()
-        _.forEach(attr.children, (child)=>
+        _.forEach(model.get('children'), (child)=>
             @append_children(child, view)
         )
 
-    append_children: (model, parent_view)->
-        attr = model
-        view = new DirectoryView('model': attr)
-        @dirs[attr.rel_dir] = view
+    append_children: (id, parent_view)->
+        model = DirectoryBrowser.directories.get(id)
+        view = new DirectoryView('model': model)
+        @dirs[model.id] = view
         parent_view.append_child view.srender()
-        _.forEach(attr.children, (child)=>
+        _.forEach(model.get('children'), (child)=>
             @append_children(child, view)
         )
 
@@ -80,10 +88,10 @@ DirectoryView = Backbone.View.extend
 
     load_directory: (e)->
         e.stopImmediatePropagation()
-        DirectoryBrowser.open_path @model.rel_dir, true
+        DirectoryBrowser.open_path @model.get('rel_dir'), true
 
     srender: ()->
-        @el.html "<a class='directory'>#{@model.name}</a>"
+        @el.html "<a class='directory'>#{@model.get('name')}</a>"
 
     activate: ()->
         @el.children('a').addClass('selected')
