@@ -80,7 +80,6 @@ ContextMenu = Backbone.View.extend
         @block = $('<div />', class: 'block invisible')
     clicked: (callback)->
         @el.fadeOut(200, ()=>@remove())
-        @block.remove()
         callback()
     add_entry: (entry, callback)->
         @el.append(entry)
@@ -91,9 +90,10 @@ ContextMenu = Backbone.View.extend
             @add_entry(entry, callbacks[key])
         )
     render: (e)->
-        width = @el.appendTo($('body')).hide().fadeIn(200).width()
+        width = @el.appendTo($('body')).hide().fadeIn(200).outerWidth()
         top = e.pageY + 2
-        left = e.pageX - width/2
+        left = e.pageX
+        if left + width >= $(document).width()
+            left = $(document).width() - width
         @el.css(top: top, left: left)
-        # Adding block element...
-        @block.appendTo($('body')).click(()=>@clicked(()->))
+        $(document).one('mousedown', ()=>@clicked(()->))

@@ -114,11 +114,6 @@ h2 a{
   z-index:10005;
 }
 
-.invisible{
-  background: none;
-  display: block;
-}
-
 .contextmenu{
   position:absolute;
   padding:0;
@@ -126,6 +121,8 @@ h2 a{
   border: 1px solid #CCC;
   background:#FFF;
   z-index:10010;
+  border-radius:5px;
+  padding:7px 0;
 }
 
 .contextmenu li{
@@ -135,11 +132,12 @@ h2 a{
 
 .contextmenu li a{
   display:block;
-  padding:2px 5px;
+  padding:5px 10px;
 }
 
 .contextmenu li a:hover{
-  background:#CCC;
+  background:#666;
+  color:#FFF;
   cursor:pointer;
 }
 
@@ -335,4 +333,12 @@ td.tight.icons,
   -o-user-select: none;
   user-select: none;
   cursor: pointer !important;
+}
+
+.directory-list ul{
+  padding:0px;
+}
+
+.directory-list ul li{
+  padding:0px;
 }

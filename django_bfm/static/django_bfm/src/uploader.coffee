@@ -134,6 +134,7 @@ UploaderView = Backbone.View.extend
         'change input[type="file"]': 'add_files'
         'click .finished': 'clear_finished'
         'click .rqueued': 'remove_queue'
+    unload_event: false
 
     initialize: ()->
         @el = $('<div />', {class: 'uploader'})
@@ -183,12 +184,20 @@ UploaderView = Backbone.View.extend
 
     upload_next: ()->
         for i in [0...@uploads_at_once-@active_uploads]
-            # We'll loop while at least one file will start.
+            # We'll loop until at least one file will start.
             while @to_upload.length > 0 and not started
                 upl = @to_upload.pop()
                 started = upl.do_upload()
                 @started_uploads.push(upl)
                 @active_uploads += 1
+
+        # Add/remove exit confirmation
+        if not @unload_event
+            @unload_event = true
+            $(window).on('beforeunload.uploading', @unloading)
+        else if @to_upload.length == 0 && @active_uploads == 0
+            @unload_event = false
+            $(window).off('.uploading')
 
     report_finished: (who)->
         @finished_uploads.push(who)
@@ -204,6 +213,9 @@ UploaderView = Backbone.View.extend
         e.preventDefault()
         for i in [0...@to_upload.length]
             _.defer(()=>@to_upload.pop().remove())
+
+    unloading: ()->
+        return $.trim($('#upload_cancel_tpl').text())
 
 
 FileUploader =

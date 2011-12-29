@@ -349,6 +349,7 @@ FileBrowser =
     path: null
     page: null
     router: null
+    last_xhr: {readyState: 4}
 
     do_browse: (path, page)->
         if @first
@@ -360,7 +361,9 @@ FileBrowser =
         [@page, page] = [parseInt(page), @page]
         if @path != path
             @files.update_directory()
-            @files.fetch()
+            if @last_xhr.readyState != 4
+                @last_xhr.abort()
+            @last_xhr = @files.fetch()
         else if @page != page
             @paginator.render()
 

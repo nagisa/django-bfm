@@ -80,7 +80,6 @@
       this.el.fadeOut(200, __bind(function() {
         return this.remove();
       }, this));
-      this.block.remove();
       return callback();
     },
     add_entry: function(entry, callback) {
@@ -97,14 +96,17 @@
     },
     render: function(e) {
       var left, top, width;
-      width = this.el.appendTo($('body')).hide().fadeIn(200).width();
+      width = this.el.appendTo($('body')).hide().fadeIn(200).outerWidth();
       top = e.pageY + 2;
-      left = e.pageX - width / 2;
+      left = e.pageX;
+      if (left + width >= $(document).width()) {
+        left = $(document).width() - width;
+      }
       this.el.css({
         top: top,
         left: left
       });
-      return this.block.appendTo($('body')).click(__bind(function() {
+      return $(document).one('mousedown', __bind(function() {
         return this.clicked(function() {});
       }, this));
     }
@@ -237,6 +239,7 @@
       'click .finished': 'clear_finished',
       'click .rqueued': 'remove_queue'
     },
+    unload_event: false,
     initialize: function() {
       return this.el = $('<div />', {
         "class": 'uploader'
@@ -299,22 +302,22 @@
       }, this));
     },
     upload_next: function() {
-      var i, started, upl, _ref, _results;
-      _results = [];
+      var i, started, upl, _ref;
       for (i = 0, _ref = this.uploads_at_once - this.active_uploads; 0 <= _ref ? i < _ref : i > _ref; 0 <= _ref ? i++ : i--) {
-        _results.push((function() {
-          var _results2;
-          _results2 = [];
-          while (this.to_upload.length > 0 && !started) {
-            upl = this.to_upload.pop();
-            started = upl.do_upload();
-            this.started_uploads.push(upl);
-            _results2.push(this.active_uploads += 1);
-          }
-          return _results2;
-        }).call(this));
+        while (this.to_upload.length > 0 && !started) {
+          upl = this.to_upload.pop();
+          started = upl.do_upload();
+          this.started_uploads.push(upl);
+          this.active_uploads += 1;
+        }
       }
-      return _results;
+      if (!this.unload_event) {
+        this.unload_event = true;
+        return $(window).on('beforeunload.uploading', this.unloading);
+      } else if (this.to_upload.length === 0 && this.active_uploads === 0) {
+        this.unload_event = false;
+        return $(window).off('.uploading');
+      }
     },
     report_finished: function(who) {
       this.finished_uploads.push(who);
@@ -344,6 +347,9 @@
         }, this)));
       }
       return _results;
+    },
+    unloading: function() {
+      return $.trim($('#upload_cancel_tpl').text());
     }
   });
   FileUploader = {

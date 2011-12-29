@@ -111,7 +111,7 @@ DirectoryView = Backbone.View.extend
     tagName: 'li'
     events:
         "click .directory": "load_directory"
-        "contextmenu": "actions_menu"
+        "contextmenu .directory": "actions_menu"
     children_el: false
     context_template: '#directory_actions_tpl'
 
@@ -126,7 +126,7 @@ DirectoryView = Backbone.View.extend
     load_directory: (e)->
         e.stopImmediatePropagation()
         e.preventDefault()
-        DirectoryBrowser.open_path @model.get('rel_dir'), true
+        DirectoryBrowser.open_path(@model.get('rel_dir'), true)
 
     srender: ()->
         @el.html("<a class='directory'>#{@model.get('name')}</a>")
@@ -178,7 +178,7 @@ DirectoryView = Backbone.View.extend
 RootDirectoryView = DirectoryView.extend
     events:
         "click a": "load_directory"
-        "contextmenu": "actions_menu"
+        "contextmenu a": "actions_menu"
     context_template: '#rootdirectory_actions_tpl'
     initialize: ()->
         @el = $('#changelist-filter>h2').first()
