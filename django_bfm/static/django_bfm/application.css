@@ -114,6 +114,35 @@ h2 a{
   z-index:10005;
 }
 
+.invisible{
+  background: none;
+  display: block;
+}
+
+.contextmenu{
+  position:absolute;
+  padding:0;
+  margin:0;
+  border: 1px solid #CCC;
+  background:#FFF;
+  z-index:10010;
+}
+
+.contextmenu li{
+  list-style:none;
+  padding:0;
+}
+
+.contextmenu li a{
+  display:block;
+  padding:2px 5px;
+}
+
+.contextmenu li a:hover{
+  background:#CCC;
+  cursor:pointer;
+}
+
 /* Uploader Applet */
 
 .uploader{

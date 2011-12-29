@@ -49,7 +49,7 @@ File = Backbone.Model.extend
     rename_file_callback: (dialog_data)->
         $.ajax
             url: @url
-            data: "#{dialog_data}&action=rename"
+            data: $.extend(dialog_data, {action: 'rename'})
             success: (data)=>
                 @set(JSON.parse(data))
                 @initialize()
@@ -75,7 +75,7 @@ File = Backbone.Model.extend
             callback: (dialog_data) ->
                 $.ajax
                     url: 'image/'
-                    data: "#{dialog_data}&action=resize"
+                    data: $.extend(dialog_data, {action: 'resize'})
                     success: (data)=>
                         FileBrowser.files.add(JSON.parse(data))
                         FileBrowser.files.sort()

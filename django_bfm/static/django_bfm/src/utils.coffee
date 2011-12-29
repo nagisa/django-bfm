@@ -17,10 +17,10 @@ readable_size = (size) ->
 
 directory_upload_support = ()->
     # Checks for browser ability to select directory instead of files in file
-    # selection dialog.
+    # selection dialog. It is way faster. WAAAAY FASTER.
     #
     # Currently known to work only in Chrome(-ium) daily builds.
-    input = document.createElement 'input'
+    input = document.createElement('input')
     input.type = "file"
     if input.directory? or input.webkitdirectory? or input.mozdirectory?
         return true
@@ -52,7 +52,10 @@ Dialog = Backbone.View.extend
     call_callback: (e) ->
         @tear_down()
         e.preventDefault()
-        @callback($(@el).serialize())
+        object = {}
+        for key, field of $(@el).serializeArray()
+            object[field.name] = field.value
+        @callback(object)
     initialize: (attrs) ->
         @url = attrs.url
         @model = attrs.model
@@ -65,4 +68,32 @@ Dialog = Backbone.View.extend
         $('body').append(element.fadeIn(200))
         $('.block').fadeIn(300)
         if @hook?
-            @hook @
+            @hook(@)
+
+
+ContextMenu = Backbone.View.extend
+    tagName: 'ul'
+    className: 'contextmenu'
+
+    initialize: () ->
+        @el = $(@el)
+        @block = $('<div />', class: 'block invisible')
+    clicked: (callback)->
+        @el.fadeOut(200, ()=>@remove())
+        @block.remove()
+        callback()
+    add_entry: (entry, callback)->
+        @el.append(entry)
+        $(entry).click(()=>@clicked(callback))
+    add_entries: (entries, callbacks)->
+        entries = entries.filter('li')
+        _.each(entries, (entry, key)=>
+            @add_entry(entry, callbacks[key])
+        )
+    render: (e)->
+        width = @el.appendTo($('body')).hide().fadeIn(200).width()
+        top = e.pageY + 2
+        left = e.pageX - width/2
+        @el.css(top: top, left: left)
+        # Adding block element...
+        @block.appendTo($('body')).click(()=>@clicked(()->))

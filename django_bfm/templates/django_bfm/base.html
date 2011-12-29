@@ -12,8 +12,10 @@
 {% block extrahead %}
     {{ block.super }}
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.1.7/underscore-min.js"></script>
-    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.5.3/backbone-min.js"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.1.7/underscore-min.js">
+    </script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.5.3/backbone-min.js">
+    </script>
     <script type="text/javascript">
         window.BFMOptions = {{ settings|safe }};
         window.BFMRoot = "{{ root }}";
@@ -84,7 +86,9 @@
     <script id="uploader_tpl" type="text/template">
         <div class="uploader-head">
             {% trans "Uploader" %}
-            <a class="control iconic fullscreen" title="{% trans "Expand uploader" %}" data-alttitle="{% trans "Minimize uploader" %}"></a>
+            <a class="control iconic fullscreen" title="{% trans "Expand uploader" %}"
+                                        data-alttitle="{% trans "Minimize uploader" %}">
+            </a>
         </div>
         <div class="uploader-controls breadcrumbs">
             <form class="selector">
@@ -154,6 +158,45 @@
     </script>
 
 
+    <script id="directory_actions_tpl" type="text/template">
+        <li><a>{% trans "New directory" %}</a></li>
+        <li><a>{% trans "Rename" %}</a></li>
+        <li><a>{% trans "Delete" %}</a></li>
+    </script>
+
+
+    <script id="rootdirectory_actions_tpl" type="text/template">
+        <li><a>{% trans "New directory" %}</a></li>
+    </script>
+
+
+    <script id="new_directory_tpl" type="text/template">
+        <h2>{% trans "Create new directory" %}</h2>
+        {% trans "You are going to create a new directory inside '/<%= rel_dir %>'. Enter it's name." %}
+        <input type="text" name="new" value="">
+        <input type="submit" class="submit" value="{% trans "Create" %}">
+        <input type="submit" class="cancel" value="{% trans "Cancel" %}">
+    </script>
+
+
+    <script id="rename_directory_tpl" type="text/template">
+        <h2>{% trans "Rename directory" %}</h2>
+        <input type="text" name="new" value="<%= name %>">
+        <input type="submit" class="submit" value="{% trans "Rename" %}">
+        <input type="submit" class="cancel" value="{% trans "Cancel" %}">
+    </script>
+
+
+    <script id="delete_directory_tpl" type="text/template">
+        <h2>{% trans "Delete directory" %}</h2>
+        <div>
+            {% trans "You are going to delete a directory with all files and directories inside it. Are you sure?" %}
+        </div>
+        <input type="submit" class="cancel" value="{% trans "No" %}">
+        <input type="submit" class="cancel" value="{% trans "Over my dead body!" %}">
+        <input type="submit" class="submit" value="{% trans "I'm sure" %}">
+        <input type="submit" class="cancel" value="{% trans "Just kill this dialog" %}">
+    </script>
 {% endblock %}
 
 {% block extrastyle %}

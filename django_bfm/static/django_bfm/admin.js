@@ -1,5 +1,5 @@
 (function() {
-  var Dialog, FileUploadView, FileUploader, UploaderView, directory_upload_support, readable_size;
+  var ContextMenu, Dialog, FileUploadView, FileUploader, UploaderView, directory_upload_support, readable_size;
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
   readable_size = function(size) {
     var s, table, _i, _len;
@@ -38,9 +38,16 @@
       return e.preventDefault();
     },
     call_callback: function(e) {
+      var field, key, object, _ref;
       this.tear_down();
       e.preventDefault();
-      return this.callback($(this.el).serialize());
+      object = {};
+      _ref = $(this.el).serializeArray();
+      for (key in _ref) {
+        field = _ref[key];
+        object[field.name] = field.value;
+      }
+      return this.callback(object);
     },
     initialize: function(attrs) {
       this.url = attrs.url;
@@ -58,6 +65,48 @@
       if (this.hook != null) {
         return this.hook(this);
       }
+    }
+  });
+  ContextMenu = Backbone.View.extend({
+    tagName: 'ul',
+    className: 'contextmenu',
+    initialize: function() {
+      this.el = $(this.el);
+      return this.block = $('<div />', {
+        "class": 'block invisible'
+      });
+    },
+    clicked: function(callback) {
+      this.el.fadeOut(200, __bind(function() {
+        return this.remove();
+      }, this));
+      this.block.remove();
+      return callback();
+    },
+    add_entry: function(entry, callback) {
+      this.el.append(entry);
+      return $(entry).click(__bind(function() {
+        return this.clicked(callback);
+      }, this));
+    },
+    add_entries: function(entries, callbacks) {
+      entries = entries.filter('li');
+      return _.each(entries, __bind(function(entry, key) {
+        return this.add_entry(entry, callbacks[key]);
+      }, this));
+    },
+    render: function(e) {
+      var left, top, width;
+      width = this.el.appendTo($('body')).hide().fadeIn(200).width();
+      top = e.pageY + 2;
+      left = e.pageX - width / 2;
+      this.el.css({
+        top: top,
+        left: left
+      });
+      return this.block.appendTo($('body')).click(__bind(function() {
+        return this.clicked(function() {});
+      }, this));
     }
   });
   FileUploadView = Backbone.View.extend({

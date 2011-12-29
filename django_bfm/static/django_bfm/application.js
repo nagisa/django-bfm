@@ -1,5 +1,5 @@
 (function() {
-  var Dialog, DirectoriesView, DirectoryBrowser, DirectoryCollection, DirectoryView, File, FileBrowser, FileCollection, FilePaginatorView, FileTableView, FileUploadView, FileUploader, FileView, UploaderView, Urls, directory_upload_support, readable_size;
+  var ContextMenu, Dialog, DirectoriesView, Directory, DirectoryBrowser, DirectoryCollection, DirectoryView, File, FileBrowser, FileCollection, FilePaginatorView, FileTableView, FileUploadView, FileUploader, FileView, RootDirectoryView, UploaderView, Urls, directory_upload_support, readable_size;
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __indexOf = Array.prototype.indexOf || function(item) {
     for (var i = 0, l = this.length; i < l; i++) {
       if (this[i] === item) return i;
@@ -53,7 +53,9 @@
     rename_file_callback: function(dialog_data) {
       return $.ajax({
         url: this.url,
-        data: "" + dialog_data + "&action=rename",
+        data: $.extend(dialog_data, {
+          action: 'rename'
+        }),
         success: __bind(function(data) {
           this.set(JSON.parse(data));
           this.initialize();
@@ -85,7 +87,9 @@
         callback: function(dialog_data) {
           return $.ajax({
             url: 'image/',
-            data: "" + dialog_data + "&action=resize",
+            data: $.extend(dialog_data, {
+              action: 'resize'
+            }),
             success: __bind(function(data) {
               FileBrowser.files.add(JSON.parse(data));
               return FileBrowser.files.sort();
@@ -373,14 +377,65 @@
       return this.router.navigate("path=" + this.path + "^page=" + page, true);
     }
   };
+  Directory = Backbone.Model.extend({
+    url: 'directory/',
+    initialize: function() {
+      this.id = this.get('rel_dir');
+      return this.is_child = this.get('rel_dir').indexOf('/') === -1 ? false : true;
+    },
+    new_folder: function(data) {
+      return $.ajax({
+        url: this.url,
+        data: $.extend(data, {
+          action: 'new',
+          directory: this.get('rel_dir')
+        }),
+        success: function() {
+          return DirectoryBrowser.directories.fetch();
+        }
+      });
+    },
+    rename: function(data) {
+      return $.ajax({
+        url: this.url,
+        data: $.extend(data, {
+          action: 'rename',
+          directory: this.get('rel_dir')
+        }),
+        success: function() {
+          return DirectoryBrowser.directories.fetch();
+        }
+      });
+    },
+    "delete": function(data) {
+      return $.ajax({
+        url: this.url,
+        data: {
+          action: 'delete',
+          directory: this.get('rel_dir')
+        },
+        success: function() {
+          return DirectoryBrowser.directories.fetch();
+        }
+      });
+    }
+  });
   DirectoryCollection = Backbone.Collection.extend({
     url: 'list_directories/',
+    model: Directory,
     initialize: function(attrs) {
-      return this.bind('reset', this.added);
+      this.bind('reset', this.added);
+      return this.root = new Directory({
+        name: '',
+        rel_dir: ''
+      });
     },
     added: function() {
+      DirectoryBrowser.sidebar.clear();
       _.forEach(this.models, __bind(function(model) {
-        return DirectoryBrowser.sidebar.append_directory(model);
+        if (!model.is_child) {
+          return DirectoryBrowser.sidebar.append_directory(model);
+        }
       }, this));
       return DirectoryBrowser.sidebar.set_active(DirectoryBrowser.path);
     }
@@ -389,29 +444,29 @@
     dirs: {},
     active_dir: null,
     initialize: function() {
-      return this.el = $('.directory-list');
+      this.el = $('.directory-list');
+      return new RootDirectoryView();
     },
     append_directory: function(model) {
-      var attr, view;
-      attr = model.attributes;
+      var view;
       view = new DirectoryView({
-        'model': attr
+        'model': model
       });
-      this.dirs[attr.rel_dir] = view;
+      this.dirs[model.id] = view;
       this.el.append(view.srender());
-      return _.forEach(attr.children, __bind(function(child) {
+      return _.forEach(model.get('children'), __bind(function(child) {
         return this.append_children(child, view);
       }, this));
     },
-    append_children: function(model, parent_view) {
-      var attr, view;
-      attr = model;
+    append_children: function(id, parent_view) {
+      var model, view;
+      model = DirectoryBrowser.directories.get(id);
       view = new DirectoryView({
-        'model': attr
+        'model': model
       });
-      this.dirs[attr.rel_dir] = view;
+      this.dirs[model.id] = view;
       parent_view.append_child(view.srender());
-      return _.forEach(attr.children, __bind(function(child) {
+      return _.forEach(model.get('children'), __bind(function(child) {
         return this.append_children(child, view);
       }, this));
     },
@@ -425,24 +480,42 @@
       } else if (this.active_dir) {
         return this.active_dir.deactivate();
       }
+    },
+    clear: function() {
+      var active_dir, dirs;
+      dirs = {};
+      active_dir = null;
+      return this.el.children().remove();
     }
   });
   DirectoryView = Backbone.View.extend({
     tagName: 'li',
     events: {
-      "click .directory": "load_directory"
+      "click .directory": "load_directory",
+      "contextmenu": "actions_menu"
     },
     children_el: false,
+    context_template: '#directory_actions_tpl',
     initialize: function(attrs) {
       this.model = attrs.model;
-      return this.el = $(this.el);
+      this.el = $(this.el);
+      return this.context_callbacks = [
+        (__bind(function() {
+          return this.new_folder();
+        }, this)), (__bind(function() {
+          return this.rename();
+        }, this)), (__bind(function() {
+          return this["delete"]();
+        }, this))
+      ];
     },
     load_directory: function(e) {
       e.stopImmediatePropagation();
-      return DirectoryBrowser.open_path(this.model.rel_dir, true);
+      e.preventDefault();
+      return DirectoryBrowser.open_path(this.model.get('rel_dir'), true);
     },
     srender: function() {
-      return this.el.html("<a class='directory'>" + this.model.name + "</a>");
+      return this.el.html("<a class='directory'>" + (this.model.get('name')) + "</a>");
     },
     activate: function() {
       return this.el.children('a').addClass('selected');
@@ -456,6 +529,65 @@
         this.el.append(this.children_el);
       }
       return this.children_el.append(child);
+    },
+    actions_menu: function(e) {
+      var entries, menu;
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      entries = $(_.template($(this.context_template).html())());
+      menu = new ContextMenu();
+      menu.add_entries(entries, this.context_callbacks);
+      return menu.render(e);
+    },
+    new_folder: function() {
+      var dialog;
+      dialog = new Dialog({
+        model: this.model,
+        template: '#new_directory_tpl',
+        callback: __bind(function(data) {
+          return this.model.new_folder(data);
+        }, this)
+      });
+      return dialog.render();
+    },
+    rename: function() {
+      var dialog;
+      dialog = new Dialog({
+        model: this.model,
+        template: '#rename_directory_tpl',
+        callback: __bind(function(data) {
+          return this.model.rename(data);
+        }, this)
+      });
+      return dialog.render();
+    },
+    "delete": function() {
+      var dialog;
+      dialog = new Dialog({
+        model: this.model,
+        template: '#delete_directory_tpl',
+        callback: __bind(function(data) {
+          return this.model["delete"](data);
+        }, this)
+      });
+      return dialog.render();
+    }
+  });
+  RootDirectoryView = DirectoryView.extend({
+    events: {
+      "click a": "load_directory",
+      "contextmenu": "actions_menu"
+    },
+    context_template: '#rootdirectory_actions_tpl',
+    initialize: function() {
+      this.el = $('#changelist-filter>h2').first();
+      this.model = DirectoryBrowser.directories.root;
+      this.context_callbacks = [
+        (__bind(function() {
+          return this.new_folder();
+        }, this))
+      ];
+      return this.delegateEvents();
     }
   });
   DirectoryBrowser = {
@@ -756,9 +888,16 @@
       return e.preventDefault();
     },
     call_callback: function(e) {
+      var field, key, object, _ref;
       this.tear_down();
       e.preventDefault();
-      return this.callback($(this.el).serialize());
+      object = {};
+      _ref = $(this.el).serializeArray();
+      for (key in _ref) {
+        field = _ref[key];
+        object[field.name] = field.value;
+      }
+      return this.callback(object);
     },
     initialize: function(attrs) {
       this.url = attrs.url;
@@ -776,6 +915,48 @@
       if (this.hook != null) {
         return this.hook(this);
       }
+    }
+  });
+  ContextMenu = Backbone.View.extend({
+    tagName: 'ul',
+    className: 'contextmenu',
+    initialize: function() {
+      this.el = $(this.el);
+      return this.block = $('<div />', {
+        "class": 'block invisible'
+      });
+    },
+    clicked: function(callback) {
+      this.el.fadeOut(200, __bind(function() {
+        return this.remove();
+      }, this));
+      this.block.remove();
+      return callback();
+    },
+    add_entry: function(entry, callback) {
+      this.el.append(entry);
+      return $(entry).click(__bind(function() {
+        return this.clicked(callback);
+      }, this));
+    },
+    add_entries: function(entries, callbacks) {
+      entries = entries.filter('li');
+      return _.each(entries, __bind(function(entry, key) {
+        return this.add_entry(entry, callbacks[key]);
+      }, this));
+    },
+    render: function(e) {
+      var left, top, width;
+      width = this.el.appendTo($('body')).hide().fadeIn(200).width();
+      top = e.pageY + 2;
+      left = e.pageX - width / 2;
+      this.el.css({
+        top: top,
+        left: left
+      });
+      return this.block.appendTo($('body')).click(__bind(function() {
+        return this.clicked(function() {});
+      }, this));
     }
   });
   Urls = Backbone.Router.extend({

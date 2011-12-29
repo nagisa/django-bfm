@@ -1,3 +1,6 @@
+import os
+import shutil
+
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
@@ -8,7 +11,6 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 
 import utils
-import os
 from forms import UploadFileForm
 import settings
 
@@ -80,8 +82,39 @@ def file_actions(request):
         if not new_name:
             return HttpResponseBadRequest()
         else:
-            os.rename(storage.s.path(f), storage.s.path(new_name))
+            new = storage.s.path(storage.s.get_available_name(new_name))
+            os.rename(storage.s.path(f), new)
         return HttpResponse(simplejson.dumps(storage.file_metadata(new_name)))
+
+
+@login_required
+@staff_member_required
+def directory_actions(request):
+    directory = request.GET.get('directory', False)
+    action = request.GET.get('action', False)
+    if directory == False or not action:
+        return HttpResponseBadRequest()
+
+    storage = utils.Directory(directory)
+    root = utils.Directory("")
+    if action == 'new':
+        new = request.GET.get('new', False)
+        if not new:
+            return HttpResponseBadRequest()
+        os.mkdir(storage.s.path(storage.s.get_available_name(new)))
+        return HttpResponse()
+    elif action == 'rename':
+        new = request.GET.get('new', False)
+        if not new:
+            return HttpResponseBadRequest()
+        new = storage.s.get_available_name(new)
+        new_path = root.s.path(os.path.join(directory, '..', new))
+        os.rename(root.s.path(directory), new_path)
+        return HttpResponse()
+    elif action == 'delete':
+        shutil.rmtree(storage.s.path(''))
+        return HttpResponse()
+    return HttpResponseBadRequest()
 
 
 @login_required
