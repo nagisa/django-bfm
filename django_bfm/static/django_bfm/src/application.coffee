@@ -20,7 +20,7 @@ Urls = Backbone.Router.extend
         return
 
     do_navigate: (path)->
-        @navigate "path=^page=1", true
+        @navigate("path=^page=1", true)
 
 
 $ =>

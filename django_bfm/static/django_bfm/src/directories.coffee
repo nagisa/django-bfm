@@ -46,7 +46,7 @@ DirectoryCollection = Backbone.Collection.extend
             if !model.is_child
                 DirectoryBrowser.sidebar.append_directory(model)
         )
-        DirectoryBrowser.sidebar.set_active DirectoryBrowser.path
+        DirectoryBrowser.sidebar.set_active(DirectoryBrowser.path)
 
 
 DirectoriesView = Backbone.View.extend
@@ -62,14 +62,14 @@ DirectoriesView = Backbone.View.extend
     active_dir: null
 
     initialize: ()->
-        @el = $ '.directory-list'
+        @el = $('.directory-list')
         # Root directory is exception to all possible rules...
         new RootDirectoryView()
 
     append_directory: (model)->
         view = new DirectoryView('model': model)
         @dirs[model.id] = view
-        @el.append view.srender()
+        @el.append(view.srender())
         _.forEach(model.get('children'), (child)=>
             @append_children(child, view)
         )
@@ -78,7 +78,7 @@ DirectoriesView = Backbone.View.extend
         model = DirectoryBrowser.directories.get(id)
         view = new DirectoryView('model': model)
         @dirs[model.id] = view
-        parent_view.append_child view.srender()
+        parent_view.append_child(view.srender())
         _.forEach(model.get('children'), (child)=>
             @append_children(child, view)
         )
@@ -129,7 +129,7 @@ DirectoryView = Backbone.View.extend
         DirectoryBrowser.open_path @model.get('rel_dir'), true
 
     srender: ()->
-        @el.html "<a class='directory'>#{@model.get('name')}</a>"
+        @el.html("<a class='directory'>#{@model.get('name')}</a>")
 
     activate: ()->
         @el.children('a').addClass('selected')
@@ -141,7 +141,7 @@ DirectoryView = Backbone.View.extend
         if !@children_el
             @children_el = $ '<ul />'
             @el.append @children_el
-        @children_el.append child
+        @children_el.append(child)
 
     actions_menu: (e)->
         e.stopImmediatePropagation()
@@ -200,7 +200,7 @@ DirectoryBrowser =
             @directories.fetch()
             @first = false
         else
-            @sidebar.set_active path
+            @sidebar.set_active(path)
 
-    open_path: (path) ->
-        @router.navigate "path=#{path}^page=1", true
+    open_path: (path)->
+        @router.navigate("path=#{path}^page=1", true)

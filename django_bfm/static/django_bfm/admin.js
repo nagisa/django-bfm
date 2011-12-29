@@ -281,21 +281,22 @@
     },
     add_files: function(e) {
       return _.forEach(e.currentTarget.files, __bind(function(file) {
-        return _.delay((__bind(function(file) {
+        return _.defer(__bind(function() {
           return this.add_file(file);
-        }, this)), 0, file);
+        }, this));
       }, this));
     },
     add_file: function(file) {
       var view;
       if ((file.name != null ? file.name : file.fileName) === ".") {
-        console.log("directory suppressed...");
         return;
       }
       view = new FileUploadView(file);
       this.to_upload.unshift(view);
       this.el.find('.uploader-table').append(view.srender());
-      return this.upload_next();
+      return _.defer(__bind(function() {
+        return this.upload_next();
+      }, this));
     },
     upload_next: function() {
       var i, started, upl, _ref, _results;
@@ -318,7 +319,9 @@
     report_finished: function(who) {
       this.finished_uploads.push(who);
       this.active_uploads -= 1;
-      return this.upload_next();
+      return _.defer(__bind(function() {
+        return this.upload_next();
+      }, this));
     },
     clear_finished: function(e) {
       var i, _ref, _results;

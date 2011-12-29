@@ -17,11 +17,11 @@ FileUploadView = Backbone.View.extend
     events:
         'click .abort': 'abort'
 
-    initialize: (file) ->
+    initialize: (file)->
         @file = file
         @directory = FileUploader.path
 
-    srender: () ->
+    srender: ()->
         filename = if @file.name? then @file.name else @file.fileName
         @el = $(_.template($('#file_upload_tpl').html(), {filename: filename}))
         @status = @el.find('.status')
@@ -51,12 +51,12 @@ FileUploadView = Backbone.View.extend
         @el.addClass('current')
         return true
 
-    report_progress: (e, stats) ->
+    report_progress: (e, stats)->
         @update_status_bar(stats.completion, stats.last_call)
         @indicators.percent.text(~~(stats.completion*1000+0.5)/10)
         @indicators.speed.text("#{readable_size(stats.speed)}/s")
 
-    upload_complete: (e, data) ->
+    upload_complete: (e, data)->
         @el.removeClass('current')
         @el.find('.abort').hide()
         link = $('<a />', class: 'filename', href: data.url).text(data.filename)
@@ -71,7 +71,7 @@ FileUploadView = Backbone.View.extend
         #Report finished...
         FileUploader.uploader.report_finished(@)
 
-    upload_abort: (e) ->
+    upload_abort: (e)->
         @el.removeClass('current')
         @status.css('background', '#FF9F00')
         @el.find('.indicators').hide()
@@ -79,7 +79,7 @@ FileUploadView = Backbone.View.extend
         @el.find('.abort').hide()
         FileUploader.uploader.report_finished(@)
 
-    upload_error: (e) ->
+    upload_error: (e)->
         @el.removeClass('current')
         @status.css('background', '#DD4032')
         @el.find('.indicators').hide()
@@ -97,13 +97,13 @@ FileUploadView = Backbone.View.extend
             @el.find('.aborted').show()
             FileUploader.uploader.finished_uploads.push @
 
-    update_status_bar: (percent, duration) ->
+    update_status_bar: (percent, duration)->
         css =
             'width': "#{percent*100}%"
         animation_options =
             duration: duration
             easing: 'linear'
-        @status.stop(true).animate css, animation_options
+        @status.stop(true).animate(css, animation_options)
 
 
 UploaderView = Backbone.View.extend
@@ -135,19 +135,19 @@ UploaderView = Backbone.View.extend
         'click .finished': 'clear_finished'
         'click .rqueued': 'remove_queue'
 
-    initialize: () ->
-        @el = $ '<div />', {class: 'uploader'}
+    initialize: ()->
+        @el = $('<div />', {class: 'uploader'})
 
     render: ()->
-        @el.append _.template($('#uploader_tpl').html())
-        @el.appendTo($ 'body')
+        @el.append(_.template($('#uploader_tpl').html()))
+        @el.appendTo($('body'))
         @height = @el.height()
         if directory_upload_support()
             @el.find('.selector.directory').show()
         @delegateEvents @events
 
     toggle_visibility: (e)->
-        button = @el.find '.uploader-head>.control'
+        button = @el.find('.uploader-head>.control')
         button.toggleClass('fullscreen exit-fullscreen')
         button.attr
             'title': button.attr('data-alttitle')
@@ -163,24 +163,23 @@ UploaderView = Backbone.View.extend
             css =
                 width: '162px'
                 height: "#{@height}px"
-        @el.animate css, options
+        @el.animate(css, options)
         others = @el.children(':not(.uploader-head)').stop(true, true)
         others.fadeToggle(options.duration)
         @visible = !@visible
 
     add_files: (e)->
         _.forEach(e.currentTarget.files, (file)=>
-            _.delay ((file)=>@add_file(file)), 0, file
+            _.defer(()=>@add_file(file))
         )
 
     add_file: (file)->
         if (if file.name? then file.name else file.fileName) == "."
-            console.log "directory suppressed..."
             return
         view = new FileUploadView(file)
-        @to_upload.unshift view
-        @el.find('.uploader-table').append view.srender()
-        @upload_next()
+        @to_upload.unshift(view)
+        @el.find('.uploader-table').append(view.srender())
+        _.defer(()=>@upload_next())
 
     upload_next: ()->
         for i in [0...@uploads_at_once-@active_uploads]
@@ -188,23 +187,23 @@ UploaderView = Backbone.View.extend
             while @to_upload.length > 0 and not started
                 upl = @to_upload.pop()
                 started = upl.do_upload()
-                @started_uploads.push upl
+                @started_uploads.push(upl)
                 @active_uploads += 1
 
     report_finished: (who)->
-        @finished_uploads.push who
+        @finished_uploads.push(who)
         @active_uploads -= 1
-        @upload_next()
+        _.defer(()=>@upload_next())
 
     clear_finished: (e)->
         e.preventDefault()
         for i in [0...@finished_uploads.length]
-            _.defer ()=>@finished_uploads.pop().remove()
+            _.defer(()=>@finished_uploads.pop().remove())
 
     remove_queue: (e)->
         e.preventDefault()
         for i in [0...@to_upload.length]
-            _.defer ()=>@to_upload.pop().remove()
+            _.defer(()=>@to_upload.pop().remove())
 
 
 FileUploader =

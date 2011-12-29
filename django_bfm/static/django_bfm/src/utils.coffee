@@ -1,4 +1,4 @@
-readable_size = (size) ->
+readable_size = (size)->
     # Converts given size in bytes to normalized size.
     #
     # Returns string containing number and multiplier.
@@ -43,26 +43,26 @@ Dialog = Backbone.View.extend
     events:
         "click .submit": 'call_callback'
         "click .cancel": 'cancel'
-    tear_down: () ->
+    tear_down: ()->
         $(@el).fadeOut(200, => @remove())
         $('.block').fadeOut(200)
-    cancel: (e) ->
+    cancel: (e)->
         @tear_down()
         e.preventDefault()
-    call_callback: (e) ->
+    call_callback: (e)->
         @tear_down()
         e.preventDefault()
         object = {}
         for key, field of $(@el).serializeArray()
             object[field.name] = field.value
         @callback(object)
-    initialize: (attrs) ->
+    initialize: (attrs)->
         @url = attrs.url
         @model = attrs.model
         @template = attrs.template
         @callback = attrs.callback
         @hook = attrs.hook
-    render: () ->
+    render: ()->
         tpl = _.template($(@template).html(), @model.attributes)
         element = $(@el).html(tpl)
         $('body').append(element.fadeIn(200))
@@ -75,7 +75,7 @@ ContextMenu = Backbone.View.extend
     tagName: 'ul'
     className: 'contextmenu'
 
-    initialize: () ->
+    initialize: ()->
         @el = $(@el)
         @block = $('<div />', class: 'block invisible')
     clicked: (callback)->

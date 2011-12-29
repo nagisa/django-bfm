@@ -14,21 +14,21 @@ File = Backbone.Model.extend
     #                resize it.
     url: 'file/'
 
-    initialize: () ->
+    initialize: ()->
         @set
             'date': new Date(@get('date'))
         @set
             'pdate': @parseDate()
             'psize': @parseSize()
 
-    parseDate: () ->
+    parseDate: ()->
         d = @get("date")
         "#{d.getFullYear()}-#{d.getMonth()}-#{d.getDate()}"
 
-    parseSize: () ->
+    parseSize: ()->
         readable_size(@get('size'))
 
-    delete_file: () ->
+    delete_file: ()->
         $.ajax
             url: @url
             data:
@@ -67,19 +67,19 @@ File = Backbone.Model.extend
                 @initialize()
                 FileBrowser.files.sort()
 
-    resize_image: () ->
+    resize_image: ()->
         dialog = new Dialog
             url: 'image/'
             model: @
             template: '#image_resize_tpl'
-            callback: (dialog_data) ->
+            callback: (dialog_data)->
                 $.ajax
                     url: 'image/'
                     data: $.extend(dialog_data, {action: 'resize'})
                     success: (data)=>
                         FileBrowser.files.add(JSON.parse(data))
                         FileBrowser.files.sort()
-            hook: (dialog) ->
+            hook: (dialog)->
                 $.ajax
                     url: 'image/'
                     dataType: 'json'
@@ -87,18 +87,18 @@ File = Backbone.Model.extend
                         action: 'info'
                         file: dialog.model.get('filename')
                         directory: dialog.model.get('rel_dir')
-                    success: (data) ->
+                    success: (data)->
                         $(dialog.el).find('input[name="new_h"]').val(data.height)
                         $(dialog.el).find('input[name="new_w"]').val(data.width)
-                        $(dialog.el).data 'ratio', data.height/data.width
+                        $(dialog.el).data('ratio', data.height/data.width)
                 $(dialog.el).find('input[name="new_h"]').keyup ()->
                     if $(dialog.el).find('input[name="keepratio"]').is(':checked')
-                        ratio = $(dialog.el).data 'ratio'
+                        ratio = $(dialog.el).data('ratio')
                         h = $(dialog.el).find('input[name="new_h"]').val()
                         $(dialog.el).find('input[name="new_w"]').val ~~(h/ratio+0.5)
                 $(dialog.el).find('input[name="new_w"]').keyup ()->
                     if $(dialog.el).find('input[name="keepratio"]').is(':checked')
-                        ratio = $(dialog.el).data 'ratio'
+                        ratio = $(dialog.el).data('ratio')
                         w = $(dialog.el).find('input[name="new_w"]').val()
                         $(dialog.el).find('input[name="new_h"]').val ~~(w*ratio+0.5)
         dialog.render()
@@ -117,37 +117,39 @@ FileCollection = Backbone.Collection.extend
     model: File
     comparators:
         date:
-            desc: (model) ->
-                0 - model.get('date')
-            asc: (model) ->
-                model.get('date') - 0
+            desc: (model)->
+                return 0 - model.get('date')
+            asc: (model)->
+                return model.get('date') - 0
         size:
-            desc: (model) ->
-                -model.get('size')
-            asc: (model) ->
-                model.get('size')
+            desc: (model)->
+                return -model.get('size')
+            asc: (model)->
+                return model.get('size')
         filename:
-            desc: (model) ->
+            desc: (model)->
                 str = model.get("filename")
                 str = str.toLowerCase().split("")
-                _.map str, (letter) ->
+                return _.map(str, (letter)->
                     return String.fromCharCode(-(letter.charCodeAt(0)));
-            asc: (model) ->
-                model.get("filename")
+                )
+            asc: (model)->
+                return model.get("filename")
         mime:
-            desc: (model) ->
+            desc: (model)->
                 str = model.get("mimetype")
                 str = str.toLowerCase().split("")
-                _.map str, (letter) ->
+                return _.map(str, (letter)->
                     return String.fromCharCode(-(letter.charCodeAt(0)));
-            asc: (model) ->
-                model.get('mimetype')
+                )
+            asc: (model)->
+                return model.get('mimetype')
 
     initialize: ()->
         @base_url = @url
         @comparator = @comparators.date.desc
-        @bind 'reset', @updated
-        @bind 'remove', @updated
+        @bind('reset', @updated)
+        @bind('remove', @updated)
 
     update_directory: ()->
         @url = "#{@base_url}?directory=#{FileBrowser.path}"
@@ -170,10 +172,10 @@ FileTableView = Backbone.View.extend
         'click th': 'resort_data'
 
     initialize: ()->
-        @el = $ 'table#result_list'
+        @el = $('table#result_list')
         @delegateEvents(@events)
 
-    resort_data: (e) ->
+    resort_data: (e)->
         files = FileBrowser.files
         name = e.currentTarget.getAttribute('data-name')
         if not files.comparators[name]
@@ -191,7 +193,7 @@ FileTableView = Backbone.View.extend
     render: (models)->
         # Clear previous table
         @current_row = 1
-        @el.html ''
+        @el.html('')
         # Draw head
         @el.append($('<thead/>').append($('<tr/>')))
         c = {filename: '', size: '', date: '', mime: ''}
@@ -199,13 +201,13 @@ FileTableView = Backbone.View.extend
         tpl = _.template($('#browse_head_tpl').html(), c)
         @el.find('tr:first').append(tpl)
         # Add files...
-        _.forEach(models, (model) =>
+        _.forEach(models, (model)=>
             file = new FileView('model': model)
-            @el.append file.srender()
+            @el.append(file.srender())
         )
         @delegateEvents(@events)
 
-    new_row_class: () ->
+    new_row_class: ()->
         @current_row = ((@current_row+1)%2)
         return "row#{@current_row+1}"
 
@@ -247,13 +249,13 @@ FileView = Backbone.View.extend
     delete: (e)->
         @model.delete_file()
 
-    touch: (e) ->
+    touch: (e)->
         @model.touch_file()
 
-    rename: (e) ->
+    rename: (e)->
         @model.rename_file()
 
-    resize: (e) ->
+    resize: (e)->
         @model.resize_image()
 
 
@@ -278,7 +280,7 @@ FilePaginatorView = Backbone.View.extend
         'click .lastpage': 'last_page'
 
     initialize: ()->
-        @el = $ 'p.paginator'
+        @el = $('p.paginator')
         @last_page_count = -1
 
     get_page_models: ()->
@@ -310,10 +312,10 @@ FilePaginatorView = Backbone.View.extend
                                                             {page: page})
             else
                 rn = _.template($('#pgn_page_tpl').html(), {page: page})
-            @el.append rn
+            @el.append(rn)
         # Add "Go to last" button
         if pages > 5 and FileBrowser.page < pages - 5
-            @el.append _.template($('#pgn_last_page_tpl').html())()
+            @el.append(_.template($('#pgn_last_page_tpl').html())())
         # Events...
         @delegateEvents(@events)
 
@@ -348,7 +350,7 @@ FileBrowser =
     page: null
     router: null
 
-    do_browse: (path, page) ->
+    do_browse: (path, page)->
         if @first
             @files = new FileCollection()
             @table = new FileTableView()
@@ -362,5 +364,5 @@ FileBrowser =
         else if @page != page
             @paginator.render()
 
-    open_page: (page) ->
-        @router.navigate "path=#{@path}^page=#{page}", true
+    open_page: (page)->
+        @router.navigate("path=#{@path}^page=#{page}", true)

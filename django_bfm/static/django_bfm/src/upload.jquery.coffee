@@ -2,11 +2,11 @@ if jQuery?
     $ = jQuery
 else
     $ = django.jQuery
-$ ->
-    $.ajax_upload = (file, options) ->
+$->
+    $.ajax_upload = (file, options)->
         # jQuery method. Handles file upload with status reporting.
 
-        stats_averages = (time, loaded) ->
+        stats_averages = (time, loaded)->
             # Averagerizes stats.
             # Takes in new values of time and loaded ammount as arguments.
             stats.push
@@ -24,11 +24,11 @@ $ ->
             last_call = last_call + last_call/10
             return completion: completion, speed: speed, last_call: last_call
 
-        progress = (e) ->
+        progress = (e)->
             # Reports progress to callback passed to this function.
             settings.progress(e, stats_averages(new Date(), e.loaded))
 
-        complete = (e) ->
+        complete = (e)->
             # Reports to outside, that uploading has finished...
             if(xhr.status == 200)
                 data = JSON.parse(xhr.response)
@@ -44,24 +44,24 @@ $ ->
             complete: ->
             error: ->
             abort: ->
-            fail: (e) -> settings.error(e) # If someone someday would need
+            fail: (e)-> settings.error(e) # If someone someday would need
                                            # optimization.
         $.extend(settings, options)
         xhr = new XMLHttpRequest()
         form = new FormData()
-        form.append "file", file
+        form.append("file", file)
         stats = [
             time: new Date()
             loaded: 0
         ]
 
-        xhr.upload.addEventListener "progress", ((e) => progress(e)), false
-        xhr.addEventListener "load", ((e) => complete(e)), false
-        xhr.addEventListener "error", ((e) => settings.error(e)), false
-        xhr.addEventListener "abort", ((e) => settings.abort(e)), false
+        xhr.upload.addEventListener("progress", ((e)=> progress(e)), false)
+        xhr.addEventListener("load", ((e)=> complete(e)), false)
+        xhr.addEventListener("error", ((e)=> settings.error(e)), false)
+        xhr.addEventListener("abort", ((e)=> settings.abort(e)), false)
 
-        xhr.open "POST", settings.url
+        xhr.open("POST", settings.url)
         for header, value of settings.headers
-            xhr.setRequestHeader header, value
-        xhr.send form
+            xhr.setRequestHeader(header, value)
+        xhr.send(form)
         return xhr
