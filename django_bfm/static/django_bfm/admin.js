@@ -77,7 +77,7 @@
       });
     },
     clicked: function(callback) {
-      this.el.fadeOut(200, __bind(function() {
+      this.el.hide(200, __bind(function() {
         return this.remove();
       }, this));
       return callback();
@@ -96,8 +96,9 @@
     },
     render: function(e) {
       var left, top, width;
-      width = this.el.appendTo($('body')).hide().fadeIn(200).outerWidth();
-      top = e.pageY + 2;
+      width = this.el.appendTo($('body')).outerWidth();
+      this.el.hide().show(200);
+      top = e.pageY;
       left = e.pageX;
       if (left + width >= $(document).width()) {
         left = $(document).width() - width;

@@ -195,7 +195,7 @@ UploaderView = Backbone.View.extend
         if not @unload_event
             @unload_event = true
             $(window).on('beforeunload.uploading', @unloading)
-        else if @to_upload.length == 0 && @active_uploads == 0
+        else if @to_upload.length == 0 and @active_uploads == 0
             @unload_event = false
             $(window).off('.uploading')
 

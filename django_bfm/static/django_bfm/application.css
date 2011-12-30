@@ -93,6 +93,10 @@ h2 a{
   border:1px solid #ddd;
   border-top:none;
   overflow:hidden;
+  border-radius:0 0 5px 5px;
+  -webkit-box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
+  box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
 }
 
 .dialog input[type=text]{
@@ -121,8 +125,11 @@ h2 a{
   border: 1px solid #CCC;
   background:#FFF;
   z-index:10010;
-  border-radius:5px;
+  border-radius:0 7px 7px;
   padding:7px 0;
+  -webkit-box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
+  box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
 }
 
 .contextmenu li{
@@ -132,6 +139,7 @@ h2 a{
 
 .contextmenu li a{
   display:block;
+  white-space: nowrap;
   padding:5px 10px;
 }
 
