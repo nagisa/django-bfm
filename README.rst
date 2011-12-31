@@ -21,7 +21,7 @@ Requirements
 ------------
 
 - Modern browser - BFM relies on a bunch of HTML5 features.
-- Django 1.3
+- Django 1.3 or 1.4
 - Python 2.6 or 2.7 (Not tested with 2.5 and below)
 
 Documentation
