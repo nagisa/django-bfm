@@ -14,9 +14,3 @@ which helps you to thumbnailize your uploaded images.
 Dialog box supports aspect ratio locking, selecting resizing mode (like ``bicubic``).
 
 Dependency: ``PIL``
-
-Installation:
-
-::
-
-    $ pip install pil

@@ -18,7 +18,9 @@ And second to easiest is with ``easy_install``:
 
     $ easy_install django_bfm
 
-However using easy_install is discouraged. Why? `Read here <http://www.pip-installer.org/en/latest/other-tools.html#pip-compared-to-easy-install>`_.
+.. note::
+
+    Using easy_install is discouraged. Why? `Read here <http://www.pip-installer.org/en/latest/other-tools.html#pip-compared-to-easy-install>`_.
 
 GIT repository
 --------------
@@ -30,6 +32,12 @@ Alternatively, you can clone and install from Github repository, where project i
     $ git clone git://github.com/simukis/django-bfm.git
     $ cd django-bfm
     $ python2 setup.py install
+
+or with pip:
+
+::
+
+    pip install -e git+git@github.com:simukis/django-bfm.git#egg=Package
 
 .. _configure:
 
@@ -46,6 +54,11 @@ to work with it.
 #. Add ``url(r'^files/', include('django_bfm.urls')),`` to your ``urlpatterns`` in **urls.py**,
 #. Make sure you have `staticfiles enabled <https://docs.djangoproject.com/en/dev/howto/static-files/#basic-usage>`_ (`with context processor <https://docs.djangoproject.com/en/dev/howto/static-files/#with-a-context-processor>`_) and run `python manage.py collectstatic`,
 #. Make sure, that static files are served correctly by your production server.
+
+.. note::
+
+    You don't need to run collectstatic if you are working in develovepment
+    server. It serves files automatically.
 
 Next steps
 ----------

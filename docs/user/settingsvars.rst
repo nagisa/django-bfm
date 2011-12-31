@@ -51,22 +51,24 @@ Default: ``20``
 To make sure, that only authorized users fiddle with, BFM requires user to be logged in.
 If user is not logged in, it will be redirected to login.
 
-Please note, that this variable is same as Django `LOGIN_URL <https://docs.djangoproject.com/en/dev/ref/settings/#login-url>`_.
+.. note::
+
+    This setting variable is same as Django
+    `LOGIN_URL <https://docs.djangoproject.com/en/dev/ref/settings/#login-url>`_.
 
 .. _uploader-settings:
 
 Uploader behaviour
 ------------------
 
-You can control several aspects of uploader like files uploaded at once too.
+You can control several aspects of uploader like files uploaded at once.
 
 **BFM_ADMIN_UPLOAD_DIR**
 
 Directory path relative to ``BFM_MEDIA_DIRECTORY``.
-
 Tells BFM where to save files uploaded with :ref:`admin-applet`.
 
-Example: ``admin_files/`` and files will be uploaded to ``/home/example.com/media/uploads/admin_files/``.
+Example: ``admin_files/`` and files will be uploaded to ``{{BFM_MEDIA_DIRECTORY}}/admin_files/``.
 
 Default: empty string.
 
@@ -78,3 +80,8 @@ Requires integer value.
 Example: ``3``
 
 Default: ``2``
+
+.. note::
+
+    If you experiencing issues like dropped connections with uploader then set
+    this option to ``1``.
