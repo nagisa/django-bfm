@@ -23,7 +23,7 @@ File = Backbone.Model.extend
 
     parseDate: ()->
         d = @get("date")
-        "#{d.getFullYear()}-#{d.getMonth()}-#{d.getDate()}"
+        "#{d.getFullYear()}-#{d.getMonth()+1}-#{d.getDate()}"
 
     parseSize: ()->
         readable_size(@get('size'))

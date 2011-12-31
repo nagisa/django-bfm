@@ -17,7 +17,7 @@
     parseDate: function() {
       var d;
       d = this.get("date");
-      return "" + (d.getFullYear()) + "-" + (d.getMonth()) + "-" + (d.getDate());
+      return "" + (d.getFullYear()) + "-" + (d.getMonth() + 1) + "-" + (d.getDate());
     },
     parseSize: function() {
       return readable_size(this.get('size'));
