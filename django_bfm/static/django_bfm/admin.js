@@ -1,6 +1,6 @@
 (function() {
   var ContextMenu, Dialog, FileUploadView, FileUploader, UploaderView, directory_upload_support, readable_size;
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
   readable_size = function(size) {
     var s, table, _i, _len;
     table = [['B', 1024, 0], ['KB', 1048576, 0], ['MB', 1073741824, 1], ['GB', 1099511627776, 2], ['TB', 1125899906842624, 3]];
@@ -11,6 +11,7 @@
       }
     }
   };
+
   directory_upload_support = function() {
     var input;
     input = document.createElement('input');
@@ -20,6 +21,7 @@
     }
     return false;
   };
+
   Dialog = Backbone.View.extend({
     tagName: 'form',
     className: 'dialog',
@@ -28,9 +30,10 @@
       "click .cancel": 'cancel'
     },
     tear_down: function() {
-      $(this.el).fadeOut(200, __bind(function() {
-        return this.remove();
-      }, this));
+      var _this = this;
+      $(this.el).fadeOut(200, function() {
+        return _this.remove();
+      });
       return $('.block').fadeOut(200);
     },
     cancel: function(e) {
@@ -62,56 +65,55 @@
       element = $(this.el).html(tpl);
       $('body').append(element.fadeIn(200));
       $('.block').fadeIn(300);
-      if (this.hook != null) {
-        return this.hook(this);
-      }
+      if (this.hook != null) return this.hook(this);
     }
   });
+
   ContextMenu = Backbone.View.extend({
     tagName: 'ul',
     className: 'contextmenu',
     initialize: function() {
-      this.el = $(this.el);
-      return this.block = $('<div />', {
-        "class": 'block invisible'
-      });
+      return this.el = $(this.el);
     },
     clicked: function(callback) {
-      this.el.hide(200, __bind(function() {
-        return this.remove();
-      }, this));
-      return callback();
+      var _this = this;
+      this.el.hide(200, function() {
+        return _this.remove();
+      });
+      if (callback != null) return callback();
     },
     add_entry: function(entry, callback) {
+      var _this = this;
       this.el.append(entry);
-      return $(entry).click(__bind(function() {
-        return this.clicked(callback);
-      }, this));
+      return $(entry).click(function() {
+        return _this.clicked(callback);
+      });
     },
     add_entries: function(entries, callbacks) {
+      var _this = this;
       entries = entries.filter('li');
-      return _.each(entries, __bind(function(entry, key) {
-        return this.add_entry(entry, callbacks[key]);
-      }, this));
+      return _.each(entries, function(entry, key) {
+        return _this.add_entry(entry, callbacks[key]);
+      });
     },
     render: function(e) {
-      var left, top, width;
+      var left, top, width,
+        _this = this;
       width = this.el.appendTo($('body')).outerWidth();
       this.el.hide().show(200);
       top = e.pageY;
       left = e.pageX;
-      if (left + width >= $(document).width()) {
-        left = $(document).width() - width;
-      }
+      if (left + width >= $(document).width()) left = $(document).width() - width;
       this.el.css({
         top: top,
         left: left
       });
-      return $(document).one('mousedown', __bind(function() {
-        return this.clicked(function() {});
-      }, this));
+      return $(document).one('mousedown', function() {
+        return _this.clicked();
+      });
     }
   });
+
   FileUploadView = Backbone.View.extend({
     events: {
       'click .abort': 'abort'
@@ -128,39 +130,38 @@
       }));
       this.status = this.el.find('.status');
       this.indicators = {
-        percent: this.el.find('.indicators .percent'),
-        speed: this.el.find('.indicators .speed')
+        'percent': this.el.find('.indicators .percent'),
+        'speed': this.el.find('.indicators .speed')
       };
       this.delegateEvents(this.events);
       return this.el;
     },
     do_upload: function() {
-      var csrf_token, url;
-      if (this.aborted != null) {
-        return false;
-      }
+      var csrf_token, url,
+        _this = this;
+      if (this.aborted != null) return false;
       csrf_token = $('input[name=csrfmiddlewaretoken]').val();
       url = "upfile/?directory=" + this.directory;
       if (typeof BFMAdminOptions !== "undefined" && BFMAdminOptions !== null) {
         url = "" + BFMAdminOptions.upload + "?directory=" + this.directory;
       }
       this.xhr = $.ajax_upload(this.file, {
-        url: url,
-        headers: {
+        'url': url,
+        'headers': {
           "X-CSRFToken": csrf_token
         },
-        progress: (__bind(function(e, stats) {
-          return this.report_progress(e, stats);
-        }, this)),
-        complete: (__bind(function(e, data) {
-          return this.upload_complete(e, data);
-        }, this)),
-        error: (__bind(function(e) {
-          return this.upload_error(e);
-        }, this)),
-        abort: (__bind(function(e) {
-          return this.upload_abort(e);
-        }, this))
+        'progress': function(e, stats) {
+          return _this.report_progress(e, stats);
+        },
+        'complete': function(e, data) {
+          return _this.upload_complete(e, data);
+        },
+        'error': function(e) {
+          return _this.upload_error(e);
+        },
+        'abort': function(e) {
+          return _this.upload_abort(e);
+        }
       });
       this.el.addClass('current');
       return true;
@@ -171,20 +172,22 @@
       return this.indicators.speed.text("" + (readable_size(stats.speed)) + "/s");
     },
     upload_complete: function(e, data) {
-      var link;
+      var link,
+        _this = this;
       this.el.removeClass('current');
       this.el.find('.abort').hide();
       link = $('<a />', {
-        "class": 'filename',
-        href: data.url
-      }).text(data.filename);
+        'class': 'filename',
+        'href': data.url
+      });
+      link.text(data.filename);
       this.el.find('.filename').replaceWith(link);
       this.update_status_bar(1, 100);
       if (!(typeof BFMAdminOptions !== "undefined" && BFMAdminOptions !== null) && this.directory === FileBrowser.path) {
-        _.defer(__bind(function() {
+        _.defer(function() {
           FileBrowser.files.add(data);
           return FileBrowser.files.sort();
-        }, this));
+        });
       }
       return FileUploader.uploader.report_finished(this);
     },
@@ -221,12 +224,13 @@
         'width': "" + (percent * 100) + "%"
       };
       animation_options = {
-        duration: duration,
-        easing: 'linear'
+        'duration': duration,
+        'easing': 'linear'
       };
       return this.status.stop(true).animate(css, animation_options);
     }
   });
+
   UploaderView = Backbone.View.extend({
     to_upload: [],
     started_uploads: [],
@@ -240,67 +244,59 @@
       'click .finished': 'clear_finished',
       'click .rqueued': 'remove_queue'
     },
-    unload_event: false,
     initialize: function() {
       return this.el = $('<div />', {
-        "class": 'uploader'
+        'class': 'uploader'
       });
     },
     render: function() {
       this.el.append(_.template($('#uploader_tpl').html()));
       this.el.appendTo($('body'));
       this.height = this.el.height();
+      this.width = this.el.width();
       if (directory_upload_support()) {
-        this.el.find('.selector.directory').show();
+        this.el.find('.selector.directory').css('display', 'inline-block');
       }
       return this.delegateEvents(this.events);
     },
     toggle_visibility: function(e) {
-      var button, css, options, others;
+      var button, css, options;
       button = this.el.find('.uploader-head>.control');
       button.toggleClass('fullscreen exit-fullscreen');
-      button.attr({
+      button.attr = {
         'title': button.attr('data-alttitle'),
         'data-alttitle': button.attr('title')
-      });
-      options = {
-        duration: 400,
-        queue: false
       };
-      if (!this.visible) {
-        css = {
-          width: '50%',
-          height: '50%'
-        };
-      } else {
-        css = {
-          width: '162px',
-          height: "" + this.height + "px"
-        };
-      }
+      options = {
+        'duration': 400,
+        'queue': false
+      };
+      css = {
+        'width': !this.visible ? '50%' : "" + this.width,
+        'height': !this.visible ? '50%' : "" + this.height + "px"
+      };
       this.el.animate(css, options);
-      others = this.el.children(':not(.uploader-head)').stop(true, true);
-      others.fadeToggle(options.duration);
+      this.el.children(':not(.uploader-head)').show();
       return this.visible = !this.visible;
     },
     add_files: function(e) {
-      return _.forEach(e.currentTarget.files, __bind(function(file) {
-        return _.defer(__bind(function() {
-          return this.add_file(file);
-        }, this));
-      }, this));
+      var _this = this;
+      return _.forEach(e.currentTarget.files, function(file) {
+        return _.defer(function() {
+          return _this.add_file(file);
+        });
+      });
     },
     add_file: function(file) {
-      var view;
-      if ((file.name != null ? file.name : file.fileName) === ".") {
-        return;
-      }
+      var view,
+        _this = this;
+      if ((file.name != null ? file.name : file.fileName) === ".") return;
       view = new FileUploadView(file);
       this.to_upload.unshift(view);
       this.el.find('.uploader-table').append(view.srender());
-      return _.defer(__bind(function() {
-        return this.upload_next();
-      }, this));
+      return _.defer(function() {
+        return _this.upload_next();
+      });
     },
     upload_next: function() {
       var i, started, upl, _ref;
@@ -312,40 +308,41 @@
           this.active_uploads += 1;
         }
       }
-      if (!this.unload_event) {
-        this.unload_event = true;
-        return $(window).on('beforeunload.uploading', this.unloading);
+      if (window.onbeforeunload !== this.unloading) {
+        return window.onbeforeunload = this.unloading;
       } else if (this.to_upload.length === 0 && this.active_uploads === 0) {
-        this.unload_event = false;
-        return $(window).off('.uploading');
+        return window.onbeforeunload = null;
       }
     },
     report_finished: function(who) {
+      var _this = this;
       this.finished_uploads.push(who);
       this.active_uploads -= 1;
-      return _.defer(__bind(function() {
-        return this.upload_next();
-      }, this));
+      return _.defer(function() {
+        return _this.upload_next();
+      });
     },
     clear_finished: function(e) {
-      var i, _ref, _results;
+      var i, _ref, _results,
+        _this = this;
       e.preventDefault();
       _results = [];
       for (i = 0, _ref = this.finished_uploads.length; 0 <= _ref ? i < _ref : i > _ref; 0 <= _ref ? i++ : i--) {
-        _results.push(_.defer(__bind(function() {
-          return this.finished_uploads.pop().remove();
-        }, this)));
+        _results.push(_.defer(function() {
+          return _this.finished_uploads.pop().remove();
+        }));
       }
       return _results;
     },
     remove_queue: function(e) {
-      var i, _ref, _results;
+      var i, _ref, _results,
+        _this = this;
       e.preventDefault();
       _results = [];
       for (i = 0, _ref = this.to_upload.length; 0 <= _ref ? i < _ref : i > _ref; 0 <= _ref ? i++ : i--) {
-        _results.push(_.defer(__bind(function() {
-          return this.to_upload.pop().remove();
-        }, this)));
+        _results.push(_.defer(function() {
+          return _this.to_upload.pop().remove();
+        }));
       }
       return _results;
     },
@@ -353,6 +350,7 @@
       return $.trim($('#upload_cancel_tpl').text());
     }
   });
+
   FileUploader = {
     init: function() {
       this.uploader = new UploaderView();
@@ -362,6 +360,9 @@
       return this.path = path;
     }
   };
+
   FileUploader.init();
+
   FileUploader.do_browse('');
+
 }).call(this);

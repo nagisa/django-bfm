@@ -144,8 +144,7 @@ h2 a{
 }
 
 .contextmenu li a:hover{
-  background:#666;
-  color:#FFF;
+  background:#EDF3FE;
   cursor:pointer;
 }
 
@@ -195,23 +194,24 @@ h2 a{
   -webkit-box-sizing:border-box;
   padding:0!important;
   display:none;
+  white-space:nowrap;
 }
 
 .uploader-controls a{
   border-right:1px solid #ccc;
-  display:block;
-  float:left;
+  display:inline-block;
   height:18px;
   line-height:18px;
   padding:0 5px;
   margin:0!important;
+  white-space:nowrap;
 }
 
-.uploader-controls .selector{
+.uploader-controls form{
   position:relative;
-  float:left;
   overflow:hidden;
   width:auto;
+  display: inline-block;
 }
 
 .uploader-controls .selector>input[type='file']{
@@ -326,6 +326,13 @@ h2 a{
 
 .uploader-table .file a.filename:hover{
   color:#888;
+}
+
+.uploader-table .file .status{
+  -webkit-transition: background 500ms ease-in-out;
+  -moz-transition: background 500ms ease-in-out;
+  -o-transition: background 500ms ease-in-out;
+  transition: background 500ms ease-in-out;
 }
 
 /* Fixing some glitches... */

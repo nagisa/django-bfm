@@ -14,8 +14,7 @@ FileUploadView = Backbone.View.extend
     #         Cancels current upload.
     # update_status_bar - animates file upload progress bar.
 
-    events:
-        'click .abort': 'abort'
+    events: {'click .abort': 'abort'}
 
     initialize: (file)->
         @file = file
@@ -25,9 +24,10 @@ FileUploadView = Backbone.View.extend
         filename = if @file.name? then @file.name else @file.fileName
         @el = $(_.template($('#file_upload_tpl').html(), {filename: filename}))
         @status = @el.find('.status')
-        @indicators =
-            percent: @el.find('.indicators .percent')
-            speed: @el.find('.indicators .speed')
+        @indicators = {
+            'percent': @el.find('.indicators .percent'),
+            'speed': @el.find('.indicators .speed')
+        }
         @delegateEvents @events
         return @el
 
@@ -39,15 +39,14 @@ FileUploadView = Backbone.View.extend
         url = "upfile/?directory=#{@directory}"
         if BFMAdminOptions?
             url = "#{BFMAdminOptions.upload}?directory=#{@directory}"
-        @xhr = $.ajax_upload @file, {
-            url: url
-            headers:
-                "X-CSRFToken": csrf_token
-            progress: ((e, stats) => @report_progress(e, stats))
-            complete: ((e, data) => @upload_complete(e, data))
-            error: ((e) => @upload_error(e))
-            abort: ((e) => @upload_abort(e))
-        }
+        @xhr = $.ajax_upload(@file, {
+            'url': url,
+            'headers': {"X-CSRFToken": csrf_token}
+            'progress': (e, stats)=> @report_progress(e, stats)
+            'complete': (e, data)=> @upload_complete(e, data)
+            'error': (e)=> @upload_error(e)
+            'abort': (e)=> @upload_abort(e)
+        })
         @el.addClass('current')
         return true
 
@@ -59,12 +58,13 @@ FileUploadView = Backbone.View.extend
     upload_complete: (e, data)->
         @el.removeClass('current')
         @el.find('.abort').hide()
-        link = $('<a />', class: 'filename', href: data.url).text(data.filename)
+        link = $('<a />', {'class': 'filename', 'href': data.url})
+        link.text(data.filename)
         @el.find('.filename').replaceWith(link)
         @update_status_bar(1, 100)
         #Reload file browser!
         if(!(BFMAdminOptions?) and @directory == FileBrowser.path)
-            _.defer(=>
+            _.defer(()=>
                 FileBrowser.files.add(data)
                 FileBrowser.files.sort()
             )
@@ -95,14 +95,11 @@ FileUploadView = Backbone.View.extend
             @el.find('.abort').hide()
             @el.find('.indicators').hide()
             @el.find('.aborted').show()
-            FileUploader.uploader.finished_uploads.push @
+            FileUploader.uploader.finished_uploads.push(@)
 
     update_status_bar: (percent, duration)->
-        css =
-            'width': "#{percent*100}%"
-        animation_options =
-            duration: duration
-            easing: 'linear'
+        css = {'width': "#{percent*100}%"}
+        animation_options = {'duration': duration, 'easing': 'linear'}
         @status.stop(true).animate(css, animation_options)
 
 
@@ -129,44 +126,39 @@ UploaderView = Backbone.View.extend
     visible: false
     uploads_at_once: window.BFMOptions.uploads_at_once
     active_uploads: 0
-    events:
-        'click .uploader-head>.control': 'toggle_visibility'
-        'change input[type="file"]': 'add_files'
-        'click .finished': 'clear_finished'
+    events: {
+        'click .uploader-head>.control': 'toggle_visibility',
+        'change input[type="file"]': 'add_files',
+        'click .finished': 'clear_finished',
         'click .rqueued': 'remove_queue'
-    unload_event: false
+    }
 
     initialize: ()->
-        @el = $('<div />', {class: 'uploader'})
+        @el = $('<div />', {'class': 'uploader'})
 
     render: ()->
         @el.append(_.template($('#uploader_tpl').html()))
         @el.appendTo($('body'))
         @height = @el.height()
+        @width = @el.width()
         if directory_upload_support()
-            @el.find('.selector.directory').show()
-        @delegateEvents @events
+            @el.find('.selector.directory').css('display', 'inline-block')
+        @delegateEvents(@events)
 
     toggle_visibility: (e)->
         button = @el.find('.uploader-head>.control')
         button.toggleClass('fullscreen exit-fullscreen')
-        button.attr
-            'title': button.attr('data-alttitle')
+        button.attr = {
+            'title': button.attr('data-alttitle'),
             'data-alttitle': button.attr('title')
-        options =
-            duration: 400
-            queue: false
-        if !@visible
-            css =
-                width: '50%'
-                height: '50%'
-        else
-            css =
-                width: '162px'
-                height: "#{@height}px"
+        }
+        options = 'duration': 400, 'queue': false
+        css = {
+            'width': if !@visible then '50%' else "#{@width}",
+            'height': if !@visible then '50%' else "#{@height}px"
+        }
         @el.animate(css, options)
-        others = @el.children(':not(.uploader-head)').stop(true, true)
-        others.fadeToggle(options.duration)
+        @el.children(':not(.uploader-head)').show()
         @visible = !@visible
 
     add_files: (e)->
@@ -192,12 +184,10 @@ UploaderView = Backbone.View.extend
                 @active_uploads += 1
 
         # Add/remove exit confirmation
-        if not @unload_event
-            @unload_event = true
-            $(window).on('beforeunload.uploading', @unloading)
+        if window.onbeforeunload != @unloading
+            window.onbeforeunload = @unloading
         else if @to_upload.length == 0 and @active_uploads == 0
-            @unload_event = false
-            $(window).off('.uploading')
+            window.onbeforeunload = null
 
     report_finished: (who)->
         @finished_uploads.push(who)

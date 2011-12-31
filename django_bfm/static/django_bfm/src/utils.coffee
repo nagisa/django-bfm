@@ -12,7 +12,7 @@ readable_size = (size)->
     ]
     for s in table
         if size < s[1]
-            return "#{ (size / (s[1] / 1024)).toFixed(s[2]) } #{ s[0] }"
+            return "#{(size / (s[1] / 1024)).toFixed(s[2])} #{s[0]}"
 
 
 directory_upload_support = ()->
@@ -77,10 +77,10 @@ ContextMenu = Backbone.View.extend
 
     initialize: ()->
         @el = $(@el)
-        @block = $('<div />', class: 'block invisible')
     clicked: (callback)->
         @el.hide(200, ()=>@remove())
-        callback()
+        if callback?
+            callback()
     add_entry: (entry, callback)->
         @el.append(entry)
         $(entry).click(()=>@clicked(callback))
@@ -97,4 +97,4 @@ ContextMenu = Backbone.View.extend
         if left + width >= $(document).width()
             left = $(document).width() - width
         @el.css(top: top, left: left)
-        $(document).one('mousedown', ()=>@clicked(()->))
+        $(document).one('mousedown', ()=>@clicked())

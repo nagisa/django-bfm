@@ -5,25 +5,27 @@ Directory = Backbone.Model.extend
         @is_child = if @get('rel_dir').indexOf('/') == -1 then false else true
 
     new_folder: (data)->
-        $.ajax
-            url: @url
-            data: $.extend(data, {action: 'new', directory: @get('rel_dir')})
-            success: ()->
-                DirectoryBrowser.directories.fetch()
+        additional_data = {'action': 'new', 'directory': @get('rel_dir')}
+        $.ajax({
+            'url': @url,
+            'data': $.extend(data, additional_data),
+            'success': ()-> DirectoryBrowser.directories.fetch()
+        })
 
     rename: (data)->
-        $.ajax
-            url: @url
-            data: $.extend(data, {action: 'rename', directory: @get('rel_dir')})
-            success: ()->
-                DirectoryBrowser.directories.fetch()
+        additional_data = {'action': 'rename', 'directory': @get('rel_dir')}
+        $.ajax({
+            'url': @url,
+            'data': $.extend(data, additional_data),
+            'success': ()-> DirectoryBrowser.directories.fetch()
+        })
 
     delete: (data)->
-        $.ajax
-            url: @url
-            data: {action: 'delete', directory: @get('rel_dir')}
-            success: ()->
-                DirectoryBrowser.directories.fetch()
+        $.ajax({
+            url: @url,
+            data: {'action': 'delete', 'directory': @get('rel_dir')},
+            success: ()-> DirectoryBrowser.directories.fetch()
+        })
 
 
 DirectoryCollection = Backbone.Collection.extend
@@ -38,7 +40,7 @@ DirectoryCollection = Backbone.Collection.extend
     initialize: (attrs)->
         @bind('reset', @added)
         # Root directory is exception to all possible rules...
-        @root = new Directory(name: '', rel_dir: '')
+        @root = new Directory({name: '', rel_dir: ''})
 
     added: ()->
         DirectoryBrowser.sidebar.clear()
@@ -67,7 +69,7 @@ DirectoriesView = Backbone.View.extend
         new RootDirectoryView()
 
     append_directory: (model)->
-        view = new DirectoryView('model': model)
+        view = new DirectoryView({'model': model})
         @dirs[model.id] = view
         @el.append(view.srender())
         _.forEach(model.get('children'), (child)=>
@@ -76,7 +78,7 @@ DirectoriesView = Backbone.View.extend
 
     append_children: (id, parent_view)->
         model = DirectoryBrowser.directories.get(id)
-        view = new DirectoryView('model': model)
+        view = new DirectoryView({'model': model})
         @dirs[model.id] = view
         parent_view.append_child(view.srender())
         _.forEach(model.get('children'), (child)=>
@@ -109,15 +111,16 @@ DirectoryView = Backbone.View.extend
     # deactivate - changes directory node state from active to not active.
     # append_child - adds child node as descendent. Imitates tree structure.
     tagName: 'li'
-    events:
-        "click .directory": "load_directory"
+    events: {
+        "click .directory": "load_directory",
         "contextmenu .directory": "actions_menu"
+    }
     children_el: false
     context_template: '#directory_actions_tpl'
 
     initialize: (attrs)->
         @model = attrs.model
-        @el = $ @el
+        @el = $(@el)
         @context_callbacks = [
             (()=>@new_folder()),
             (()=>@rename()),
@@ -139,8 +142,8 @@ DirectoryView = Backbone.View.extend
 
     append_child: (child)->
         if !@children_el
-            @children_el = $ '<ul />'
-            @el.append @children_el
+            @children_el = $('<ul />')
+            @el.append(@children_el)
         @children_el.append(child)
 
     actions_menu: (e)->
@@ -152,40 +155,41 @@ DirectoryView = Backbone.View.extend
         menu.render(e)
 
     new_folder: ()->
-        dialog = new Dialog
-            model: @model
-            template: '#new_directory_tpl'
-            callback: (data)=> @model.new_folder(data)
+        dialog = new Dialog({
+            'model': @model,
+            'template': '#new_directory_tpl',
+            'callback': (data)=>@model.new_folder(data)
+        })
         dialog.render()
 
     rename: ()->
-        dialog = new Dialog
-            model: @model
-            template: '#rename_directory_tpl'
-            callback: (data)=> @model.rename(data)
+        dialog = new Dialog({
+            'model': @model,
+            'template': '#rename_directory_tpl',
+            'callback': (data)=> @model.rename(data)
+        })
         dialog.render()
 
     delete: ()->
-        dialog = new Dialog
-            model: @model
-            template: '#delete_directory_tpl'
-            callback: (data)=> @model.delete(data)
+        dialog = new Dialog({
+            'model': @model,
+            'template': '#delete_directory_tpl',
+            'callback': (data)=> @model.delete(data)
+        })
         dialog.render()
 
 
-
-
 RootDirectoryView = DirectoryView.extend
-    events:
-        "click a": "load_directory"
+    events: {
+        "click a": "load_directory",
         "contextmenu a": "actions_menu"
+    }
     context_template: '#rootdirectory_actions_tpl'
     initialize: ()->
         @el = $('#changelist-filter>h2').first()
         @model = DirectoryBrowser.directories.root
         @context_callbacks = [(()=>@new_folder())]
         @delegateEvents()
-
 
 
 DirectoryBrowser =
