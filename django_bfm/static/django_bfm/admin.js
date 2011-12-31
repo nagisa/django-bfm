@@ -304,13 +304,15 @@
         while (this.to_upload.length > 0 && !started) {
           upl = this.to_upload.pop();
           started = upl.do_upload();
-          this.started_uploads.push(upl);
-          this.active_uploads += 1;
+          if (started) {
+            this.started_uploads.push(upl);
+            this.active_uploads += 1;
+          }
         }
       }
-      if (window.onbeforeunload !== this.unloading) {
+      if (window.onbeforeunload !== this.unloading && this.active_uploads > 0) {
         return window.onbeforeunload = this.unloading;
-      } else if (this.to_upload.length === 0 && this.active_uploads === 0) {
+      } else {
         return window.onbeforeunload = null;
       }
     },
@@ -335,14 +337,11 @@
       return _results;
     },
     remove_queue: function(e) {
-      var i, _ref, _results,
-        _this = this;
+      var i, _ref, _results;
       e.preventDefault();
       _results = [];
       for (i = 0, _ref = this.to_upload.length; 0 <= _ref ? i < _ref : i > _ref; 0 <= _ref ? i++ : i--) {
-        _results.push(_.defer(function() {
-          return _this.to_upload.pop().remove();
-        }));
+        _results.push(this.to_upload.pop().remove());
       }
       return _results;
     },

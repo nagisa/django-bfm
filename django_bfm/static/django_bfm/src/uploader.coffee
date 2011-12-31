@@ -180,13 +180,14 @@ UploaderView = Backbone.View.extend
             while @to_upload.length > 0 and not started
                 upl = @to_upload.pop()
                 started = upl.do_upload()
-                @started_uploads.push(upl)
-                @active_uploads += 1
+                if started
+                    @started_uploads.push(upl)
+                    @active_uploads += 1
 
         # Add/remove exit confirmation
-        if window.onbeforeunload != @unloading
+        if window.onbeforeunload != @unloading and @active_uploads>0
             window.onbeforeunload = @unloading
-        else if @to_upload.length == 0 and @active_uploads == 0
+        else
             window.onbeforeunload = null
 
     report_finished: (who)->
@@ -202,7 +203,9 @@ UploaderView = Backbone.View.extend
     remove_queue: (e)->
         e.preventDefault()
         for i in [0...@to_upload.length]
-            _.defer(()=>@to_upload.pop().remove())
+            # Can't use _.defer due to race condition with currently uploading
+            # files...
+            @to_upload.pop().remove()
 
     unloading: ()->
         return $.trim($('#upload_cancel_tpl').text())
