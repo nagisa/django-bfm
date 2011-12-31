@@ -37,7 +37,7 @@ or with pip:
 
 ::
 
-    pip install -e git+git@github.com:simukis/django-bfm.git#egg=Package
+    pip install -e git+git://github.com/simukis/django-bfm.git#egg=Package
 
 .. _configure:
 
