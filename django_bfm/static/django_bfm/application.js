@@ -654,13 +654,14 @@
       return this.el;
     },
     do_upload: function() {
-      var csrf_token, url,
+      var csrf_token, directory, url,
         _this = this;
       if (this.aborted != null) return false;
       csrf_token = $('input[name=csrfmiddlewaretoken]').val();
       url = "upfile/?directory=" + this.directory;
       if (typeof BFMAdminOptions !== "undefined" && BFMAdminOptions !== null) {
-        url = "" + BFMAdminOptions.upload + "?directory=" + this.directory;
+        directory = BFMAdminOptions.upload_rel_dir;
+        url = "" + BFMAdminOptions.upload + "?directory=" + directory;
       }
       this.xhr = $.ajax_upload(this.file, {
         'url': url,

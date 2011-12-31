@@ -3,51 +3,22 @@
 window.BFMAdminOptions = {{ admin_options|safe }};
 window.BFMOptions = {{ settings|safe }};
 (function($){
+    (function(a){function z(){d||(d=!0,s(e,function(a){p(a)}))}function y(c,d){var e=a.createElement("script");e.type="text/"+(c.type||"javascript"),e.src=c.src||c,e.async=!1,e.onreadystatechange=e.onload=function(){var a=e.readyState;!d.done&&(!a||/loaded|complete/.test(a))&&(d.done=!0,d())},(a.body||b).appendChild(e)}function x(a,b){if(a.state==o)return b&&b();if(a.state==n)return k.ready(a.name,b);if(a.state==m)return a.onpreload.push(function(){x(a,b)});a.state=n,y(a.url,function(){a.state=o,b&&b(),s(g[a.name],function(a){p(a)}),u()&&d&&s(g.ALL,function(a){p(a)})})}function w(a,b){a.state===undefined&&(a.state=m,a.onpreload=[],y({src:a.url,type:"cache"},function(){v(a)}))}function v(a){a.state=l,s(a.onpreload,function(a){a.call()})}function u(a){a=a||h;var b;for(var c in a){if(a.hasOwnProperty(c)&&a[c].state!=o)return!1;b=!0}return b}function t(a){return Object.prototype.toString.call(a)=="[object Function]"}function s(a,b){if(!!a){typeof a=="object"&&(a=[].slice.call(a));for(var c=0;c<a.length;c++)b.call(a,a[c],c)}}function r(a){var b;if(typeof a=="object")for(var c in a)a[c]&&(b={name:c,url:a[c]});else b={name:q(a),url:a};var d=h[b.name];if(d&&d.url===b.url)return d;h[b.name]=b;return b}function q(a){var b=a.split("/"),c=b[b.length-1],d=c.indexOf("?");return d!=-1?c.substring(0,d):c}function p(a){a._done||(a(),a._done=1)}var b=a.documentElement,c,d,e=[],f=[],g={},h={},i=a.createElement("script").async===!0||"MozAppearance"in a.documentElement.style||window.opera,j=window.head_conf&&head_conf.head||"head",k=window[j]=window[j]||function(){k.ready.apply(null,arguments)},l=1,m=2,n=3,o=4;i?k.js=function(){var a=arguments,b=a[a.length-1],c={};t(b)||(b=null),s(a,function(d,e){d!=b&&(d=r(d),c[d.name]=d,x(d,b&&e==a.length-2?function(){u(c)&&p(b)}:null))});return k}:k.js=function(){var a=arguments,b=[].slice.call(a,1),d=b[0];if(!c){f.push(function(){k.js.apply(null,a)});return k}d?(s(b,function(a){t(a)||w(r(a))}),x(r(a[0]),t(d)?d:function(){k.js.apply(null,b)})):x(r(a[0]));return k},k.ready=function(b,c){if(b==a){d?p(c):e.push(c);return k}t(b)&&(c=b,b="ALL");if(typeof b!="string"||!t(c))return k;var f=h[b];if(f&&f.state==o||b=="ALL"&&u()&&d){p(c);return k}var i=g[b];i?i.push(c):i=g[b]=[c];return k},k.ready(a,function(){u()&&s(g.ALL,function(a){p(a)}),k.feature&&k.feature("domloaded",!0)});if(window.addEventListener)a.addEventListener("DOMContentLoaded",z,!1),window.addEventListener("load",z,!1);else if(window.attachEvent){a.attachEvent("onreadystatechange",function(){a.readyState==="complete"&&z()});var A=1;try{A=window.frameElement}catch(B){}!A&&b.doScroll&&function(){try{b.doScroll("left"),z()}catch(a){setTimeout(arguments.callee,1);return}}(),window.attachEvent("onload",z)}!a.readyState&&a.addEventListener&&(a.readyState="loading",a.addEventListener("DOMContentLoaded",handler=function(){a.removeEventListener("DOMContentLoaded",handler,!1),a.readyState="complete"},!1)),setTimeout(function(){c=!0,s(f,function(a){a()})},300)})(document)
     var __bind = function(fn, me){
         return function(){ return fn.apply(me, arguments); };
     };
 
-    load_scripts = function(scripts, callback){
-        var len = scripts.length,
-        loaded = 0;
+    $('<script id="uploader_tpl" type="text/template"><div class="uploader-head">{% trans "Uploader" %}<a class="control iconic fullscreen" title="{% trans "Expand uploader" %}" data-alttitle="{% trans "Minimize uploader" %}"></a></div><div class="uploader-controls breadcrumbs"><form class="selector"><input type="file" multiple><a class="iconic plus" href="#"> {% trans "Add files" %}</a></form><form class="selector directory"><input type="file"  webkitdirectory directory mozdirectory><a class="iconic plus" href="#"> {% trans "Add folder (experimental)" %}</a></form><a class="iconic trash finished" href="#"> {% trans "Clear finished" %}</a><a class="iconic trash rqueued" href="#"> {% trans "Remove queued" %}</a></div><div class="uploader-table-container"><div class="uploader-table"></div></div></script><script id="file_upload_tpl" type="text/template"><div class="file"><div class="status"></div><a class="abort iconic x" title="{% trans "Cancel this upload" %}"></a><span class="filename"><%= filename %></span><span class="indicators">(<span class="percent">0</span>% @ <span class="speed">0 B/s</span>)</span><span class="failed">({% trans "Failed" %})</span><span class="aborted">({% trans "Aborted" %})</span></div></script>').appendTo('head');
 
-        clbk = function(){
-            loaded += 1;
-            if(loaded === len){
-                callback();
-            }
-        }
-        for(var i=0; i<len; i++){
-            $.ajax({
-                async:false,
-                type:'GET',
-                url:scripts[i],
-                success:__bind(function(){clbk()}, this),
-                dataType:'script'
-            });
-        }
-    };
+    $("<link />", {type:'text/css', rel:'stylesheet',
+                    href: '{{ STATIC_URL }}django_bfm/application.css'
+    }).appendTo($('head'))
 
-    load_scripts([
-        'http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js'
-    ], function(){
-        $("<script id=\"uploader_tpl\" type=\"text/template\">\n    <div class=\"uploader-head\">\n        {% trans 'Uploader' %}\n        <a class=\"control iconic fullscreen\" title=\"{% trans 'Expand uploader' %}\" data-alttitle=\"{% trans 'Minimize uploader' %}\"></a>\n    </div>\n    <div class=\"uploader-controls breadcrumbs\">\n        <form class=\"selector\">\n            <input type=\"file\" multiple>\n            <a class=\"iconic plus\" href=\"#\"> {% trans 'Add files' %}</a>\n        </form>\n        <form class=\"selector directory\">\n            <input type=\"file\"  webkitdirectory directory mozdirectory>\n            <a class=\"iconic plus\" href=\"#\"> {% trans 'Add folder (experimental)' %}</a>\n        </form>\n        <a class=\"iconic trash finished\" href=\"#\"> {% trans 'Clear finished' %}</a>\n        <a class=\"iconic trash rqueued\" href=\"#\"> {% trans 'Remove queued' %}</a>\n    </div>\n    <div class=\"uploader-table-container\">\n        <div class=\"uploader-table\">\n        </div>\n    </div>\n</script>\n\n\n<script id=\"file_upload_tpl\" type=\"text/template\">\n    <div class=\"file\">\n        <div class=\"status\"></div>\n        <a class=\"abort iconic x\" title=\"{% trans 'Cancel this upload' %}\"></a>\n        <%= filename %>\n        <span class=\"indicators\">\n            (<span class=\"percent\">0</span>% @ <span class=\"speed\">0 B/s</span>)\n        </span>\n        <span class=\"failed\">({% trans 'Failed' %})</span>\n        <span class=\"aborted\">({% trans 'Aborted' %})</span>\n    </div>\n</script>").appendTo('head');
-        load_scripts([
+    head.js('http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js',
             'http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.1.7/underscore-min.js',
             'http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.5.3/backbone-min.js',
-        ], function(){
-            load_scripts([
-                '{{ STATIC_URL }}django_bfm/admin.js',
-                '{{ STATIC_URL }}django_bfm/upload.jquery.js'
-            ], function(){})
-        });
-    });
-
-    style = $("<link />", {
-        type:'text/css',
-        rel:'stylesheet',
-        href: '{{ STATIC_URL }}django_bfm/application.css'
-    }).appendTo($('head'))
+            '{{ STATIC_URL }}django_bfm/admin.js',
+            '{{ STATIC_URL }}django_bfm/upload.jquery.js')
 
 })(django.jQuery);
 {% endautoescape %}

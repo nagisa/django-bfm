@@ -33,7 +33,8 @@ def base(request):
 
 def admin_options(request):
     admin_options = {
-        "upload": reverse("bfm_upload")
+        "upload": reverse("bfm_upload"),
+        "upload_rel_dir": settings.ADMIN_UPDIR
     }
     c = RequestContext(request, {
         'settings': settings.JSON,

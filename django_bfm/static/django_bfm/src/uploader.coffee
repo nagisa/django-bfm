@@ -38,7 +38,8 @@ FileUploadView = Backbone.View.extend
         csrf_token = $('input[name=csrfmiddlewaretoken]').val()
         url = "upfile/?directory=#{@directory}"
         if BFMAdminOptions?
-            url = "#{BFMAdminOptions.upload}?directory=#{@directory}"
+            directory = BFMAdminOptions.upload_rel_dir
+            url = "#{BFMAdminOptions.upload}?directory=#{directory}"
         @xhr = $.ajax_upload(@file, {
             'url': url,
             'headers': {"X-CSRFToken": csrf_token}
