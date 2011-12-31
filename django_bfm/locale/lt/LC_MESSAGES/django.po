@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 0.4\n"
+"Project-Id-Version: 0.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-08 19:43+0300\n"
+"POT-Creation-Date: 2011-12-31 13:00+0200\n"
 "PO-Revision-Date: 2011-09-29 22:06+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n"
 "%100<10 || n%100>=20) ? 1 : 2)\n"
 
-#: templates/django_bfm/base.html:3 templates/django_bfm/base.html.py:8
+#: templates/django_bfm/base.html:3 templates/django_bfm/base.html.py:7
 msgid "Basic file manager"
 msgstr "Paprasta failų tvarkyklė"
 
@@ -43,95 +43,171 @@ msgstr "Data"
 msgid "Type"
 msgstr "Tipas"
 
-#: templates/django_bfm/base.html:36
+#: templates/django_bfm/base.html:38 templates/django_bfm/base.html.py:154
 msgid "Delete"
 msgstr "Ištrinti"
 
-#: templates/django_bfm/base.html:37
+#: templates/django_bfm/base.html:39
 msgid "Touch"
 msgstr "Priliesti"
 
-#: templates/django_bfm/base.html:38 templates/django_bfm/base.html.py:51
+#: templates/django_bfm/base.html:40 templates/django_bfm/base.html.py:55
+#: templates/django_bfm/base.html:153 templates/django_bfm/base.html.py:175
 msgid "Rename"
 msgstr "Pervadinti"
 
-#: templates/django_bfm/base.html:39 templates/django_bfm/base.html.py:75
+#: templates/django_bfm/base.html:41 templates/django_bfm/base.html.py:81
 msgid "Resize"
 msgstr "Pakeisti dydį"
 
-#: templates/django_bfm/base.html:47
+#: templates/django_bfm/base.html:51
 msgid "Rename file"
 msgstr "Pervadinti bylą"
 
-#: templates/django_bfm/base.html:52 templates/django_bfm/base.html.py:76
+#: templates/django_bfm/base.html:56 templates/django_bfm/base.html.py:82
+#: templates/django_bfm/base.html:168 templates/django_bfm/base.html.py:176
 msgid "Cancel"
 msgstr "Atšaukti"
 
-#: templates/django_bfm/base.html:55
+#: templates/django_bfm/base.html:61
 msgid "Resize image"
 msgstr "Pakeisti paveiksliuko dydį"
 
-#: templates/django_bfm/base.html:58
+#: templates/django_bfm/base.html:64
 msgid "New width"
 msgstr "Naujas plotis"
 
-#: templates/django_bfm/base.html:61
+#: templates/django_bfm/base.html:67
 msgid "New height"
 msgstr "Naujas aukštis"
 
-#: templates/django_bfm/base.html:64
+#: templates/django_bfm/base.html:70
 msgid "Keep ratio"
 msgstr "Išlaikyti proporciją"
 
-#: templates/django_bfm/base.html:67
-#, fuzzy
+#: templates/django_bfm/base.html:73
 msgid "Resize filter"
-msgstr "Pervadinti bylą"
+msgstr "Dydžio keitimo filtras"
 
-#: templates/django_bfm/base.html:69
+#: templates/django_bfm/base.html:75
 msgid "Antialiasing"
 msgstr "Išlyginimas"
 
-#: templates/django_bfm/base.html:70
+#: templates/django_bfm/base.html:76
 msgid "Bicubic"
 msgstr "Kubinis"
 
-#: templates/django_bfm/base.html:71
+#: templates/django_bfm/base.html:77
 msgid "Bilinear"
 msgstr "Linijinis"
 
-#: templates/django_bfm/base.html:72
+#: templates/django_bfm/base.html:78
 msgid "Nearest"
 msgstr "Arčiausias"
 
-#: templates/django_bfm/base.html:80
-msgid "Upload files"
+#: templates/django_bfm/base.html:88
+msgid "Uploader"
+msgstr "Įkėlėjas"
+
+#: templates/django_bfm/base.html:89
+msgid "Expand uploader"
+msgstr "Išplėsti įkėlėją"
+
+#: templates/django_bfm/base.html:90
+msgid "Minimize uploader"
+msgstr "Sumažinti įkėlėją"
+
+#: templates/django_bfm/base.html:96
+msgid "Add files"
 msgstr "Įkelti failus"
 
-#: templates/django_bfm/base.html:86
-msgid "Uploading"
-msgstr "Įkeliama"
+#: templates/django_bfm/base.html:100
+msgid "Add folder (experimental)"
+msgstr "Įkelti aplanką (eksperimentas)"
 
-#: templates/django_bfm/base.html:107
+#: templates/django_bfm/base.html:102
+msgid "Clear finished"
+msgstr "Išvalyti baigtus"
+
+#: templates/django_bfm/base.html:103
+msgid "Remove queued"
+msgstr "Pašalinti eilėje"
+
+#: templates/django_bfm/base.html:115
+msgid "Cancel this upload"
+msgstr "Atšaukti šį įkėlimą"
+
+#: templates/django_bfm/base.html:120
+msgid "Failed"
+msgstr "Nepavyko"
+
+#: templates/django_bfm/base.html:121
+msgid "Aborted"
+msgstr "Atšauktas"
+
+#: templates/django_bfm/base.html:137
 msgid "First page"
 msgstr "Pirmas puslapis"
 
-#: templates/django_bfm/base.html:110
+#: templates/django_bfm/base.html:142
 msgid "Last page"
 msgstr "Paskutinis puslapis"
 
-#: templates/django_bfm/base.html:113
-msgid "Upload was completed successfully."
-msgstr "Įkelimas atliktas sėkmingai."
-
-#: templates/django_bfm/base.html:116
-msgid "One or more errors occured!"
-msgstr "Įvyko viena ar daugiau klaidų!"
-
-#: templates/django_bfm/base.html:119
+#: templates/django_bfm/base.html:147
 msgid "Uploading in progress!"
 msgstr "Vyksta įkėlimas!"
 
-#: templates/django_bfm/base.html:169
+#: templates/django_bfm/base.html:152 templates/django_bfm/base.html.py:159
+msgid "New directory"
+msgstr "Naujas aplankas"
+
+#: templates/django_bfm/base.html:164
+msgid "Create new directory"
+msgstr "Sukurti naują aplanką"
+
+#: templates/django_bfm/base.html:165
+msgid ""
+"You are going to create a new directory inside '/<%= rel_dir %>'. Enter it's "
+"name."
+msgstr ""
+"Jūs kuriate naują aplanką '/<%= rel_dir %>' aplanke. Įveskite naujo aplanko "
+"pavadinimą."
+
+#: templates/django_bfm/base.html:167
+msgid "Create"
+msgstr "Sukurti"
+
+#: templates/django_bfm/base.html:173
+msgid "Rename directory"
+msgstr "Pervadinti aplanką"
+
+#: templates/django_bfm/base.html:181
+msgid "Delete directory"
+msgstr "Ištrinti aplanką"
+
+#: templates/django_bfm/base.html:183
+msgid ""
+"You are going to delete a directory with all files and directories inside "
+"it. Are you sure?"
+msgstr ""
+"Jūs trinate aplanką su visais failais ir aplankais jo viduje. Ar esate tikras?"
+
+#: templates/django_bfm/base.html:185
+msgid "No"
+msgstr "Ne"
+
+#: templates/django_bfm/base.html:186
+msgid "Over my dead body!"
+msgstr "Per mano lavoną!"
+
+#: templates/django_bfm/base.html:187
+msgid "I'm sure"
+msgstr "Esu tikras"
+
+#: templates/django_bfm/base.html:188
+msgid "Just kill this dialog"
+msgstr "Tiesiog išjunkite šį dialogą"
+
+#: templates/django_bfm/base.html:205
 msgid "Root directory"
 msgstr "Pradinis aplankas"
