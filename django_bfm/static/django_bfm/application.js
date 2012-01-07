@@ -758,6 +758,7 @@
     active_uploads: 0,
     events: {
       'click .uploader-head>.control': 'toggle_visibility',
+      'dblclick .uploader-head': 'toggle_visibility',
       'change input[type="file"]': 'add_files',
       'click .finished': 'clear_finished',
       'click .rqueued': 'remove_queue'
