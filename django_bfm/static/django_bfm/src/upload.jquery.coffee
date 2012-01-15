@@ -2,7 +2,7 @@ if jQuery?
     $ = jQuery
 else
     $ = django.jQuery
-$->
+$ ->
     $.ajax_upload = (file, options)->
         # jQuery method. Handles file upload with status reporting.
 

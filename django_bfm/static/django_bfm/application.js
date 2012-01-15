@@ -25,13 +25,13 @@
     delete_file: function() {
       var _this = this;
       return $.ajax({
-        url: this.url,
-        data: {
+        'url': this.url,
+        'data': {
           action: 'delete',
           file: this.get('filename'),
           directory: this.get('rel_dir')
         },
-        success: function() {
+        'success': function() {
           return FileBrowser.files.remove(_this);
         }
       });
@@ -40,10 +40,10 @@
       var dialog,
         _this = this;
       dialog = new Dialog({
-        url: this.url,
-        model: this,
-        template: '#file_rename_tpl',
-        callback: function(data) {
+        'url': this.url,
+        'model': this,
+        'template': '#file_rename_tpl',
+        'callback': function(data) {
           return _this.rename_file_callback(data);
         }
       });
@@ -52,11 +52,11 @@
     rename_file_callback: function(dialog_data) {
       var _this = this;
       return $.ajax({
-        url: this.url,
-        data: $.extend(dialog_data, {
-          action: 'rename'
+        'url': this.url,
+        'data': $.extend(dialog_data, {
+          'action': 'rename'
         }),
-        success: function(data) {
+        'success': function(data) {
           _this.set(JSON.parse(data));
           _this.initialize();
           return FileBrowser.files.sort();
@@ -66,13 +66,13 @@
     touch_file: function() {
       var _this = this;
       return $.ajax({
-        url: this.url,
-        data: {
+        'url': this.url,
+        'data': {
           action: 'touch',
           file: this.get('filename'),
           directory: this.get('rel_dir')
         },
-        success: function(data) {
+        'success': function(data) {
           _this.set(JSON.parse(data));
           _this.initialize();
           return FileBrowser.files.sort();
@@ -82,10 +82,10 @@
     resize_image: function() {
       var dialog;
       dialog = new Dialog({
-        url: 'image/',
-        model: this,
-        template: '#image_resize_tpl',
-        callback: function(dialog_data) {
+        'url': 'image/',
+        'model': this,
+        'template': '#image_resize_tpl',
+        'callback': function(dialog_data) {
           var _this = this;
           return $.ajax({
             url: 'image/',
@@ -98,16 +98,16 @@
             }
           });
         },
-        hook: function(dialog) {
+        'hook': function(dialog) {
           $.ajax({
-            url: 'image/',
-            dataType: 'json',
-            data: {
-              action: 'info',
-              file: dialog.model.get('filename'),
-              directory: dialog.model.get('rel_dir')
+            'url': 'image/',
+            'dataType': 'json',
+            'data': {
+              'action': 'info',
+              'file': dialog.model.get('filename'),
+              'directory': dialog.model.get('rel_dir')
             },
-            success: function(data) {
+            'success': function(data) {
               $(dialog.el).find('input[name="new_h"]').val(data.height);
               $(dialog.el).find('input[name="new_w"]').val(data.width);
               return $(dialog.el).data('ratio', data.height / data.width);
@@ -139,52 +139,32 @@
     url: 'list_files/',
     model: File,
     comparators: {
-      date: {
-        desc: function(model) {
-          return 0 - model.get('date');
-        },
-        asc: function(model) {
-          return model.get('date') - 0;
-        }
+      date: function(model) {
+        return model.get('date') - 0;
       },
-      size: {
-        desc: function(model) {
-          return -model.get('size');
-        },
-        asc: function(model) {
-          return model.get('size');
-        }
+      size: function(model) {
+        return model.get('size');
       },
-      filename: {
-        desc: function(model) {
-          var str;
-          str = model.get("filename");
-          str = str.toLowerCase().split("");
-          return _.map(str, function(letter) {
-            return String.fromCharCode(-(letter.charCodeAt(0)));
-          });
-        },
-        asc: function(model) {
-          return model.get("filename");
-        }
+      filename: function(model) {
+        return model.get("filename");
       },
-      mime: {
-        desc: function(model) {
-          var str;
-          str = model.get("mimetype");
-          str = str.toLowerCase().split("");
-          return _.map(str, function(letter) {
-            return String.fromCharCode(-(letter.charCodeAt(0)));
-          });
-        },
-        asc: function(model) {
-          return model.get('mimetype');
-        }
+      mime: function(model) {
+        return model.get('mimetype');
       }
+    },
+    sort: function(options) {
+      options || (options = {});
+      if (!this.comparator) {
+        throw new Error('Cannot sort a set without a comparator');
+      }
+      this.models = this.sortBy(this.comparator);
+      if (options.reverse) this.models.reverse();
+      if (!options.silent) this.trigger('reset', this, options);
+      return this;
     },
     initialize: function() {
       this.base_url = this.url;
-      this.comparator = this.comparators.date.desc;
+      this.comparator = this.comparators.date;
       this.bind('reset', this.updated);
       return this.bind('remove', this.updated);
     },
@@ -197,9 +177,12 @@
   });
 
   FileTableView = Backbone.View.extend({
-    ord: ['date', true],
     events: {
       'click th': 'resort_data'
+    },
+    sorted: {
+      'by': 'date',
+      'reversed': true
     },
     initialize: function() {
       this.el = $('table#result_list');
@@ -210,20 +193,18 @@
       files = FileBrowser.files;
       name = e.currentTarget.getAttribute('data-name');
       if (!files.comparators[name]) return false;
-      if (this.ord[0] === name) {
-        this.ord[1] = !this.ord[1];
+      if (this.sorted.by === name) {
+        this.sorted.reversed = !this.sorted.reversed;
       } else {
-        this.ord = [name, true];
+        this.sorted.by = name;
       }
-      if (this.ord[1]) {
-        files.comparator = files.comparators[name].desc;
-      } else {
-        files.comparator = files.comparators[name].asc;
-      }
-      return files.sort();
+      files.comparator = files.comparators[name];
+      return files.sort({
+        'reverse': this.sorted.reversed
+      });
     },
     render: function(models) {
-      var c, tpl,
+      var c, cls_name, tpl,
         _this = this;
       this.current_row = 1;
       this.el.html('');
@@ -234,7 +215,8 @@
         date: '',
         mime: ''
       };
-      c[this.ord[0]] = "" + (this.ord[1] ? 'descending' : 'ascending') + " sorted";
+      cls_name = this.sorted.reversed ? 'descending' : 'ascending';
+      c[this.sorted.by] = "" + cls_name + " sorted";
       tpl = _.template($('#browse_head_tpl').html(), c);
       this.el.find('tr:first').append(tpl);
       _.forEach(models, function(model) {
@@ -362,7 +344,8 @@
       readyState: 4
     },
     do_browse: function(path, page) {
-      var _ref, _ref2;
+      var _ref, _ref2,
+        _this = this;
       if (this.first) {
         this.files = new FileCollection();
         this.table = new FileTableView();
@@ -374,7 +357,14 @@
       if (this.path !== path) {
         this.files.update_directory();
         if (this.last_xhr.readyState !== 4) this.last_xhr.abort();
-        return this.last_xhr = this.files.fetch();
+        return this.last_xhr = this.files.fetch({
+          'silent': true,
+          'success': function(collection) {
+            return collection.sort({
+              'reverse': _this.table.sorted.reversed
+            });
+          }
+        });
       } else if (this.page !== page) {
         return this.paginator.render();
       }

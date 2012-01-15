@@ -1,14 +1,16 @@
 (function() {
   var $;
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
   if (typeof jQuery !== "undefined" && jQuery !== null) {
     $ = jQuery;
   } else {
     $ = django.jQuery;
   }
+
   $(function() {
     return $.ajax_upload = function(file, options) {
-      var complete, form, header, progress, settings, stats, stats_averages, value, xhr, _ref;
+      var complete, form, header, progress, settings, stats, stats_averages, value, xhr, _ref,
+        _this = this;
       stats_averages = function(time, loaded) {
         var completion, last_call, size_diff, speed, time_diff;
         stats.push({
@@ -22,9 +24,7 @@
         size_diff = loaded - stats[0].loaded;
         speed = ~~((size_diff * 1000 / time_diff) + 0.5);
         completion = loaded / file.size;
-        if (completion > 1) {
-          completion = 1;
-        }
+        if (completion > 1) completion = 1;
         last_call = time - stats[stats.length - 2].time;
         last_call = last_call + last_call / 10;
         return {
@@ -68,18 +68,18 @@
           loaded: 0
         }
       ];
-      xhr.upload.addEventListener("progress", (__bind(function(e) {
+      xhr.upload.addEventListener("progress", (function(e) {
         return progress(e);
-      }, this)), false);
-      xhr.addEventListener("load", (__bind(function(e) {
+      }), false);
+      xhr.addEventListener("load", (function(e) {
         return complete(e);
-      }, this)), false);
-      xhr.addEventListener("error", (__bind(function(e) {
+      }), false);
+      xhr.addEventListener("error", (function(e) {
         return settings.error(e);
-      }, this)), false);
-      xhr.addEventListener("abort", (__bind(function(e) {
+      }), false);
+      xhr.addEventListener("abort", (function(e) {
         return settings.abort(e);
-      }, this)), false);
+      }), false);
       xhr.open("POST", settings.url);
       _ref = settings.headers;
       for (header in _ref) {
@@ -90,4 +90,5 @@
       return xhr;
     };
   });
+
 }).call(this);

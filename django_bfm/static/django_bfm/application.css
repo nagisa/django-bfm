@@ -23,41 +23,41 @@ a.iconic:hover {
 
 /* File Browser */
 
-td.tight{
+.tight{
   width:1px;
   white-space:nowrap;
 }
 
-td.tight.icons{
+.icons{
   padding:0 5px;
   line-height:normal;
 }
 
-td.tight.icons .iconic{
+.icons .iconic{
   font-size:19px;
 }
 
-td.tight.icons .delete{
+.icons .delete{
   color:#C00;
 }
 
-td.tight.icons .delete:hover{
+.icons .delete:hover{
   color:#F00;
 }
 
-td.tight.icons .touch, td.tight.icons .resize{
+.icons .touch, .icons .resize{
   color:#07C;
 }
 
-td.tight.icons .touch:hover, td.tight.icons .resize:hover{
+.icons .touch:hover, .icons .resize:hover{
   color:#09F;
 }
 
-td.tight.icons .rename{
+.icons .rename{
   color:#C80;
 }
 
-td.tight.icons .rename:hover{
+.icons .rename:hover{
   color:#DA0;
 }
 
@@ -338,16 +338,20 @@ h2 a{
 /* Fixing some glitches... */
 
 td.tight.icons,
-#changelist table thead th,
+#changelist thead th,
 .directory,
-.uploader-head .control,
-.uploader-controls *{
+.uploader-head,
+.uploader-controls{
   -moz-user-select: -moz-none;
   -khtml-user-select: none;
   -webkit-user-select: none;
   -o-user-select: none;
   user-select: none;
   cursor: pointer !important;
+}
+
+#changelist thead th{
+  padding: 3px 5px;
 }
 
 .directory-list ul{
