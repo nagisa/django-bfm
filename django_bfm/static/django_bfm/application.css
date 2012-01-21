@@ -20,6 +20,7 @@ a.iconic:hover {
 .iconic.tag:before { font-family: "IconicStroke"; content: "g"; }
 .iconic.trash:before { font-family: "IconicStroke"; content: "t"; }
 .iconic.x:before { font-family: "IconicStroke"; content: "x"; }
+.iconic.arrow_down:before {content:"\2193";}
 
 /* File Browser */
 
@@ -212,13 +213,20 @@ h2 a{
   overflow:hidden;
   width:auto;
   display: inline-block;
+  margin:0;
+  padding:0;
+  float:left;
 }
 
 .uploader-controls .selector>input[type='file']{
   position:absolute;
   top:0;
   left:0;
+  right:0;
+  bottom:0;
   opacity:0;
+  margin:0;
+  padding:0;
 }
 
 .uploader-controls .directory{
@@ -235,19 +243,20 @@ h2 a{
   display:none;
   z-index:-3;
   position:relative;
+  overflow:hidden;
 }
 
 .uploader-table {
-    position:relative;
-    height:100%;
-    background:#FFF;
-    border-left:1px solid #ccc;
-    border-right:1px solid #ccc;
-    box-sizing:border-box;
-    -moz-box-sizing:border-box;
-    -webkit-box-sizing:border-box;
-    z-index:-2;
-    overflow-y:auto;
+  position:relative;
+  height:100%;
+  background:#FFF;
+  border-left:1px solid #ccc;
+  border-right:1px solid #ccc;
+  box-sizing:border-box;
+  -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+  z-index:-2;
+  overflow-y:auto;
 }
 
 .uploader-table .file{
@@ -260,13 +269,13 @@ h2 a{
 }
 
 @-moz-keyframes animated-bar {
- 0%     {background-position:0 0;}
- 100%   {background-position:-24px 0;}
+   0%         {background-position:0 0;}
+   100%     {background-position:-24px 0;}
 }
 
 @-webkit-keyframes animated-bar {
- 0%     {background-position:0 0;}
- 100%   {background-position:-24px 0;}
+   0%         {background-position:0 0;}
+   100%     {background-position:-24px 0;}
 }
 
 .uploader-table .file.current {
@@ -335,6 +344,41 @@ h2 a{
   transition: background 500ms ease-in-out;
 }
 
+#uploader-droptarget{
+  position:absolute;
+  top:50px;
+  height:100%;
+  width:100%;
+  border:3px dotted #CCC;
+  box-sizing: border-box;
+  -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+  color: #CCC;
+  font-size:3em;
+  text-align:center;
+  white-space:nowrap;
+  line-height:3em;
+  z-index:10000;
+}
+
+#uploader-droptarget.dragover{
+  color: #999;
+  border-color:#999;
+}
+
+#uploader-droptarget .dropinput{
+  position: absolute;
+  right: 0;
+  left:0;
+  margin: 0;
+  padding: 0;
+  font-size:2000em;
+  top:-100%;
+  height:300%;
+  width:100%;
+  opacity:0;
+}
+
 /* Fixing some glitches... */
 
 td.tight.icons,
@@ -348,6 +392,10 @@ td.tight.icons,
   -o-user-select: none;
   user-select: none;
   cursor: pointer !important;
+}
+
+.uploader-controls form:hover a{
+  color: #999;
 }
 
 #changelist thead th{

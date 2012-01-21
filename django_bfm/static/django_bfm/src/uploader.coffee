@@ -127,6 +127,7 @@ UploaderView = Backbone.View.extend
     visible: false
     uploads_at_once: window.BFMOptions.uploads_at_once
     active_uploads: 0
+    drag_events: 0
     events: {
         'click .uploader-head>.control': 'toggle_visibility',
         'dblclick .uploader-head': 'toggle_visibility',
@@ -146,6 +147,8 @@ UploaderView = Backbone.View.extend
         if directory_upload_support()
             @el.find('.selector.directory').css('display', 'inline-block')
         @delegateEvents(@events)
+        $('html').on('dragenter.uploaderdrag', ()=> @render_droptarget())
+        $('html').on('dragleave.uploaderdrag', ()=> @remove_droptarget())
 
     toggle_visibility: (e)->
         button = @el.find('.uploader-head>.control')
@@ -212,6 +215,32 @@ UploaderView = Backbone.View.extend
     unloading: ()->
         return $.trim($('#upload_cancel_tpl').text())
 
+    render_droptarget: ()->
+        if(@drag_events == 0)
+            if(!@drop_target?)
+                @drop_target = _.template($('#uploader_droptarget').html())
+                @el.find('.uploader-table-container').append(@drop_target)
+                @drop_target = @el.find('#uploader-droptarget')
+                @drop_target.fadeIn(150).on('dragover', ()=>
+                    @drop_target.addClass('dragover')
+                ).on('dragleave', ()=>
+                    @drop_target.removeClass('dragover')
+                )
+                @drop_target.find('.dropinput').on('change', ()=>
+                    @remove_droptarget(true)
+                )
+            else
+                @el.find('.uploader-table-container').append(@drop_target)
+                @drop_target.fadeIn(150)
+
+            if(!@visible)
+                @toggle_visibility()
+        @drag_events++
+
+    remove_droptarget: (force = false)->
+        --@drag_events
+        if @drag_events == 0 || force
+            $(@drop_target).fadeOut(150, ()=> @drop_target.remove())
 
 FileUploader =
     init: ()->

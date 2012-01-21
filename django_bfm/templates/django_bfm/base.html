@@ -23,7 +23,11 @@
     <script type="text/javascript" src="{{ STATIC_URL }}django_bfm/application.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}django_bfm/upload.jquery.js"></script>
 
-
+    <!--
+    ******************************************************
+    File Browser templates
+    ******************************************************
+    -->
     <script id="browse_head_tpl" type="text/template">
         <th>{% trans "Actions" %}</th>
         <th class="<%= filename %>" data-name="filename"><a>{% trans "Filename" %}</a></th>
@@ -82,7 +86,31 @@
         <input type="submit" class="cancel" value="{% trans "Cancel" %}">
     </script>
 
+    <!-- Paginator templates -->
+    <script id="pgn_current_page_tpl" type="text/template">
+        <span class="this-page"><%= page %></span>&nbsp;
+    </script>
 
+
+    <script id="pgn_page_tpl" type="text/template">
+        <a href="#"><%= page %></a>&nbsp;
+    </script>
+
+
+    <script id="pgn_first_page_tpl" type="text/template">
+        <a href="#" class="firstpage">{% trans "First page" %}</a>&nbsp;
+    </script>
+
+
+    <script id="pgn_last_page_tpl" type="text/template">
+        <a href="#" class="lastpage">{% trans "Last page" %}</a>&nbsp;
+    </script>
+
+    <!--
+    ******************************************************
+    Uploader templates
+    ******************************************************
+    -->
     <script id="uploader_tpl" type="text/template">
         <div class="uploader-head">
             {% trans "Uploader" %}
@@ -123,31 +151,22 @@
     </script>
 
 
-    <script id="pgn_current_page_tpl" type="text/template">
-        <span class="this-page"><%= page %></span>&nbsp;
-    </script>
-
-
-    <script id="pgn_page_tpl" type="text/template">
-        <a href="#"><%= page %></a>&nbsp;
-    </script>
-
-
-    <script id="pgn_first_page_tpl" type="text/template">
-        <a href="#" class="firstpage">{% trans "First page" %}</a>&nbsp;
-    </script>
-
-
-    <script id="pgn_last_page_tpl" type="text/template">
-        <a href="#" class="lastpage">{% trans "Last page" %}</a>&nbsp;
-    </script>
-
-
     <script id="upload_cancel_tpl" type="text/template">
         {% trans "Uploading in progress!" %}
     </script>
 
+    <script id="uploader_droptarget" type="text/template">
+        <div id="uploader-droptarget">
+            {% trans "Drop files here!" %}
+            <input type="file" class="dropinput" multiple>
+        </div>
+    </script>
 
+    <!--
+    ******************************************************
+    Directory templates
+    ******************************************************
+    -->
     <script id="directory_actions_tpl" type="text/template">
         <li><a>{% trans "New directory" %}</a></li>
         <li><a>{% trans "Rename" %}</a></li>
