@@ -167,7 +167,7 @@ UploaderView = Backbone.View.extend
         @visible = !@visible
 
     add_files: (e)->
-        _.forEach(e.currentTarget.files, (file)=>
+        _.forEach(e.currentTarget?.files || e.dataTransfer?.files, (file)=>
             _.defer(()=>@add_file(file))
         )
 
@@ -216,31 +216,31 @@ UploaderView = Backbone.View.extend
         return $.trim($('#upload_cancel_tpl').text())
 
     render_droptarget: ()->
-        if(@drag_events == 0)
-            if(!@drop_target?)
-                @drop_target = _.template($('#uploader_droptarget').html())
-                @el.find('.uploader-table-container').append(@drop_target)
-                @drop_target = @el.find('#uploader-droptarget')
-                @drop_target.fadeIn(150).on('dragover', ()=>
-                    @drop_target.addClass('dragover')
-                ).on('dragleave', ()=>
-                    @drop_target.removeClass('dragover')
-                )
-                @drop_target.find('.dropinput').on('change', ()=>
-                    @remove_droptarget(true)
-                )
-            else
-                @el.find('.uploader-table-container').append(@drop_target)
-                @drop_target.fadeIn(150)
-
-            if(!@visible)
-                @toggle_visibility()
+        if not @drop_target
+            @drop_target = _.template($('#uploader_droptarget').html())
+            @el.find('.uploader-table-container').append(@drop_target)
+            @drop_target = @el.find('#uploader-droptarget')
+            @drop_target.on('dragover', ()=> @drop_target.addClass('over'))
+                        .on('dragleave', ()=> @drop_target.removeClass('over'))
+                        .on('drop', (e)=> @drop(e))
+        if @drag_events == 0
+            @drop_target.css('opacity', 1)
+        if not @visible
+            @toggle_visibility()
         @drag_events++
 
-    remove_droptarget: (force = false)->
+    remove_droptarget: ()->
         --@drag_events
-        if @drag_events == 0 || force
-            $(@drop_target).fadeOut(150, ()=> @drop_target.remove())
+        if @drag_events == 0
+            $(@drop_target).removeClass('over').css('opacity', 0)
+
+    drop: (e)->
+        e.stopPropagation()
+        e.preventDefault()
+        @add_files(e.originalEvent)
+        @remove_droptarget()
+
+
 
 FileUploader =
     init: ()->
