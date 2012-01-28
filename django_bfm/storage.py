@@ -73,22 +73,29 @@ class BFMStorage(FileSystemStorage):
         os.utime(self.path(filename), None)
 
     def rename(self, filename, to):
-        os.rename(self.path(filename), self.path(to))
+        to = self.path(self.get_available_name(to))
+        os.rename(self.path(filename), to)
+        return to
 
     def new_directory(self, path, recursive=False, strict=False):
         if self.get_available_name(path) != path and strict:
             message = "File or directory with name {} already exists!"
             raise IOError(message.format(path))
-        path = self.path(path)
+        path = self.path(self.get_available_name(path))
         if recursive:
             os.makedirs(path)
         else:
             os.mkdir(path)
+        return path
 
-    def move_directory(self, path, to):
+    def move_directory(self, path, to, strict=False):
+        if self.get_available_name(to) != to and strict:
+            message = "File or directory with name {} already exists!"
+            raise IOError(message.format(path))
         path = self.path(path)
-        to = self.path(to)
+        to = self.path(self.get_available_name(to))
         os.rename(path, to)
+        return to
 
     def remove_directory(self, path):
         shutil.rmtree(self.path(path))
