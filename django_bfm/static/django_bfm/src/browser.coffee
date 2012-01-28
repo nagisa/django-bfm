@@ -121,10 +121,11 @@ FileCollection = Backbone.Collection.extend
     #           sorting it or retrieving new file list.
     url: 'list_files/'
     model: File
+    reversed: false
 
     comparators:
         date: (model)->
-            return model.get('date') - 0
+            return model.get('date').getTime()
         size: (model)->
             return model.get('size')
         filename: (model)->
@@ -134,6 +135,12 @@ FileCollection = Backbone.Collection.extend
 
     sort: (options)->
         options || (options = {})
+        # If no reverse option given, use last used sorting.
+        if options.reverse?
+            @reversed = options.reverse
+        else
+            options.reverse = @reversed
+
         if !@comparator
             throw new Error('Cannot sort a set without a comparator')
         @models = @sortBy(@comparator)
