@@ -1,6 +1,7 @@
+# Python imports
 import os
-import shutil
 
+# Django imports
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
@@ -10,9 +11,10 @@ from django.http import (HttpResponse, HttpResponseNotAllowed,
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 
-import utils
+# Project imports
 from forms import UploadFileForm
 import settings
+from storage import BFMStorage
 
 #Optional dependecy for image_actions
 try:
@@ -47,45 +49,42 @@ def admin_options(request):
 @staff_member_required
 def list_files(request):
     directory = request.GET.get('directory', '')
-    storage = utils.Directory(directory)
-    files = storage.collect_files()
-    return HttpResponse(simplejson.dumps(files))
+    files = BFMStorage(directory).list_files(json=True)
+    return HttpResponse(files)
 
 
 @login_required
 @staff_member_required
 def list_directories(request):
-    storage = utils.Directory('')
-    d = storage.collect_dirs()
-    return HttpResponse(simplejson.dumps(d))
+    directory_tree = BFMStorage('').directory_tree()
+    return HttpResponse(simplejson.dumps(directory_tree))
 
 
 @login_required
 @staff_member_required
 def file_actions(request):
     directory = request.GET.get('directory', False)
-    f = request.GET.get('file', False)
+    filename = request.GET.get('file', False)
     action = request.GET.get('action', False)
-    if directory == False or f == False or not action:
+    if directory == False or filename == False or not action:
         return HttpResponseBadRequest()
+    action = action.lower()
 
-    storage = utils.Directory(directory)
+    storage = BFMStorage(directory)
     if action == 'delete':
-        storage.s.delete(f)
+        storage.delete(filename)
         return HttpResponse()
-
     elif action == 'touch':
-        os.utime(storage.s.path(f), None)
-        return HttpResponse(simplejson.dumps(storage.file_metadata(f)))
-
+        storage.touch(filename)
+        return HttpResponse(storage.file_metadata(filename, json=True))
     elif action == 'rename':
         new_name = request.GET.get('new', False)
         if not new_name:
             return HttpResponseBadRequest()
-        else:
-            new = storage.s.path(storage.s.get_available_name(new_name))
-            os.rename(storage.s.path(f), new)
-        return HttpResponse(simplejson.dumps(storage.file_metadata(new_name)))
+        storage.rename(filename, new_name)
+        return HttpResponse(storage.file_metadata(new_name, json=True))
+    else:
+        return HttpResponseBadRequest()  # Nothing to do!
 
 
 @login_required
@@ -96,70 +95,68 @@ def directory_actions(request):
     if directory == False or not action:
         return HttpResponseBadRequest()
 
-    storage = utils.Directory(directory)
-    root = utils.Directory("")
+    storage = BFMStorage(directory)
+    root = BFMStorage('')
     if action == 'new':
         new = request.GET.get('new', False)
         if not new:
             return HttpResponseBadRequest()
-        os.mkdir(storage.s.path(storage.s.get_available_name(new)))
+        storage.new_directory(new)
         return HttpResponse()
     elif action == 'rename':
         new = request.GET.get('new', False)
         if not new:
             return HttpResponseBadRequest()
-        new = storage.s.get_available_name(new)
-        new_path = root.s.path(os.path.join(directory, '..', new))
-        os.rename(root.s.path(directory), new_path)
+        new = os.path.normpath(os.path.join(directory, '..', new))
+        root.move_directory(directory, new)
         return HttpResponse()
     elif action == 'delete':
-        shutil.rmtree(storage.s.path(''))
+        root.remove_directory(directory)
         return HttpResponse()
-    return HttpResponseBadRequest()
+    else:
+        return HttpResponseBadRequest()  # Nothing to do!
 
 
 @login_required
 @staff_member_required
 def file_upload(request):
-    if not request.method == 'POST':
-        return HttpResponseNotAllowed(['POST'])
-
     directory = request.GET.get('directory', False)
-    if directory == False:
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+    elif directory == False:
         return HttpResponseBadRequest()
-    # Parsing form
+
     form = UploadFileForm(request.POST, request.FILES)
-    storage = utils.Directory(directory)
+    storage = BFMStorage(directory)
     if form.is_valid():
-        f = storage.s.save(request.FILES['file'].name, request.FILES['file'])
-        return HttpResponse(simplejson.dumps(storage.file_metadata(f)))
+        f = storage.save(request.FILES['file'].name, request.FILES['file'])
+        return HttpResponse(storage.file_metadata(f, json=True))
     else:
-        return HttpResponseBadRequest()
+        return HttpResponseBadRequest('Form is invalid!')
 
 
 @login_required
 @staff_member_required
 def image_actions(request):
-    if not 'Image' in globals():
+    if not settings.HAS_PIL:
         return HttpResponseServerError('Install PIL!')
     directory = request.GET.get('directory', False)
-    f = request.GET.get('file', False)
+    filename = request.GET.get('file', False)
     action = request.GET.get('action', False)
-    if directory == False or f == False or not action:
+    if directory == False or filename == False or not action:
         return HttpResponseBadRequest()
-    storage = utils.Directory(directory)
-    fpath = storage.s.path(f)
 
+    storage = BFMStorage(directory)
+    filepath = storage.path(filename)
     if action == 'info':
-        image = Image.open(fpath)
+        image = Image.open(filepath)
         s = image.size
         return HttpResponse(simplejson.dumps({'height': s[1], 'width': s[0]}))
-
-    if action == 'resize':
-        image = Image.open(fpath)
+    elif action == 'resize':
+        image = Image.open(filepath)
         filtr = getattr(Image, request.GET['filter'])
         size = (int(request.GET['new_w']), int(request.GET['new_h']))
         image = image.resize(size, filtr)
-        new_name = storage.s.get_available_name(f)
-        image.save(storage.s.path(new_name))
-    return HttpResponse(simplejson.dumps(storage.file_metadata(new_name)))
+        new_name = storage.get_available_name(filename)
+        image.save(storage.path(new_name))
+        return HttpResponse(storage.file_metadata(new_name, json=True))
