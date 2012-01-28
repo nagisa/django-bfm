@@ -91,10 +91,9 @@ ContextMenu = Backbone.View.extend
         )
     render: (e)->
         width = @el.appendTo($('body')).outerWidth()
-        @el.hide().show(200)
+        @el.hide().show(200, ()=> $('html').one('mouseup', ()=>@clicked()))
         top = e.pageY
         left = e.pageX
         if left + width >= $(document).width()
             left = $(document).width() - width
         @el.css(top: top, left: left)
-        $(document).one('mousedown', ()=>@clicked())
