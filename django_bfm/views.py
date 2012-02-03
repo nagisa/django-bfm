@@ -117,7 +117,7 @@ class FileActions(View):
         if self.args['action'] in a:
             self.signals['pre'].send(**self.sigargs)
             response = a[self.args['action']]()
-            if not response >= 400:
+            if not response.status_code >= 400:
                 self.signals['post'].send(**self.sigargs)
             return response
         else:
@@ -172,7 +172,7 @@ class DirectoryActions(View):
         if self.args['action'] in a:
             self.signals['pre'].send(**self.sigargs)
             response = a[self.args['action']]()
-            if not response >= 400:
+            if not response.status_code >= 400:
                 self.signals['post'].send(**self.sigargs)
             return response
         else:
