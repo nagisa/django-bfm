@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.test.client import Client
 
 
-class AuthTestCase(TestCase):
+class ClientTestCase(TestCase):
     fixtures = ['testing.json']
 
     def setUp(self):
