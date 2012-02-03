@@ -2,17 +2,20 @@
 import os
 
 # Django imports
-from django.shortcuts import render_to_response
-from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
 from django.contrib.admin.views.decorators import staff_member_required
-from django.utils import simplejson
+from django.contrib.auth.decorators import login_required
 from django.http import (HttpResponse, HttpResponseNotAllowed,
                         HttpResponseBadRequest, HttpResponseServerError)
+from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.core.urlresolvers import reverse
+from django.utils import simplejson
+from django.utils.decorators import method_decorator
+from django.views.generic import View
 
 # Project imports
 from forms import UploadFileForm
+import signals
 import settings
 from storage import BFMStorage
 
@@ -62,63 +65,6 @@ def list_directories(request):
 
 @login_required
 @staff_member_required
-def file_actions(request):
-    directory = request.GET.get('directory', False)
-    filename = request.GET.get('file', False)
-    action = request.GET.get('action', False)
-    if directory == False or filename == False or not action:
-        return HttpResponseBadRequest()
-    action = action.lower()
-
-    storage = BFMStorage(directory)
-    if action == 'delete':
-        storage.delete(filename)
-        return HttpResponse()
-    elif action == 'touch':
-        storage.touch(filename)
-        return HttpResponse(storage.file_metadata(filename, json=True))
-    elif action == 'rename':
-        new_name = request.GET.get('new', False)
-        if not new_name:
-            return HttpResponseBadRequest()
-        storage.rename(filename, new_name)
-        return HttpResponse(storage.file_metadata(new_name, json=True))
-    else:
-        return HttpResponseBadRequest()  # Nothing to do!
-
-
-@login_required
-@staff_member_required
-def directory_actions(request):
-    directory = request.GET.get('directory', False)
-    action = request.GET.get('action', False)
-    if directory == False or not action:
-        return HttpResponseBadRequest()
-
-    storage = BFMStorage(directory)
-    root = BFMStorage('')
-    if action == 'new':
-        new = request.GET.get('new', False)
-        if not new:
-            return HttpResponseBadRequest()
-        storage.new_directory(new)
-        return HttpResponse()
-    elif action == 'rename':
-        new = request.GET.get('new', False)
-        if not new:
-            return HttpResponseBadRequest()
-        new = os.path.normpath(os.path.join(directory, '..', new))
-        root.move_directory(directory, new)
-        return HttpResponse()
-    elif action == 'delete':
-        root.remove_directory(directory)
-        return HttpResponse()
-    else:
-        return HttpResponseBadRequest()  # Nothing to do!
-
-
-@login_required
-@staff_member_required
 def file_upload(request):
     directory = request.GET.get('directory', False)
     if request.method != 'POST':
@@ -128,35 +74,189 @@ def file_upload(request):
 
     form = UploadFileForm(request.POST, request.FILES)
     storage = BFMStorage(directory)
+
     if form.is_valid():
+        signals.pre_uploaded_file_save.send(sender=request)
         f = storage.save(request.FILES['file'].name, request.FILES['file'])
+        signals.uploaded_file_saved.send(sender=request,
+                                        file_path=storage.path(f))
         return HttpResponse(storage.file_metadata(f, json=True))
+
     else:
         return HttpResponseBadRequest('Form is invalid!')
 
 
-@login_required
-@staff_member_required
-def image_actions(request):
-    if not settings.HAS_PIL:
-        return HttpResponseServerError('Install PIL!')
-    directory = request.GET.get('directory', False)
-    filename = request.GET.get('file', False)
-    action = request.GET.get('action', False)
-    if directory == False or filename == False or not action:
-        return HttpResponseBadRequest()
+class FileActions(View):
 
-    storage = BFMStorage(directory)
-    filepath = storage.path(filename)
-    if action == 'info':
-        image = Image.open(filepath)
-        s = image.size
-        return HttpResponse(simplejson.dumps({'height': s[1], 'width': s[0]}))
-    elif action == 'resize':
-        image = Image.open(filepath)
-        filtr = getattr(Image, request.GET['filter'])
-        size = (int(request.GET['new_w']), int(request.GET['new_h']))
-        image = image.resize(size, filtr)
-        new_name = storage.get_available_name(filename)
-        image.save(storage.path(new_name))
-        return HttpResponse(storage.file_metadata(new_name, json=True))
+    @method_decorator(login_required)
+    @method_decorator(staff_member_required)
+    def dispatch(self, request):
+        # Check for all required arguments and move them to another dict.
+        self.args = {'directory': None, 'action': None, 'file': None}
+        for arg in self.args:
+            if arg not in request.GET:
+                return HttpResponseBadRequest()
+            self.args[arg] = request.GET[arg]
+        # Rename needs `new` variable.
+        self.args['new'] = request.GET.get('new', False)
+
+        # Initialize storage.
+        self.storage = BFMStorage(self.args['directory'])
+
+        # Initialize signals
+        self.signals = {'pre': signals.pre_file_action,
+                        'post': signals.post_file_action}
+        self.sigfile = {'original': self.storage.path(self.args['file']),
+                        'new': None}
+        self.sigargs = {'sender': request,
+                        'action': self.args['action'],
+                        'affected_files': self.sigfile}
+
+        # Send signals and run action, then send post signal.
+        a = {'delete': self.delete, 'rename': self.rename, 'touch': self.touch}
+        if self.args['action'] in a:
+            self.signals['pre'].send(**self.sigargs)
+            response = a[self.args['action']]()
+            if not response.status_code >= 400:
+                self.signals['post'].send(**self.sigargs)
+            return response
+        else:
+            return HttpResponseBadRequest()
+
+    def delete(self):
+        self.storage.delete(self.args['file'])
+        return HttpResponse()
+
+    def touch(self):
+        self.storage.touch(self.args['file'])
+        new_meta = self.storage.file_metadata(self.args['file'], json=True)
+        return HttpResponse(new_meta)
+
+    def rename(self):
+        if self.args['new'] is False:
+            return HttpResponseBadRequest()
+        new_path = self.storage.rename(self.args['file'], self.args['new'])
+        self.sigfile['new'] = new_path
+        new_meta = self.storage.file_metadata(self.args['new'], json=True)
+        return HttpResponse(new_meta)
+
+
+class DirectoryActions(View):
+
+    @method_decorator(login_required)
+    @method_decorator(staff_member_required)
+    def dispatch(self, request):
+        self.args = {'directory': None, 'action': None}
+        for arg in self.args:
+            if arg not in request.GET:
+                return HttpResponseBadRequest()
+            self.args[arg] = request.GET[arg]
+        # Rename and New needs `new` variable.
+        self.args['new'] = request.GET.get('new', False)
+
+        # Initialize storage.
+        self.storage = BFMStorage(self.args['directory'])
+        self.root = BFMStorage('')
+
+        # Initialize signals
+        self.signals = {'pre': signals.pre_directory_action,
+                        'post': signals.post_directory_action}
+        self.sigfile = {'original': self.storage.path(''),
+                        'new': None}
+        self.sigargs = {'sender': request,
+                        'action': self.args['action'],
+                        'affected_files': self.sigfile}
+
+        # Send signals and run action, then send post signal.
+        a = {'new': self.new, 'rename': self.rename, 'delete': self.delete}
+        if self.args['action'] in a:
+            self.signals['pre'].send(**self.sigargs)
+            response = a[self.args['action']]()
+            if not response.status_code >= 400:
+                self.signals['post'].send(**self.sigargs)
+            return response
+        else:
+            return HttpResponseBadRequest()
+
+    def new(self):
+        if self.args['new'] is False:
+            return HttpResponseBadRequest()
+        new_dir = self.storage.new_directory(self.args['new'], strict=True)
+        self.sigfile['new'] = new_dir
+        return HttpResponse()
+
+    def rename(self):
+        if self.args['new'] is False:
+            return HttpResponseBadRequest()
+        path = os.path.join(self.args['directory'], '..', self.args['new'])
+        new_dir = self.root.move_directory(self.args['directory'],
+                                            os.path.normpath(path), strict=True)
+        self.sigfile['new'] = new_dir
+        return HttpResponse()
+
+    def delete(self):
+        self.root.remove_directory(self.args['directory'])
+        return HttpResponse()
+
+
+class ImageActions(View):
+
+    @method_decorator(login_required)
+    @method_decorator(staff_member_required)
+    def dispatch(self, request):
+        if not settings.HAS_PIL:
+            return HttpResponseServerError('Install PIL!')
+
+        self.args = {'directory': None, 'action': None, 'file': None}
+        for arg in self.args:
+            if arg not in request.GET:
+                return HttpResponseBadRequest()
+            self.args[arg] = request.GET[arg]
+
+        # Resize action has many more arguments.
+        if self.args['action'] == 'resize':
+            self.resize_args = {'filter': None, 'new_w': None, 'new_h': None}
+            for arg in self.resize_args:
+                if arg not in request.GET:
+                    return HttpResponseBadRequest()
+                self.resize_args[arg] = request.GET[arg]
+
+        # Initialize storage and get image path.
+        self.storage = BFMStorage(self.args['directory'])
+        self.image = self.storage.path(self.args['file'])
+
+        # Initialize signals.
+        self.signals = {'pre': signals.pre_image_resize,
+                        'post': signals.post_image_resize}
+        self.sigfile = {'original': self.image,
+                        'new': None}
+        self.sigargs = {'sender': request,
+                        'action': self.args['action'],
+                        'affected_files': self.sigfile}
+
+        # Send signals and run action.
+        a = {'info': self.info, 'resize': self.resize}
+        if self.args['action'] in a:
+            self.signals['pre'].send(**self.sigargs)
+            response = a[self.args['action']]()
+            if not response >= 400:
+                self.signals['post'].send(**self.sigargs)
+            return response
+        else:
+            return HttpResponseBadRequest()
+
+    def info(self):
+        img = Image.open(self.image)
+        s = img.size
+        sizes = {'height': s[1], 'width': s[0]}
+        return HttpResponse(simplejson.dumps(sizes))
+
+    def resize(self):
+        _filter = getattr(Image, self.resize_args['filter'])
+        size = (int(self.resize_args['new_w']), int(self.resize_args['new_h']))
+        img = Image.open(self.image)
+        new_image = img.resize(size, _filter)
+        new_name = self.storage.get_available_name(self.args['file'])
+        new_image.save(self.storage.path(new_name))
+        self.sigfile['new'] = self.storage.path(new_name)
+        return HttpResponse(self.storage.file_metadata(new_name, json=True))
