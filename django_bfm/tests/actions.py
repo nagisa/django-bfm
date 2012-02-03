@@ -96,10 +96,13 @@ class DirectoryActions(ClientTestCase):
         signals.post_directory_action.connect(self.post)
 
     def pre(self, signal, sender, action, affected_files):
+        self.assertIs(affected_files['new'], None)
+        self.assertTrue(os.path.exists(affected_files['original']))
         self.got_pre[action] += 1
 
     def post(self, signal, sender, action, affected_files):
-
+        if affected_files['new'] is not None:
+            self.assertTrue(os.path.exists(affected_files['new']))
         self.got_post[action] += 1
 
     def test_unauthorized(self):
@@ -194,9 +197,13 @@ class FileActions(ClientTestCase):
         signals.post_file_action.connect(self.post)
 
     def pre(self, signal, sender, action, affected_files):
+        self.assertIs(affected_files['new'], None)
+        self.assertTrue(os.path.exists(affected_files['original']))
         self.got_pre[action] += 1
 
     def post(self, signal, sender, action, affected_files):
+        if affected_files['new'] is not None:
+            self.assertTrue(os.path.exists(affected_files['new']))
         self.got_post[action] += 1
 
     def test_unauthorized(self):
@@ -262,6 +269,9 @@ class FileActions(ClientTestCase):
         r = self.client.get(self.file_url, args)
         self.assertEqual(r.status_code, 200)
         self.assertFalse(os.path.exists(self.new_file))
+
+        self.assertEqual(self.got_pre['delete'], 1)
+        self.assertEqual(self.got_post['delete'], 1)
 
     def tearDown(self):
         if os.path.exists(self.new_file):
