@@ -31,7 +31,7 @@ class BFMStorage(FileSystemStorage):
             'filename': filename,
             'size': self.size(filename),
             'rel_dir': self.rel_dir,
-            'date': self.created_time(filename),
+            'date': os.stat(self.path(filename)).st_mtime * 1000,
             'mimetype': guess_mimetype(filename)[0] or default_mime,
             'url': self.url(filename)
             # 'ext': os.path.splitext(filename)[1]
