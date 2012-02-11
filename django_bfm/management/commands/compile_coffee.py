@@ -1,4 +1,5 @@
 from optparse import make_option
+from datetime import datetime
 import os
 import subprocess
 import sys
@@ -26,7 +27,9 @@ def compile_coffee(files, result_file, directory):
         '-j', result_file,
         '-c'] + files
     subprocess.call(cmd)
-    print "Compiled {} successfully!".format(result_file)
+    now = datetime.now()
+    print "[{1}] Compiled {0}!".format(result_file,
+                                                    now.strftime('%H:%M:%S'))
 
 
 class Command(BaseCommand):
@@ -49,7 +52,7 @@ class Command(BaseCommand):
                 raise CommandError('To watch for changes you need pyinotify'
                                     ' module installed.')
         if not command_exists('coffee'):
-            raise CommandError('To compile coffeefiles, you need node.js'
+            raise CommandError('To compile .coffee files, you need node.js'
                                 ' and coffeescript module for it.')
 
         # Make absolute path of source files directory and check for it's
@@ -92,6 +95,6 @@ class Command(BaseCommand):
             notifier = pyinotify.Notifier(manager, default_proc_fun=handler)
             flags = pyinotify.IN_MODIFY
             manager.add_watch(d, flags, rec=True, auto_add=True)
-            print('Started watching {} for changes...'
-                    ' Ctrl+C to abort.'.format(d))
+            print('Started watching for changes...'
+                    ' Ctrl+C to abort.')
             notifier.loop()
