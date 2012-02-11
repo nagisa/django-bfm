@@ -1,0 +1,72 @@
+{% load i18n %}
+
+<script id="browse_head_tpl" type="text/template">
+    <th>{% trans "Actions" %}</th>
+    <th class="<%= filename %>" data-name="filename"><a>{% trans "Filename" %}</a></th>
+    <th class="<%= size %>" data-name="size"><a>{% trans "Size" %}</a></th>
+    <th class="<%= date %>" data-name="date"><a>{% trans "Date" %}</a></th>
+    <th class="<%= mime %>" data-name="mime"><a>{% trans "Type" %}</a></th>
+</script>
+
+<script id="browse_file_tpl" type="text/template">
+    <td class="tight icons">
+        <a class="delete iconic trash" title="{% trans "Delete" %}"></a>
+        <a class="touch iconic pin" title="{% trans "Touch" %}"></a>
+        <a class="rename iconic tag" title="{% trans "Rename" %}"></a>
+        <a class="resize iconic image" title="{% trans "Resize" %}"></a>
+    </td>
+    <td><a href="<%= url %>" target="_blank"><%= filename %></a></td>
+    <td class="tight"><%= psize %></td>
+    <td class="tight"><%= pdate %></td>
+    <td class="tight"><%= mimetype %></td>
+</script>
+
+<script id="file_rename_tpl" type="text/template">
+    <h2>{% trans "Rename file" %}</h2>
+    <input type="text" name="new" value="<%= filename %>">
+    <input type="hidden" name="file" value="<%= filename %>">
+    <input type="hidden" name="directory" value="<%= rel_dir %>">
+    <input type="submit" class="submit" value="{% trans "Rename" %}">
+    <input type="submit" class="cancel" value="{% trans "Cancel" %}">
+</script>
+
+<script id="image_resize_tpl" type="text/template">
+    <h2>{% trans "Resize image" %}</h2>
+    <input type="hidden" name="file" value="<%= filename %>">
+    <input type="hidden" name="directory" value="<%= rel_dir %>">
+    {% trans "New width" %}
+    <input type="text" style="width:50px" name="new_w" value="">
+    <br />
+    {% trans "New height" %}
+    <input type="text" style="width:50px" name="new_h" value="">
+    <br />
+    {% trans "Keep ratio" %}
+    <input type="checkbox" name="keepratio" value="yes" checked>
+    <br />
+    {% trans "Resize filter" %}
+    <select name="filter">
+        <option value="ANTIALIAS">{% trans "Antialiasing" %}</option>
+        <option value="BICUBIC">{% trans "Bicubic" %}</option>
+        <option value="BILINEAR">{% trans "Bilinear" %}</option>
+        <option value="NEAREST">{% trans "Nearest" %}</option>
+    </select>
+    <br />
+    <input type="submit" class="submit" value="{% trans "Resize" %}">
+    <input type="submit" class="cancel" value="{% trans "Cancel" %}">
+</script>
+
+<script id="pgn_current_page_tpl" type="text/template">
+    <span class="this-page"><%= page %></span>&nbsp;
+</script>
+
+<script id="pgn_page_tpl" type="text/template">
+    <a href="#"><%= page %></a>&nbsp;
+</script>
+
+<script id="pgn_first_page_tpl" type="text/template">
+    <a href="#" class="firstpage">{% trans "First page" %}</a>&nbsp;
+</script>
+
+<script id="pgn_last_page_tpl" type="text/template">
+    <a href="#" class="lastpage">{% trans "Last page" %}</a>&nbsp;
+</script>

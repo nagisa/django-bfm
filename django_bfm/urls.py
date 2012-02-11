@@ -9,5 +9,6 @@ urlpatterns = patterns('',
     url(r'^directory/$', views.DirectoryActions.as_view()),
     url(r'^upfile/$', 'django_bfm.views.file_upload', name="bfm_upload"),
     url(r'^image/$', views.ImageActions.as_view()),
-    url(r'^admin_options/$', 'django_bfm.views.admin_options', name="bfm_opt")
+    url(r'^admin_options/$', 'django_bfm.views.admin_options', name="bfm_opt"),
+    url(r'^client_templates/$', views.client_templates, name='bfm_templates')
 )

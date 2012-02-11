@@ -13,9 +13,13 @@ window.BFMOptions = {{ settings|safe }};
 
     head.js('http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js',
             'http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.1.7/underscore-min.js',
-            'http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.5.3/backbone-min.js',
-            '{{ STATIC_URL }}django_bfm/admin.js',
-            '{{ STATIC_URL }}django_bfm/upload.jquery.js')
+            'http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.5.3/backbone-min.js')
+
+    $.get('{% url bfm_templates %}', function(data){
+        $('head').append(data)
+        head.js('{{ STATIC_URL }}django_bfm/admin.js',
+                '{{ STATIC_URL }}django_bfm/upload.jquery.js')
+    })
 
 })(django.jQuery);
 {% endautoescape %}

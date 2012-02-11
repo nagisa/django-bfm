@@ -48,6 +48,11 @@ def admin_options(request):
     return render_to_response('django_bfm/admin.js', c)
 
 
+def client_templates(request):
+    c = RequestContext(request, {})
+    return render_to_response('django_bfm/client_side/base.html', c)
+
+
 @login_required
 @staff_member_required
 def list_files(request):
