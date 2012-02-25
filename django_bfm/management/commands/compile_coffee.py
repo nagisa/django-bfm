@@ -20,7 +20,7 @@ def command_exists(which):
 
 
 def compile_coffee(files, result_file, directory):
-    print "Compiling {}...\r".format(result_file),
+    print "Compiling {0}...\r".format(result_file),
     sys.stdout.flush()
     cmd = ['coffee',
         '-o', os.path.join(directory, '..'),
@@ -61,7 +61,7 @@ class Command(BaseCommand):
         d = os.path.join(d, '..', '..', 'static', 'django_bfm', 'src')
         d = os.path.normpath(d)
         if not os.path.exists(d):
-            message = "Couldn't find source directory at {}"
+            message = "Couldn't find source directory at {0}"
             raise CommandError(message.format(d))
 
         # Make absolute paths of all files.
