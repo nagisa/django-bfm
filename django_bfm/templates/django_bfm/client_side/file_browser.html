@@ -1,11 +1,35 @@
 {% load i18n %}
 
 <script id="browse_head_tpl" type="text/template">
-    <th>{% trans "Actions" %}</th>
-    <th class="<%= filename %>" data-name="filename"><a>{% trans "Filename" %}</a></th>
-    <th class="<%= size %>" data-name="size"><a>{% trans "Size" %}</a></th>
-    <th class="<%= date %>" data-name="date"><a>{% trans "Date" %}</a></th>
-    <th class="<%= mime %>" data-name="mime"><a>{% trans "Type" %}</a></th>
+    <th>
+        <div class="text">
+            <span>{% trans "Actions" %}</span>
+        </div>
+    </th>
+    <th class="sortable <%= filename %>" data-name="filename">
+        <div class="sortoptions">
+            <a class="toggle <%= filename %>" title="{% trans "Change sorting" %}"></a>
+       </div>
+       <div class="text"><a>{% trans "Filename" %}</a></div>
+    </th>
+    <th class="sortable <%= size %>" data-name="size">
+        <div class="sortoptions">
+            <a class="toggle <%= size %>" title="{% trans "Change sorting" %}"></a>
+       </div>
+        <div class="text"><a>{% trans "Size" %}</a></div>
+    </th>
+    <th class="sortable <%= date %>" data-name="date">
+        <div class="sortoptions">
+            <a class="toggle <%= date %>" title="{% trans "Change sorting" %}"></a>
+        </div>
+        <div class="text"><a>{% trans "Date" %}</a></div>
+    </th>
+    <th class="sortable <%= mime %>" data-name="mime">
+        <div class="sortoptions">
+            <a class="toggle <%= mime %>" title="{% trans "Change sorting" %}"></a>
+        </div>
+        <div class="text"><a>{% trans "Type" %}</a></div>
+    </th>
 </script>
 
 <script id="browse_file_tpl" type="text/template">

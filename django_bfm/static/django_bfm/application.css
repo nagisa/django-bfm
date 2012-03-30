@@ -392,7 +392,7 @@ td.tight.icons,
 }
 
 #changelist thead th{
-  padding: 3px 5px;
+  padding: 0px 0px;
 }
 
 .directory-list ul{
@@ -401,4 +401,95 @@ td.tight.icons,
 
 .directory-list ul li{
   padding:0px;
+}
+
+/* SORTABLE TABLES - copy from Django 1.4 for Django 1.3 support */
+
+table thead th.descending a, table thead th.ascending a {
+    background: none;
+    padding: 0;
+}
+
+thead th {
+    padding: 2px 5px;
+    line-height: normal;
+}
+
+thead th a:link, thead th a:visited {
+    color: #666;
+}
+
+thead th.sorted {
+    background: #c5c5c5 url(./nav-bg-selected.gif) top left repeat-x;
+}
+
+table thead th .text span {
+    padding: 2px 5px;
+    display:block;
+}
+
+table thead th .text a {
+    display: block;
+    cursor: pointer;
+    padding: 2px 5px;
+}
+
+table thead th.sortable:hover {
+    background: white url(./nav-bg-reverse.gif) 0 -5px repeat-x;
+}
+
+thead th.sorted a.sortremove {
+    visibility: hidden;
+}
+
+table thead th.sorted:hover a.sortremove {
+    visibility: visible;
+}
+
+table thead th.sorted .sortoptions {
+    display: block;
+    padding: 4px 5px 0 5px;
+    float: right;
+    text-align: right;
+}
+
+table thead th.sorted .sortpriority {
+    font-size: .8em;
+    min-width: 12px;
+    text-align: center;
+    vertical-align: top;
+}
+
+table thead th.sorted .sortoptions a {
+    width: 14px;
+    height: 12px;
+    display: inline-block;
+}
+
+table thead th.sorted .sortoptions a.sortremove {
+    background: url(./sorting-icons.gif) -4px -5px no-repeat;
+}
+
+table thead th.sorted .sortoptions a.sortremove:hover {
+    background: url(./sorting-icons.gif) -4px -27px no-repeat;
+}
+
+table thead th.sorted .sortoptions a.ascending {
+    background: url(./sorting-icons.gif) -5px -50px no-repeat;
+}
+
+table thead th.sorted .sortoptions a.ascending:hover {
+    background: url(./sorting-icons.gif) -5px -72px no-repeat;
+}
+
+table thead th.sorted .sortoptions a.descending {
+    background: url(./sorting-icons.gif) -5px -94px no-repeat;
+}
+
+table thead th.sorted .sortoptions a.descending:hover {
+    background: url(./sorting-icons.gif) -5px -115px no-repeat;
+}
+
+table thead th.sorted {
+    background-position: 0 0 !important;
 }
