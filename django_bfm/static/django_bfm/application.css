@@ -1,348 +1,284 @@
-/* Iconic */
+* {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
+
+/* ICONS */
+
 @font-face {
-  font-family: 'IconicStroke';
-  src: url("iconic_stroke.eot");
-  src: local('IconicStroke'),
-  url("iconic_stroke.svg#iconic") format('svg'),
-  url("iconic_stroke.otf") format('opentype');
+    font-family: 'IconicStroke';
+    src: url('iconic_stroke.eot');
+    src: url('iconic_stroke.eot?#iefix') format('embedded-opentype'),
+        url('iconic_stroke.ttf') format('truetype'),
+        url('iconic_stroke.svg#iconic') format('svg');
+    font-weight: normal;
+    font-style: normal;
 }
 
-a.iconic:hover {
-  color:inherit;
+.icon {
+    font-family: "IconicStroke";
 }
 
-.iconic.plus:before { font-family: "IconicStroke"; content: "+"; }
-.iconic.link:before { font-family: "IconicStroke"; content: "/"; }
-.iconic.image:before { font-family: "IconicStroke"; content: "?"; }
-.iconic.fullscreen:before { font-family: "IconicStroke"; content: ":"; }
-.iconic.exit-fullscreen:before { font-family: "IconicStroke"; content: ";"; }
-.iconic.pin:before { font-family: "IconicStroke"; content: "|"; }
-.iconic.tag:before { font-family: "IconicStroke"; content: "g"; }
-.iconic.trash:before { font-family: "IconicStroke"; content: "t"; }
-.iconic.x:before { font-family: "IconicStroke"; content: "x"; }
-.iconic.arrow_down:before {content:"\2193";}
-
-/* File Browser */
-
-.tight{
-  width:1px;
-  white-space:nowrap;
+.icon:hover {
+    color: inherit;
 }
 
-.icons{
-  padding:0 5px;
-  line-height:normal;
+.upload:before {content: '\e046';}
+.trash:before {content: '\e05a';}
+.upload-file:before {content:'\2795';}
+.upload-folder:before {content:'\e065';}
+.clear:before {content:'\e054';}
+.cancel:before {content: '\26d4';}
+
+/* UPLOADER */
+
+#uploader {
+    position: fixed;
+    bottom: 0;
+    right: 10px;
+    border-radius: 10px 10px 0 0;
+    box-shadow: 0 0 10px #AAA;
+    -webkit-box-shadow: 0 0 10px #AAA;
+    -moz-box-shadow: 0 0 10px #AAA;
+    z-index:2000;
 }
 
-.icons .iconic{
-  font-size:19px;
+#uploader.visible {
+    height: 50%;
+    min-width: 40%;
 }
 
-.icons .delete{
-  color:#C00;
+#uploader-container {
+    position:relative;
+    overflow: hidden;
+    height: 100%;
+    border-radius: 7px 7px 0 0;
 }
 
-.icons .delete:hover{
-  color:#F00;
+#uploader-head {
+    background: #417690;
+    color: #f4f379;
+    border-radius: inherit;
+    padding: 6px 10px 2px;
+    float: right;
+    overflow:hidden;
+    white-space: nowrap;
+    width: 100%;
 }
 
-.icons .touch, .icons .resize{
-  color:#07C;
+.visible #uploader-head {
+    height: 30px;
 }
 
-.icons .touch:hover, .icons .resize:hover{
-  color:#09F;
+#toggle-uploader {
+    font-size: 24px;
+    overflow: hidden;
+    text-align: center;
+    cursor: pointer;
+    display: inline-block;
+    float:right;
 }
 
-.icons .rename{
-  color:#C80;
+#uploader-controls {
+    float: left;
+    display: none;
+    white-space: nowrap;
+    overflow: hidden;
+    max-height: 22px;
 }
 
-.icons .rename:hover{
-  color:#DA0;
+.visible #uploader-controls {
+    display: inline-block;
 }
 
-/* Directory Browser */
-
-.directory{
-  display:block;
-  overflow:hidden;
+#uploader-controls a {
+    color: #f4f379;
+    padding: 0 10px 0 0;
+    cursor: pointer;
 }
 
-h2 a{
-  color:#fff!important;
+#uploader-controls a:hover, #uploader-controls a:focus,
+#uploader-controls form:hover a, #uploader-controls form:focus a {
+    color: #fff;
 }
 
-.directory.selected{
-  border-left:5px solid #CCC;
-  padding-left:5px;
-  margin-left:-10px;
-  color:#5B80B2!important;
+#uploader-controls a:before {
+    font-size: 24px;
+    line-height: 16px;
+    vertical-align: middle;
 }
 
-/* ETC, Dialogs. */
-
-.dialog{
-  position:fixed;
-  top:0;
-  left:50%;
-  z-index:10010;
-  margin-left:-200px;
-  width:400px;
-  background:#fff;
-  padding:5px;
-  border:1px solid #ddd;
-  border-top:none;
-  overflow:hidden;
-  border-radius:0 0 5px 5px;
-  -webkit-box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
-  box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
+#uploader-controls .action {
+    display: inline-block;
+    font-size: 15px;
 }
 
-.dialog input[type=text]{
-  width:390px;
+#uploader-controls form {
+    position: relative;
+    overflow: hidden;
 }
 
-.dialog h2{
-  margin-top:.5em;
+#uploader-controls input {
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    bottom: -5px;
+    right: -5px;
+    font-size: 200px;
+    opacity: 0;
+    cursor: pointer;
 }
 
-.block{
-  position:fixed;
-  width:100%;
-  height:100%;
-  top:0;
-  left:0;
-  display:none;
-  background:rgba(0,0,0,.2);
-  z-index:10005;
+#uploader-table-container {
+    top: 30px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+    overflow: auto;
+    background: #FFF;
+    display: none;
 }
 
-.contextmenu{
-  position:absolute;
-  padding:0;
-  margin:0;
-  border: 1px solid #CCC;
-  background:#FFF;
-  z-index:10010;
-  border-radius:0 7px 7px;
-  padding:7px 0;
-  -webkit-box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
-  box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
+#uploader-table {
+    clear: both;
+    background: #fff;
 }
 
-.contextmenu li{
-  list-style:none;
-  padding:0;
+.visible #uploader-table-container {
+    display: block;
 }
 
-.contextmenu li a{
-  display:block;
-  white-space: nowrap;
-  padding:5px 10px;
+#uploader-table .file {
+    clear: both;
+    width: 100%;
+    border-bottom: 1px solid #ccc;
+    position: relative;
+    z-index: 1;
 }
 
-.contextmenu li a:hover{
-  background:#EDF3FE;
-  cursor:pointer;
+#uploader-table .file .controls {
+    position: absolute;
+    height: 100%;
+    width: auto;
+    font-size: 20px;
+    padding: 0 5px;
+    vertical-align: middle;
+    background: rgba(255, 255, 255, .5);
+    z-index:2;
 }
 
-/* Uploader Applet */
-
-.uploader{
-  position:fixed;
-  z-index:10000;
-  width:162px;
-  right:13px;
-  bottom:0;
-  overflow:hidden;
+#uploader-table .file .abort {
+    display: none;
 }
 
-.uploader-head{
-  background: #417690;
-  color: #f4f379;
-  font-size: 14px;
-  padding:5px 5px 1px;
-  border-radius:8px 8px 0 0;
-  display:block;
-  overflow:hidden;
-  width:100%;
-  box-sizing:border-box;
-  -moz-box-sizing:border-box;
-  -webkit-box-sizing:border-box;
-  line-height:22px;
+#uploader-table .file .info {
+    width: 100%;
+    position: relative;
+    font-size: 11px;
+    padding: 5px 0 5px 30px;
 }
 
-.uploader-head .control{
-  display:inline-block;
-  float:right;
-  font-size:22px;
+#uploader-table .file .progress {
+    position: absolute;
+    z-index: 0;
+    background-color: #90C749;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 1;
+    -webkit-transition: all 500ms ease-in-out;
+    -moz-transition: all 500ms ease-in-out;
+    -o-transition: all 500ms ease-in-out;
+    transition: all 500ms ease-in-out;
 }
 
-.uploader-head .control:hover{
-  color: #ffc;
+#uploader-table .file .filename {
+    position: relative;
+    z-index: 2;
 }
 
-.uploader-controls {
-  overflow:hidden;
-  border-left:1px solid #ccc;
-  border-right:1px solid #ccc;
-  border-top:none!important;
-  box-sizing:border-box;
-  -moz-box-sizing:border-box;
-  -webkit-box-sizing:border-box;
-  padding:0!important;
-  display:none;
-  white-space:nowrap;
+#uploader-table .file .status {
+    position: absolute;
+    font-size: 11px;
+    background: rgba(255, 255, 255, .7);
+    height: 100%;
+    padding: 5px 5px;
+    top: 0;
+    right: 0;
+    z-index: 2;
 }
 
-.uploader-controls a{
-  border-right:1px solid #ccc;
-  display:inline-block;
-  height:18px;
-  line-height:18px;
-  padding:0 5px;
-  margin:0!important;
-  white-space:nowrap;
+#uploader-table .file .status, #uploader-table .file .status span {
+    display:none;
 }
 
-.uploader-controls form{
-  position:relative;
-  overflow:hidden;
-  width:auto;
-  display: inline-block;
-  margin:0;
-  padding:0;
-  float:left;
-}
+/* UPLOADER - Active upload*/
 
-.uploader-controls .selector>input[type='file']{
-  position:absolute;
-  top:0;
-  left:0;
-  right:0;
-  bottom:0;
-  opacity:0;
-  margin:0;
-  padding:0;
-}
-
-.uploader-controls .directory{
-  display:none;
-}
-
-.uploader-table-container {
-  box-sizing:border-box;
-  -moz-box-sizing:border-box;
-  -webkit-box-sizing:border-box;
-  height:100%;
-  margin-top:-50px;
-  padding-top:50px;
-  display:none;
-  z-index:-3;
-  position:relative;
-  overflow:hidden;
-}
-
-.uploader-table {
-  position:relative;
-  height:100%;
-  background:#FFF;
-  border-left:1px solid #ccc;
-  border-right:1px solid #ccc;
-  box-sizing:border-box;
-  -moz-box-sizing:border-box;
-  -webkit-box-sizing:border-box;
-  z-index:-2;
-  overflow-y:auto;
-}
-
-.uploader-table .file{
-  border-bottom: 1px solid #ccc;
-  line-height: 20px;
-  padding: 0 5px 0 20px;
-  position: relative;
-  font-size:11px;
-  overflow:hidden;
+#uploader-table .file.active .status,
+#uploader-table .file.active .percent,
+#uploader-table .file.active .abort {
+    display: inline-block;
 }
 
 @-moz-keyframes animated-bar {
-   0%         {background-position:0 0;}
-   100%     {background-position:-24px 0;}
+   0%         {background-position: 0 0;}
+   100%     {background-position: 24px 0;}
 }
 
 @-webkit-keyframes animated-bar {
-   0%         {background-position:0 0;}
-   100%     {background-position:-24px 0;}
+   0%         {background-position: 0 0;}
+   100%     {background-position: 24px 0;}
 }
 
-.uploader-table .file.current {
-  background:url('active.png');
-  -webkit-animation-duration:500ms;
-  -webkit-animation-iteration-count:infinite;
-  -webkit-animation-timing-function:linear;
-  -webkit-animation-name:animated-bar;
-  -moz-animation-duration:500ms;
-  -moz-animation-iteration-count:infinite;
-  -moz-animation-timing-function:linear;
-  -moz-animation-name:animated-bar;
+@-ms-keyframes animated-bar {
+   0%         {background-position: 0 0;}
+   100%     {background-position: 24px 0;}
 }
 
-.uploader-table .file .status {
-  position: absolute;
-  background-color: #8DB600;
-  height: 100%;
-  width:0%;
-  left: 0;
-  top: 0;
-  z-index:-1;
+#uploader-table .file.active .progress {
+    border-radius: 0 13px 13px 0;
+    background-image: url('active.png');
+    -webkit-animation-duration: 1s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+    -webkit-animation-name: animated-bar;
+    -moz-animation-duration: 1s;
+    -moz-animation-iteration-count: infinite;
+    -moz-animation-timing-function: linear;
+    -moz-animation-name: animated-bar;
+    -ms-animation-duration: 1s;
+    -ms-animation-iteration-count: infinite;
+    -ms-animation-timing-function: linear;
+    -ms-animation-name: animated-bar;
 }
 
-.uploader-table .file .indicators{
-  font-size:10px;
-  white-space: nowrap;
-  float:right;
+#uploader-table .file.active .remove {
+    display:none;
 }
 
-.uploader-table .file .failed{
-  display:none;
-  color:#DD4032;
-  float:right;
+/* UPLOADER - Failed upload*/
+
+#uploader-table .file.failed .progress {
+    background: #DB6A60;
 }
 
-.uploader-table .file .aborted{
-  display:none;
-  color:#FF9F00;
-  float:right;
+#uploader-table .file.failed .status, #uploader-table .file.failed .failed{
+    display: block;
 }
 
-.uploader-table .file .abort{
-  font-size:18px;
-  left:5px;
-  position:absolute;
+/* UPLOADER - Aborted upload*/
+
+#uploader-table .file.aborted .progress {
+    background: #F1AD57;
 }
 
-.uploader-table .file .abort:hover{
-  color:#F60;
+#uploader-table .file.aborted .status, #uploader-table .file.aborted .aborted{
+    display: block;
 }
 
-.uploader-table .file a.filename{
-  color:#555;
-  text-decoration:underline;
-}
-
-.uploader-table .file a.filename:hover{
-  color:#888;
-}
-
-.uploader-table .file .status{
-  -webkit-transition: background 500ms ease-in-out;
-  -moz-transition: background 500ms ease-in-out;
-  -o-transition: background 500ms ease-in-out;
-  transition: background 500ms ease-in-out;
-}
+/* UPLOADER - Drop */
 
 #uploader-droptarget{
   position:absolute;
@@ -370,37 +306,100 @@ h2 a{
 #uploader-droptarget.over{
   color: #666;
   border-color:#666;
+}yaa
+
+/* DIRECTORY LIST */
+
+.directory.selected{
+    border-left:5px solid #CCC;
+    padding-left:5px;
+    margin-left:-10px;
+    color:#5B80B2!important;
 }
 
-/* Fixing some glitches... */
-
-td.tight.icons,
-#changelist thead th,
-.directory,
-.uploader-head,
-.uploader-controls{
-  -moz-user-select: -moz-none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-  cursor: pointer !important;
+.directory{
+    display:block;
+    overflow:hidden;
 }
 
-.uploader-controls form:hover a{
-  color: #999;
+#changelist-filter {
+    border:none;
 }
 
-#changelist thead th{
-  padding: 0px 0px;
+#changelist-filter h2 a{
+    color: #fff!important;
+    text-decoration: underline;
 }
 
-.directory-list ul{
-  padding:0px;
+/* CONTEXT MENU */
+
+.contextmenu{
+    position:absolute;
+    padding:0;
+    margin:0;
+    border: 1px solid #CCC;
+    background:#FFF;
+    z-index:10010;
+    border-radius:0 7px 7px;
+    padding:7px 0;
+    box-shadow: 0 0 7px #BBB;
+    -webkit-box-shadow: 0 0 7px #BBB;
+    -moz-box-shadow: 0 0 7px #BBB;
 }
 
-.directory-list ul li{
-  padding:0px;
+.contextmenu li{
+    list-style:none;
+    padding:0;
+}
+
+.contextmenu li a{
+    display:block;
+    white-space: nowrap;
+    padding:5px 10px;
+}
+
+.contextmenu li a:hover{
+    background:#EDF3FE;
+    cursor:pointer;
+}
+
+/* DIALOG */
+
+.dialog{
+    position: fixed;
+    overflow:hidden;
+    top: 20px;
+    left:50%;
+    z-index:10010;
+    margin-left:-200px;
+    width:400px;
+    background:#fff;
+    padding:7px;
+    border:1px solid #ddd;
+    border-radius: 7px;
+    box-shadow: 0 0 10px #AAA;
+    -webkit-box-shadow: 0 0 10px #AAA;
+    -moz-box-shadow: 0 0 10px #AAA;
+}
+
+.dialog input[type=text]{
+    clear: both;
+    display: block;
+    width:100%;
+}
+
+.dialog h2{
+    margin: 0;
+}
+
+.block{
+    position:fixed;
+    width:100%;
+    height:100%;
+    top:0;
+    left:0;
+    background:rgba(0,0,0,.2);
+    z-index:10005;
 }
 
 /* SORTABLE TABLES - copy from Django 1.4 for Django 1.3 support */
