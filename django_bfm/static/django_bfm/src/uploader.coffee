@@ -1,107 +1,74 @@
 FileUploadView = Backbone.View.extend
-    # View responsible for one uploaded file.
-    #
-    # Methods:
-    #
-    # srender - renders view to element and returns it instead of drawing it
-    #           to DOM.
-    # do_upload - start uploading file.
-    # report_progress - callback called when XHR reports progress of upload.
-    # upload_complete - callback called when upload finishes successfully.
-    # upload_abort - callback called when upload is aborted by user.
-    # upload_error - callback called when upload is aborted by server.
-    # abort - callback called when user clicks on cross near uploaded file.
-    #         Cancels current upload.
-    # update_status_bar - animates file upload progress bar.
+    # View responsible for one uploadable (uploaded file).
 
-    events: {'click .abort': 'abort'}
+    events: {
+        'click .abort': 'abort',
+        'click .remove': 'remove_upload'
+    }
 
     initialize: (file)->
         @file = file
-        @directory = FileUploader.path
+        @complete = false
+        @csrf_token = $('input[name=csrfmiddlewaretoken]').val()
+        if BFMAdminOptions?
+            dir = BFMAdminOptions.upload_rel_dir
+            @url = "#{BFMAdminOptions.upload}?directory=#{dir}"
+        else
+            @url = "upfile/?directory=#{FileUploader.path}"
 
-    srender: ()->
+    render_el: ()->
         filename = if @file.name? then @file.name else @file.fileName
         @el = $(_.template($('#file_upload_tpl').html(), {filename: filename}))
-        @status = @el.find('.status')
-        @indicators = {
-            'percent': @el.find('.indicators .percent'),
-            'speed': @el.find('.indicators .speed')
-        }
-        @delegateEvents @events
+        @progress = @el.find('.progress')
+        @percent = @el.find('.percent')
+        @delegateEvents(@events)
         return @el
 
-    do_upload:()->
-        # Check if file isn't aborted yet.
-        if @aborted?
-            return false
-        csrf_token = $('input[name=csrfmiddlewaretoken]').val()
-        url = "upfile/?directory=#{@directory}"
-        if BFMAdminOptions?
-            directory = BFMAdminOptions.upload_rel_dir
-            url = "#{BFMAdminOptions.upload}?directory=#{directory}"
-        @xhr = $.ajax_upload(@file, {
-            'url': url,
-            'headers': {"X-CSRFToken": csrf_token}
-            'progress': (e, stats)=> @report_progress(e, stats)
-            'complete': (e, data)=> @upload_complete(e, data)
-            'error': (e)=> @upload_error(e)
-            'abort': (e)=> @upload_abort(e)
-        })
-        @el.addClass('current')
-        return true
+    start_upload: ()->
+        if not @xhr
+            @el.addClass('active')
+            @xhr = $.ajax_upload(@file, {
+                'url': @url,
+                'headers': {"X-CSRFToken": @csrf_token},
+                'progress': (e, completion)=> @report_progress(e, completion),
+                'complete': (e, data)=> @upload_complete(e, data),
+                'error': (e)=> @upload_error(e),
+                'abort': (e)=> @upload_abort(e)
+            })
 
-    report_progress: (e, stats)->
-        @update_status_bar(stats.completion, stats.last_call)
-        @indicators.percent.text(~~(stats.completion*1000+0.5)/10)
-        @indicators.speed.text("#{readable_size(stats.speed)}/s")
+    report_progress: (e, completion)->
+        percent = completion * 100
+        @progress.css('width', "#{percent}%")
+        @percent.text("#{percent.toFixed(1)}%")
 
     upload_complete: (e, data)->
-        @el.removeClass('current')
-        @el.find('.abort').hide()
-        link = $('<a />', {'class': 'filename', 'href': data.url})
-        link.text(data.filename)
-        @el.find('.filename').replaceWith(link)
-        @update_status_bar(1, 100)
-        #Reload file browser!
-        if(!(BFMAdminOptions?) and @directory == FileBrowser.path)
-            _.defer(()=>
-                FileBrowser.files.add(data)
-                FileBrowser.files.sort()
-            )
-        #Report finished...
+        @complete = true
+        @report_progress(100)
+        @el.removeClass('active')
+        @el.find('.filename').attr('href', data.url).text(data.filename)
+        #TODO: Reload file browser!
+        # if(!(BFMAdminOptions?) and @directory == FileBrowser.path)
+        #     _.defer(()=>
+        #         FileBrowser.files.add(data)
+        #         FileBrowser.files.sort()
+        #     )
         FileUploader.uploader.report_finished(@)
 
     upload_abort: (e)->
-        @el.removeClass('current')
-        @status.css('background', '#FF9F00')
-        @el.find('.indicators').hide()
-        @el.find('.aborted').show()
-        @el.find('.abort').hide()
+        @el.toggleClass('active aborted')
         FileUploader.uploader.report_finished(@)
 
     upload_error: (e)->
-        @el.removeClass('current')
-        @status.css('background', '#DD4032')
-        @el.find('.indicators').hide()
-        @el.find('.failed').show()
-        @el.find('.abort').hide()
+        @el.toggleClass('active failed')
         FileUploader.uploader.report_finished(@)
 
     abort: (e)->
-        if @xhr?
-            @xhr.abort()
-        else
-            @aborted = true
-            @el.find('.abort').hide()
-            @el.find('.indicators').hide()
-            @el.find('.aborted').show()
-            FileUploader.uploader.finished_uploads.push(@)
+        @xhr.abort()
 
-    update_status_bar: (percent, duration)->
-        css = {'width': "#{percent*100}%"}
-        animation_options = {'duration': duration, 'easing': 'linear'}
-        @status.stop(true).animate(css, animation_options)
+    remove_upload: (e)->
+        @remove()
+        if not @complete
+            FileUploader.uploader.remove_upload(@)
 
 
 UploaderView = Backbone.View.extend
@@ -109,9 +76,6 @@ UploaderView = Backbone.View.extend
     #
     # Methods:
     #
-    # render - renders upload applet into DOM.
-    # toggle_visibility - resize button event callback. Makes uploader
-    #                     applet either minimized or maximized.
     # add_files - callback called when user selects files.
     # add_file - helper function for add_files.
     # upload_next - starts uploading next file, in case, there's available
@@ -121,126 +85,147 @@ UploaderView = Backbone.View.extend
     #                   uploading.
     # clear_finished - removes all finished FileUploadViews from uploader.
     # remove_queue - removes all FileUploadViews, that are not yet finished.
-    to_upload: []
-    started_uploads: []
-    finished_uploads: []
-    visible: false
-    uploads_at_once: window.BFMOptions.uploads_at_once
-    active_uploads: 0
-    drag_events: 0
     events: {
-        'click .uploader-head>.control': 'toggle_visibility',
-        'dblclick .uploader-head': 'toggle_visibility',
+        'click #toggle-uploader': 'toggle_visibility',
         'change input[type="file"]': 'add_files',
-        'click .finished': 'clear_finished',
-        'click .rqueued': 'remove_queue'
+        'click .clear': 'clear_finished'
     }
 
     initialize: ()->
-        @el = $('<div />', {'class': 'uploader'})
+        @el = $('<div />', {'id': 'uploader'})
+        @upload_queue = []
+        @finished_uploads = []
+        @upload_count = window.BFMOptions.uploads_at_once
+        @active_uploads = 0
 
     render: ()->
-        @el.append(_.template($('#uploader_tpl').html()))
         @el.appendTo($('body'))
-        @height = @el.height()
-        @width = @el.width()
-        if directory_upload_support()
-            @el.find('.selector.directory').css('display', 'inline-block')
+        @el.append(_.template($('#uploader_tpl').html()))
+        @file_table = @el.find('#uploader-table')
+        if @can_upload_directory()
+            @el.find('.upload-folder').parent().css('display', 'inline-block')
+
         @delegateEvents(@events)
-        $('html').on('dragenter.uploaderdrag', ()=> @render_droptarget())
-        $('html').on('dragleave.uploaderdrag', ()=> @remove_droptarget())
+        $('html').on('dragenter.uploaderdrag', (e)=> @show_droptarget(e))
+        $('html').on('dragleave.uploaderdrag', (e)=> @hide_droptarget(e))
+        @el.find('#uploader-droptarget').on('drop', (e)=> @drop(e))
+
+    can_upload_directory: ()->
+        # Checks for browser ability to select directory instead of files in
+        # file selection dialog. It is way faster. WAAAAY FASTER.
+        #
+        # Currently known to work only in Chrome(-ium) daily builds.
+        input = document.createElement('input')
+        input.type = "file"
+        return input.directory? or input.webkitdirectory? or input.mozdirectory?
 
     toggle_visibility: (e)->
-        button = @el.find('.uploader-head>.control')
-        button.toggleClass('fullscreen exit-fullscreen')
-        button.attr = {
-            'title': button.attr('data-alttitle'),
-            'data-alttitle': button.attr('title')
-        }
-        options = 'duration': 400, 'queue': false
-        css = {
-            'width': if !@visible then '50%' else "#{@width}",
-            'height': if !@visible then '50%' else "#{@height}px"
-        }
-        @el.animate(css, options)
-        @el.children(':not(.uploader-head)').show()
-        @visible = !@visible
+        # Shows or hides uploader depending on its current status.
+        @el.toggleClass('visible')
 
     add_files: (e)->
+        # Adds all selected files to upload queue.
         _.forEach(e.currentTarget?.files || e.dataTransfer?.files, (file)=>
             _.defer(()=>@add_file(file))
         )
 
     add_file: (file)->
+        # Adds one file to queue and renders it into uploader.
         if (if file.name? then file.name else file.fileName) == "."
             return
         view = new FileUploadView(file)
-        @to_upload.unshift(view)
-        @el.find('.uploader-table').append(view.srender())
-        _.defer(()=>@upload_next())
+        @file_table.append(view.render_el())
+        @upload_queue.push(view)
+        @upload_files()
 
-    upload_next: ()->
-        for i in [0...@uploads_at_once-@active_uploads]
-            # We'll loop until at least one file will start.
-            while @to_upload.length > 0 and not started
-                upl = @to_upload.pop()
-                started = upl.do_upload()
-                if started
-                    @started_uploads.push(upl)
-                    @active_uploads += 1
+    upload_files: ()->
+        # Try to start file upload.
+        # We'll loop until at least one file will start.
+        while @upload_count - @active_uploads > 0
+            # We can't do anything if we have no files, right?
+            if @upload_queue.length == 0
+                break
+            # Take file and start it.
+            uploadable = @upload_queue.shift()
+            if uploadable
+                uploadable.start_upload()
+                @active_uploads += 1
+                break
 
         # Add/remove exit confirmation
-        if window.onbeforeunload != @unloading and @active_uploads>0
-            window.onbeforeunload = @unloading
+        if @active_uploads>0
+            window.onbeforeunload = @unload_message
         else
             window.onbeforeunload = null
 
-    report_finished: (who)->
-        @finished_uploads.push(who)
+    report_finished: (file)->
         @active_uploads -= 1
-        _.defer(()=>@upload_next())
+        @finished_uploads.push(file)
+        @upload_files()
+
+    remove_upload: (file)->
+        # Remove upload from queue.
+        index = @upload_queue.indexOf(file)
+        if index != -1
+            delete(@upload_queue[index])
 
     clear_finished: (e)->
-        e.preventDefault()
-        for i in [0...@finished_uploads.length]
-            _.defer(()=>@finished_uploads.pop().remove())
+        while @finished_uploads.length > 0
+            @finished_uploads.pop().remove()
 
-    remove_queue: (e)->
-        e.preventDefault()
-        for i in [0...@to_upload.length]
-            # Can't use _.defer due to race condition with currently uploading
-            # files...
-            @to_upload.pop().remove()
+    unload_message: (e)->
+        return (e.returnValue = $.trim($('#upload_cancel_tpl').text()))
 
-    unloading: ()->
-        return $.trim($('#upload_cancel_tpl').text())
+    show_droptarget: (e)->
+        if not @block?
+            @block = $('<div />', {'class': 'blocker'})
+            @block.appendTo($('body'))
+            @el.addClass('dragging visible')
 
-    render_droptarget: ()->
-        if not @drop_target
-            @drop_target = _.template($('#uploader_droptarget').html())
-            @el.find('.uploader-table-container').append(@drop_target)
-            @drop_target = @el.find('#uploader-droptarget')
-            @drop_target.on('dragover', ()=> @drop_target.addClass('over'))
-                        .on('dragleave', ()=> @drop_target.removeClass('over'))
-                        .on('drop', (e)=> @drop(e))
-        if @drag_events == 0
-            @drop_target.css('opacity', 1)
-        if not @visible
-            @toggle_visibility()
-        @drag_events++
+        @drag_count = if @drag_count? then @drag_count + 1 else 1
 
-    remove_droptarget: ()->
-        --@drag_events
-        if @drag_events == 0
-            $(@drop_target).removeClass('over').css('opacity', 0)
+    hide_droptarget: (e)->
+        if @drag_count - 1 == 0
+            _.defer(()=> @el.removeClass('dragging'))
+            if @block?
+                @block.remove()
+                delete(@block)
+            delete(@drag_count)
+        else
+            @drag_count -= 1
 
     drop: (e)->
         e.stopPropagation()
         e.preventDefault()
+        @hide_droptarget(e)
+        console.log(e)
         @add_files(e.originalEvent)
-        @remove_droptarget()
 
 
+    # render_droptarget: ()->
+    #     if not @drop_target
+    #         @drop_target = _.template($('#uploader_droptarget').html())
+    #         @el.find('.uploader-table-container').append(@drop_target)
+    #         @drop_target = @el.find('#uploader-droptarget')
+    #         @drop_target.on('dragover', ()=> @drop_target.addClass('over'))
+    #                     .on('dragleave', ()=> @drop_target.removeClass('over'))
+    #                     .on('drop', (e)=> @drop(e))
+    #     if @drag_events == 0
+    #         @drop_target.css('opacity', 1)
+    #     if not @visible
+    #         @toggle_visibility()
+    #     @drag_events++
+
+    # remove_droptarget: ()->
+    #     --@drag_events
+    #     if @drag_events == 0
+    #         $(@drop_target).removeClass('over').css('opacity', 0)
+
+    # drop: (e)->
+    #     e.stopPropagation()
+    #     e.preventDefault()
+    #     @add_files(e.originalEvent)
+    #     @remove_droptarget()
 
 FileUploader =
     init: ()->

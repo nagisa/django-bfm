@@ -15,18 +15,6 @@ readable_size = (size)->
             return "#{(size / (s[1] / 1024)).toFixed(s[2])} #{s[0]}"
 
 
-directory_upload_support = ()->
-    # Checks for browser ability to select directory instead of files in file
-    # selection dialog. It is way faster. WAAAAY FASTER.
-    #
-    # Currently known to work only in Chrome(-ium) daily builds.
-    input = document.createElement('input')
-    input.type = "file"
-    if input.directory? or input.webkitdirectory? or input.mozdirectory?
-        return true
-    return false
-
-
 Dialog = Backbone.View.extend
     # View responsible for rendering dialog box from given template.
     #
