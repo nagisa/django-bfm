@@ -15,6 +15,7 @@ class FileUploadView extends Backbone.View
             @url = "#{BFMAdminOptions.upload}?directory=#{dir}"
         else
             @url = "upfile/?directory=#{FileUploader.path}"
+            @directory = FileUploader.path
 
     render_el: ()->
         # Render file to a element, attach events and return it.
@@ -51,12 +52,13 @@ class FileUploadView extends Backbone.View
         @report_progress(100)
         @$el.removeClass('active')
         @$el.find('.filename').attr('href', data.url).text(data.filename)
-        #TODO: Reload file browser!
-        # if(!(BFMAdminOptions?) and @directory == FileBrowser.path)
-        #     _.defer(()=>
-        #         FileBrowser.files.add(data)
-        #         FileBrowser.files.sort()
-        #     )
+        # Reload file browser
+        # I don't like those calls to FileBrowser. Any ideas?
+        if @directory == FileBrowser.path
+            _.defer(()=>
+                FileBrowser.files.add(data)
+                FileBrowser.file_table.resort_files()
+            )
         FileUploader.uploader.report_finished(@)
 
     upload_abort: (e)->
@@ -88,7 +90,7 @@ class UploaderView extends Backbone.View
     }
 
     initialize: ()->
-        @setElement($('<div />', {'id': 'uploader'}))
+        @setElement(@make('div', {'id': 'uploader'}))
         @upload_queue = []
         @finished_uploads = []
         @upload_count = window.BFMOptions.uploads_at_once
@@ -180,7 +182,7 @@ class UploaderView extends Backbone.View
     show_droptarget: (e)->
         # Make drag-and-drop target visible. This callback may be called a lot.
         if not @block?
-            @block = $('<div />', {'class': 'blocker'})
+            @block = $(@make('div', {'class': 'blocker'}))
             @block.appendTo($('body'))
             @$el.addClass('dragging visible')
 
