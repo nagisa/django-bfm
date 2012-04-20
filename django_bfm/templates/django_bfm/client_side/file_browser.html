@@ -1,48 +1,55 @@
 {% load i18n %}
 
 <script id="browse_head_tpl" type="text/template">
-    <th>
-        <div class="text">
-            <span>{% trans "Actions" %}</span>
-        </div>
-    </th>
-    <th class="sortable <%= filename %>" data-name="filename">
-        <div class="sortoptions">
-            <a class="toggle <%= filename %>" title="{% trans "Change sorting" %}"></a>
-       </div>
-       <div class="text"><a>{% trans "Filename" %}</a></div>
-    </th>
-    <th class="sortable <%= size %>" data-name="size">
-        <div class="sortoptions">
-            <a class="toggle <%= size %>" title="{% trans "Change sorting" %}"></a>
-       </div>
-        <div class="text"><a>{% trans "Size" %}</a></div>
-    </th>
-    <th class="sortable <%= date %>" data-name="date">
-        <div class="sortoptions">
-            <a class="toggle <%= date %>" title="{% trans "Change sorting" %}"></a>
-        </div>
-        <div class="text"><a>{% trans "Date" %}</a></div>
-    </th>
-    <th class="sortable <%= mime %>" data-name="mime">
-        <div class="sortoptions">
-            <a class="toggle <%= mime %>" title="{% trans "Change sorting" %}"></a>
-        </div>
-        <div class="text"><a>{% trans "Type" %}</a></div>
-    </th>
+    <thead>
+        <tr>
+            <th scope="col" class="action-checkbox-column">
+                <div class="text"><span><input type="checkbox" id="action-toggle" style="display: inline-block; "></span></div>
+            </th>
+            <th scope="col" class="sortable <%= filename %>" data-name="filename">
+                <div class="sortoptions">
+                    <a class="toggle <%= filename %>" title="{% trans "Change sorting" %}"></a>
+               </div>
+               <div class="text"><a>{% trans "Filename" %}</a></div>
+            </th>
+            <th scope="col" class="sortable <%= size %>" data-name="size">
+                <div class="sortoptions">
+                    <a class="toggle <%= size %>" title="{% trans "Change sorting" %}"></a>
+               </div>
+                <div class="text"><a>{% trans "Size" %}</a></div>
+            </th>
+            <th scope="col" class="sortable <%= date %>" data-name="date">
+                <div class="sortoptions">
+                    <a class="toggle <%= date %>" title="{% trans "Change sorting" %}"></a>
+                </div>
+                <div class="text"><a>{% trans "Date" %}</a></div>
+            </th>
+            <th scope="col" class="sortable <%= mime %>" data-name="mime">
+                <div class="sortoptions">
+                    <a class="toggle <%= mime %>" title="{% trans "Change sorting" %}"></a>
+                </div>
+                <div class="text"><a>{% trans "Type" %}</a></div>
+            </th>
+        </tr>
+    </thead>
 </script>
 
 <script id="browse_file_tpl" type="text/template">
-    <td class="tight icons">
-        <a class="delete iconic trash" title="{% trans "Delete" %}"></a>
-        <a class="touch iconic pin" title="{% trans "Touch" %}"></a>
-        <a class="rename iconic tag" title="{% trans "Rename" %}"></a>
-        <a class="resize iconic image" title="{% trans "Resize" %}"></a>
+    <td class="action-checkbox">
+        <input type="checkbox" class="action-select">
     </td>
-    <td><a href="<%= url %>" target="_blank"><%= filename %></a></td>
-    <td class="tight"><%= psize %></td>
-    <td class="tight"><%= pdate %></td>
-    <td class="tight"><%= mimetype %></td>
+    <td><a class="filename" href="<%= url %>" target="_blank"><%= filename %></a></td>
+    <td><%= psize %></td>
+    <td><%= pdate %></td>
+    <td><%= mimetype %></td>
+</script>
+
+<script id="file_delete_tpl" type="text/template">
+    <h2>{% trans "Delete file(s)" %}</h2>
+    <div>{% trans "Do you really want to delete all selected files?" %}</div>
+    <input type="submit" class="cancel" value="{% trans "No" %}">
+    <input type="submit" class="cancel" value="{% trans "Over my dead body!" %}">
+    <input type="submit" class="submit" value="{% trans "I'm sure" %}">
 </script>
 
 <script id="file_rename_tpl" type="text/template">
@@ -80,17 +87,9 @@
 </script>
 
 <script id="pgn_current_page_tpl" type="text/template">
-    <span class="this-page"><%= page %></span>&nbsp;
+    <span class="this-page"><%= page %></span>
 </script>
 
 <script id="pgn_page_tpl" type="text/template">
-    <a href="#"><%= page %></a>&nbsp;
-</script>
-
-<script id="pgn_first_page_tpl" type="text/template">
-    <a href="#" class="firstpage">{% trans "First page" %}</a>&nbsp;
-</script>
-
-<script id="pgn_last_page_tpl" type="text/template">
-    <a href="#" class="lastpage">{% trans "Last page" %}</a>&nbsp;
+    <a href="#"><%= page %></a>
 </script>

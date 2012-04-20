@@ -47,6 +47,22 @@
                 </div>
             </form></div>
 
+            <div class="actions">
+                <label>{% trans "Action:" %}
+                    <select name="action">
+                        <option value="" selected="selected">---------</option>
+                        <option value="delete">{% trans "Delete" %}</option>
+                    </select>
+                </label>
+                <button type="submit" class="button" title="{% trans "Run the selected action" %}" name="index" value="0">{% trans "Go" %}</button>
+
+                <!--<span class="action-counter" style="display: inline; ">{% trans "Selected" %}</span>
+                <span class="question">
+                    <a href="javascript:;" title="{% trans "Click here to select the objects across all pages" %}">{% trans "Select all files" %}</a>
+                </span>
+                <span class="clear"><a href="javascript:;">{% trans "Clear selection" %}</a></span>-->
+            </div>
+
             <div id="changelist-filter">
                 <h2><a href="#">{% trans 'Root directory' %}</a></h2>
                 <ul class="directory-list">

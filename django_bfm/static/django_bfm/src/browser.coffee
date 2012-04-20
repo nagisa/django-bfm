@@ -1,17 +1,6 @@
-File = Backbone.Model.extend
+class File extends Backbone.Model
     # Represents one file in server.
-    #
-    # Methods:
-    # parseDate - parses ISO date into more readable and shorter YYYY-MM-DD
-    #             format.
-    # parseSize - parses bytes into more readable format with multiplier.
-    # delete_file - asks server to remove file.
-    # rename_file - renders file rename/move dialog.
-    # rename_file_callback - asks server to rename/move file. It is Dialog
-    #                        callback.
-    # touch_file - asks server to change file modification date to now.
-    # resize_image - renders dialog for image resizing and asks server to
-    #                resize it.
+
     url: 'file/'
 
     initialize: ()->
@@ -19,109 +8,20 @@ File = Backbone.Model.extend
         @set({'pdate': @parseDate(), 'psize': @parseSize()})
 
     parseDate: ()->
+        # Parses Date into more readable and shorter YYYY-MM-DD date.
         d = @get("date")
         return "#{d.getFullYear()}-#{d.getMonth()+1}-#{d.getDate()}"
 
     parseSize: ()->
+        # Parses file size into more readable value, like 23,4 KB.
         return readable_size(@get('size'))
 
-    delete_file: ()->
-        $.ajax({
-            'url': @url,
-            'data': {
-                action: 'delete',
-                file: @get('filename'),
-                directory: @get('rel_dir')
-            },
-            'success': ()=> FileBrowser.files.remove(@)
-        })
 
-    rename_file: ()->
-        dialog = new Dialog({
-            'url': @url,
-            'model': @,
-            'template': '#file_rename_tpl',
-            'callback': (data)=> @rename_file_callback(data)
-        })
-        dialog.render()
-
-    rename_file_callback: (dialog_data)->
-        $.ajax({
-            'url': @url,
-            'data': $.extend(dialog_data, {'action': 'rename'}),
-            'success': (data)=>
-                @set(JSON.parse(data))
-                @initialize()
-                FileBrowser.files.sort()
-        })
-
-    touch_file: ()->
-        $.ajax({
-            'url': @url,
-            'data': {
-                action: 'touch',
-                file: @get('filename'),
-                directory: @get('rel_dir')
-            },
-            'success': (data)=>
-                @set(JSON.parse(data))
-                @initialize()
-                FileBrowser.files.sort()
-        })
-
-    resize_image: ()->
-        # TODO: Clean this method.
-        dialog = new Dialog({
-            'url': 'image/',
-            'model': @,
-            'template': '#image_resize_tpl',
-            'callback': (dialog_data)->
-                $.ajax
-                    url: 'image/'
-                    data: $.extend(dialog_data, {action: 'resize'})
-                    success: (data)=>
-                        FileBrowser.files.add(JSON.parse(data))
-                        FileBrowser.files.sort()
-            'hook': (dialog)->
-                $.ajax({
-                    'url': 'image/',
-                    'dataType': 'json',
-                    'data': {
-                        'action': 'info',
-                        'file': dialog.model.get('filename'),
-                        'directory': dialog.model.get('rel_dir')
-                    },
-                    'success': (data)->
-                        $(dialog.el).find('input[name="new_h"]').val(data.height)
-                        $(dialog.el).find('input[name="new_w"]').val(data.width)
-                        $(dialog.el).data('ratio', data.height/data.width)
-                })
-                $(dialog.el).find('input[name="new_h"]').keyup ()->
-                    if $(dialog.el).find('input[name="keepratio"]').is(':checked')
-                        ratio = $(dialog.el).data('ratio')
-                        h = $(dialog.el).find('input[name="new_h"]').val()
-                        $(dialog.el).find('input[name="new_w"]').val(~~(h/ratio+0.5))
-                $(dialog.el).find('input[name="new_w"]').keyup ()->
-                    if $(dialog.el).find('input[name="keepratio"]').is(':checked')
-                        ratio = $(dialog.el).data('ratio')
-                        w = $(dialog.el).find('input[name="new_w"]').val()
-                        $(dialog.el).find('input[name="new_h"]').val(~~(w*ratio+0.5))
-        })
-        dialog.render()
-
-
-FileCollection = Backbone.Collection.extend
-    # It is collection of File. This object is responsible for keeping order of
+class FileCollection extends Backbone.Collection
+    # It is collection of Files. This object is responsible for keeping order of
     # files too.
-    #
-    # Methods:
-    # update_directory - changes url, from which collection gets list of
-    #                    files in server.
-    # updated - callback, to call when collection is changed. Either by
-    #           sorting it or retrieving new file list.
     url: 'list_files/'
     model: File
-    reversed: false
 
     comparators:
         date: (model)->
@@ -134,246 +34,295 @@ FileCollection = Backbone.Collection.extend
             return model.get('mimetype')
 
     sort: (options)->
-        options || (options = {})
-        # If no reverse option given, use last used sorting.
-        if options.reverse?
-            @reversed = options.reverse
-        else
-            options.reverse = @reversed
-
-        if !@comparator
-            throw new Error('Cannot sort a set without a comparator')
-        @models = @sortBy(@comparator)
-        if options.reverse
+        # Call original sorter with silent option.
+        super(_.extend(_.clone(options), {'silent': true}))
+        # Reverse collection if asked.
+        if options.reversed
             @models.reverse()
-        if !options.silent
+        if not options.silent
             @trigger('reset', @, options)
-        return @
 
     initialize: ()->
         @base_url = @url
         @comparator = @comparators.date
-        @bind('reset', @updated)
-        @bind('remove', @updated)
+        @on('reset update', @updated)
+        @action_queue = []
 
-    update_directory: ()->
-        @url = "#{@base_url}?directory=#{FileBrowser.path}"
+    update_directory: (path)->
+        @url = "#{@base_url}?directory=#{path}"
 
     updated: ()->
         # Render most parental view, which will render everything else...
-        FileBrowser.paginator.render()
+        FileBrowser.file_table.render(@)
+
+    execute_action: (action)->
+        # Executes action to all files inside action_queue.
+        if @action_queue.length == 0
+            return
+        files = {
+            'files': _.map(@action_queue, (v)-> return v.model.get('filename')),
+            'dir': @action_queue[0].model.get('rel_dir'),
+            'action': action
+        }
+        console.log(files)
+        $.post('action/', files, (data)=>
+            @action_queue = []
+            @fetch()
+        )
 
 
-FileTableView = Backbone.View.extend
-    # View responsible for showing table of files, including table head.
-    #
-    # Methods:
-    #
-    # resort_data - event callback. Called when user clicks on header.
-    # render - renders table of files with given set of File models.
-    # new_row_class - gives CSS class name for next row.
-    events: {'click th': 'resort_data'}
-    sorted: {'by': 'date', 'reversed': true}
+class FileTableControlsView extends Backbone.View
+    # Base class for FileTableView
+
+    control_events: {
+        # Paginator events
+        'click .paginator a': 'change_page',
+        # Table events
+        'click #result_list th.sortable': 'resort_files',
+        'change #action-toggle': 'toggle_selections'
+    }
+
+    current_sorting: {'by': 'date', 'reversed': true}
 
     initialize: ()->
-        @el = $('table#result_list')
-        @delegateEvents(@events)
+        @setElement($('#changelist-form'))
+        @paginator = @$el.find('.paginator')
+        @table = @$el.find('#result_list')
+        # Load in search bar and bind events to it.
+        @search = $('#searchbar')
+        @search.val('')
+        @search.on('change keyup', (e)=> @queue_search(e))
+        # Load in actions and bind events to it.
+        @actions = $('#changelist .actions')
+        @actions.find('button').on('click', (e)=> @execute_actions(e))
+        # We use these templates a lot, so why not parse them beforehand?
+        @templates = {
+            'pagin': {
+                'page': _.template($('#pgn_page_tpl').html()),
+                'current':  _.template($('#pgn_current_page_tpl').html())
+            },
+            'thead': _.template($('#browse_head_tpl').html()),
+        }
+        @page = 1
 
-    resort_data: (e)->
-        files = FileBrowser.files
-        name = e.currentTarget.getAttribute('data-name')
-        if not files.comparators[name]
-            return false
 
-        if @sorted.by == name
-            @sorted.reversed = not @sorted.reversed
+    render: (collection)->
+        # Render pagination and sorting controls.
+        # -- Pagination
+        page_count = @count_pages(collection.length)
+        @paginator.html('')
+        if page_count <= 1
+            @paginator.append(@templates.pagin.current({'page': 1}))
         else
-            @sorted.by = name
+            @paginator.append(@templates.pagin.current({'page': @page}))
+            # Add 5 pages forward and backward.
+            for offset in [1..4]
+                if @page - offset > 0
+                    pg = @page - offset
+                    @paginator.prepend(@templates.pagin.page({'page': pg}))
+                if @page + offset <= page_count
+                    pg = @page + offset
+                    @paginator.append(@templates.pagin.page({'page': pg}))
+            # Add first page if needed
+            if @page - 4 > 1
+                pg = $(@templates.pagin.page({'page': 1}))
+                @paginator.prepend(pg.addClass('end'))
+            # Add last page if needed
+            if @page + 4 < page_count
+                pg = $(@templates.pagin.page({'page': page_count}))
+                @paginator.append(pg.addClass('end'))
+        @delegateEvents(@control_events)
+        # -- THead
+        # Clear table
+        @table.html('')
+        # Render
+        context = {'filename': '', 'size': '', 'date': '', 'mime': ''}
+        sort = if @current_sorting.reversed then 'descending' else 'ascending'
+        context[@current_sorting.by] = "#{sort} sorted"
+        @table.append(@templates.thead(context))
 
-        files.comparator = files.comparators[name]
-        files.sort({'reverse': @sorted.reversed})
+    count_pages: (items)->
+        ~~(items/BFMOptions.files_in_page)
 
-    render: (models)->
-        # Clear previous table
-        @current_row = 1
-        @el.html('')
-        # Draw head
-        @el.append($('<thead/>').append($('<tr/>')))
-        c = {filename: '', size: '', date: '', mime: ''}
-        cls_name = if @sorted.reversed then 'descending' else 'ascending'
-        c[@sorted.by]="#{cls_name} sorted"
-        tpl = _.template($('#browse_head_tpl').html(), c)
-        @el.find('tr:first').append(tpl)
-        # Add files
-        _.forEach(models, (model)=>
-            file = new FileView('model': model)
-            @el.append(file.srender())
-        )
-        @delegateEvents(@events)
+    change_page: (page, collection)->
+        parse_event = (e)->
+            e.preventDefault()
+            return parseInt(e.currentTarget.innerText)
+        @page = if typeof(page) == 'number' then page else parse_event(page)
 
-    new_row_class: ()->
-        @current_row = ((@current_row+1)%2)
+        FileBrowser.open_page(@page)
+        @render(collection)
+
+    queue_search: (e)->
+        if @searchtimeout?
+            clearTimeout(@searchtimeout)
+        @searchtimeout = setTimeout((()=> @filter_files(e)), 100)
+
+    next_row_class: ()->
+        @current_row = (@current_row + 1) % 2
         return "row#{@current_row+1}"
 
 
-FileView = Backbone.View.extend
-    # View responsible for one file row.
-    #
-    # Methods:
-    #
-    # srender - returns element with rendered row for FileTableView
-    # delete - event callback. Called when user clicks on trash icon for
-    #          that file. Then it asks for model to delete file, for which
-    #          this view is responsible.
-    # touch - same as delete, just that asks to update modify time for file.
-    # rename - same as delete, just asks to rename file.
-    # resize - same as delete, just asks to resize image.
-    tagName: 'tr'
-    events: {
-        "click .delete": 'delete',
-        "click .touch": 'touch',
-        "click .rename": 'rename',
-        "click .resize": 'resize'
-    }
+class FileTableView extends FileTableControlsView
+    # Any methods that requires direct access to collection or list of
+    # FileViews should go here.
 
-    initialize: (attrs)->
-        @table = FileBrowser.table
-        @attrs = attrs.model.attributes
-        @model = attrs.model
-
-    srender: ()->
-        tpl = _.template($('#browse_file_tpl').html(), @attrs)
-        elm = $(@el).html(tpl)
-        elm.addClass(@table.new_row_class())
-        resizable_mimetypes = ['image/png', 'image/jpeg', 'image/bmp',
-                                'image/gif']
-        if !(@attrs.mimetype in resizable_mimetypes) or !BFMOptions.pil
-            elm.find('.icons .resize').css('display', 'none')
-        return elm
-
-    delete: (e)->
-        @model.delete_file()
-
-    touch: (e)->
-        @model.touch_file()
-
-    rename: (e)->
-        @model.rename_file()
-
-    resize: (e)->
-        @model.resize_image()
-
-
-FilePaginatorView = Backbone.View.extend
-    # View responsible for breaking up list of files into smaller pieces and
-    # showing page list.
-    #
-    # Methods:
-    #
-    # get_page_models - returns list of specific models for current page.
-    # count_pages - returns number of pages.
-    # render - renders file table and paginator.
-    # page_click - event callback. Called when user clicks on page in
-    #              paginator.
-    # first_page - same as page_click, just that it is called when user
-    #              clicks on "First Page" button.
-    # last_page - same as page_click, just that it is called when user
-    #             clicks on "Last Page" button.
-    events: {
-        'click a': 'page_click',
-        'click .firstpage': 'first_page',
-        'click .lastpage': 'last_page'
-    }
-
-    initialize: ()->
-        @el = $('p.paginator')
-        @last_page_count = -1
-
-    get_page_models: ()->
-        per_page = BFMOptions.files_in_page
-        page = FileBrowser.page
-        files = FileBrowser.files
-        start = per_page*(page-1)
-        files.models[start...start+per_page]
-
-    count_pages: ()->
-        ~~(FileBrowser.files.models.length/BFMOptions.files_in_page+0.99)
-
-    render: ()->
-        # Render table
-        FileBrowser.table.render @get_page_models()
-        # Render paginator itself
-        pages = @count_pages()
-        # Clear paginator for rerender
-        @el.empty()
-        # Add "Go to first" button
-        if pages > 5 and FileBrowser.page > 6
-            @el.append _.template($('#pgn_first_page_tpl').html())()
-        # Add "Page X" buttons
-        for page in [FileBrowser.page-5..FileBrowser.page+5]
-            if page < 1 or page > pages
-                continue
-            if page == FileBrowser.page
-                rn = _.template($('#pgn_current_page_tpl').html(),
-                                                            {page: page})
-            else
-                rn = _.template($('#pgn_page_tpl').html(), {page: page})
-            @el.append(rn)
-        # Add "Go to last" button
-        if pages > 5 and FileBrowser.page < pages - 5
-            @el.append(_.template($('#pgn_last_page_tpl').html())())
-        # Events...
+    render: (@collection, update=true)->
+        @current_row = 1
+        @file_views = []
+        @selected_files = []
+        # Render controls.
+        super(collection)
+        # Now render file list.
+        _.forEach(@page_models(@page), (model)=>
+            file = new FileView({'model': model, 'table': @})
+            @file_views.push(file)
+            @table.append(file.render_el(@next_row_class()))
+        )
         @delegateEvents(@events)
 
-    page_click: (e)->
-        page = parseInt($(e.currentTarget).text())
-        if not isNaN page
-            FileBrowser.open_page(page)
-        e.preventDefault()
+    change_page: (page, collection)->
+        super(page, (if collection? then collection else @collection))
 
-    first_page: (e)->
-        e.preventDefault()
-        FileBrowser.open_page(1)
+    page_models: (page)->
+        if @collection.length < 1
+            return []
+        per_page = BFMOptions.files_in_page
+        start = per_page*(@page-1)
+        @collection.models[start...start+per_page]
 
-    last_page: (e)->
+    resort_files: (e)->
+        sort = @current_sorting
+
+        if e?
+            _by = e.currentTarget.getAttribute('data-name')
+
+            if sort.by == _by
+                sort.reversed = not sort.reversed
+            else
+                sort.by = _by
+
+            @collection.comparator = @collection.comparators[_by]
+
+        @collection.sort({'reversed': sort.reversed})
+
+    filter_files: (e)->
+        # Rework it to a full text, case- search
+        # For testing purposes regex is pretty good.
+        # DAMMIT - test a lot.
+        # And make it work!
+        query = e.currentTarget.value
+        if query == '' and @search_query?
+            delete(@search_query)
+            return @render(@orig_collection)
+        else if query == '' or (@search_query? and query == @search_query)
+            return
+        if not @search_query?
+            @orig_collection = @collection
+        console.time('Search')
+        @search_query = query
+        test_regex = new RegExp(query)
+        tester = (model)->
+            return !!test_regex.exec(model.get('filename'))
+        collection = new FileCollection()
+        collection.add(@orig_collection.filter(tester), {'silent': true})
+        collection.sort({'reversed': @current_sorting.reversed, 'silent': true})
+        @render(collection)
+        console.timeEnd('Search')
+
+    toggle_selections: (e)->
+        activate = e.currentTarget.checked
+        for file in @file_views
+            file.select(activate)
+
+    execute_actions: (e)->
         e.preventDefault()
-        FileBrowser.open_page(@count_pages())
+        action = @actions.find('select[name="action"]').val()
+        for file in @selected_files
+            if file?
+                @collection.action_queue.push(file)
+        @selected_files = []
+        if @collection.action_queue.length > 0
+            templates = {'delete': '#file_delete_tpl'}
+            dialog = new Dialog({
+                'template': templates[action],
+                'callback': ()=> @collection.execute_action(action)
+            })
+            dialog.render()
+
+
+class FileView extends Backbone.View
+    # View responsible for one file row.
+    tagName: 'tr'
+    events: {"change input[type='checkbox']": 'select_e'}
+
+    initialize: ({@model, @table})->
+        resizable_mimetypes = ['image/png', 'image/jpeg', 'image/bmp',
+                                'image/gif']
+        if !(@model.get('mimetype') in resizable_mimetypes) or !BFMOptions.pil
+            @resizable = false
+        else
+            @resizable = true
+
+    render_el: (row_class)->
+        tpl = _.template($('#browse_file_tpl').html(), @model.attributes)
+        elm = @$el.html(tpl)
+        elm.addClass(row_class)
+
+        return elm
+
+    select_e: (e)->
+        @selected = if e.currentTarget?.checked? then \
+                                                e.currentTarget.checked else e
+        if @selected
+            @$el.addClass('selected')
+            @table.selected_files.push(@)
+        else
+            # "Unselect" file.
+            @$el.removeClass('selected')
+            delete(@table.selected_files[@table.selected_files.indexOf(@)])
+
+    select: (val)->
+        @select_e(val)
+        @$el.find('input[type="checkbox"]').prop('checked', val)
+
+    rename: (e)->
+        console.log(e)
 
 
 FileBrowser =
-    # Object that glues FileCollection, FileTableView and FilePaginatorView.
+    # Object that glues FileCollection and FileTableControlsView.
     # Also it is responsible for passing out events which occurs because of
     # URL change.
-    #
-    # Methods:
-    #
-    # do_browse - pass URL change events to FileCollection, FileTableView
-    #             and FilePaginatorView. Also initiate them, if they doesn't
-    #             yet exist.
-    # open_page - changes URL to URL with another page as argument.
+
     first: true
     path: null
     page: null
     router: null
-    last_xhr: {readyState: 4} #Fake variable.
+    last_xhr: {'readyState': 4, 'first_load': true} #Fake variable.
 
     do_browse: (path, page)->
-        if @first
+        # Initialize some variables on first load.
+        if @last_xhr.first_load?
             @files = new FileCollection()
-            @table = new FileTableView()
-            @paginator = new FilePaginatorView()
-            @first = false
+            @file_table = new FileTableView()
+            delete(@last_xhr.first_load)
+
         [@path, path] = [path, @path]
         [@page, page] = [parseInt(page), @page]
+
         if @path != path
-            @files.update_directory()
+            @files.update_directory(@path)
             if @last_xhr.readyState != 4
                 @last_xhr.abort()
-            @last_xhr = @files.fetch({'silent': true, 'success': (collection)=>
-                collection.sort({'reverse': @table.sorted.reversed})
+            @last_xhr = @files.fetch({
+                'silent': true,
+                'success': (collection)=>
+                    reversed = @file_table.current_sorting.reversed
+                    collection.sort({'reversed': reversed})
             })
-        else if @page != page
-            @paginator.render()
+        @file_table.change_page(@page, @files)
+
 
     open_page: (page)->
-        @router.navigate("path=#{@path}^page=#{page}", true)
+        @router.navigate("path=#{@path}^page=#{page}")
