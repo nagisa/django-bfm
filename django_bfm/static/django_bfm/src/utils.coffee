@@ -15,7 +15,7 @@ readable_size = (size)->
             return "#{(size / (s[1] / 1024)).toFixed(s[2])} #{s[0]}"
 
 
-Dialog = Backbone.View.extend
+class Dialog extends Backbone.View
     # View responsible for rendering dialog box from given template.
     #
     # Methods:
@@ -31,12 +31,15 @@ Dialog = Backbone.View.extend
     events:
         "click .submit": 'call_callback'
         "click .cancel": 'cancel'
+
     tear_down: ()->
-        $(@el).fadeOut(200, => @remove())
-        $('.block').fadeOut(200)
+        @remove()
+        @block.remove()
+
     cancel: (e)->
         @tear_down()
         e.preventDefault()
+
     call_callback: (e)->
         @tear_down()
         e.preventDefault()
@@ -44,22 +47,21 @@ Dialog = Backbone.View.extend
         for key, field of $(@el).serializeArray()
             object[field.name] = field.value
         @callback(object)
-    initialize: (attrs)->
-        @url = attrs.url
-        @model = attrs.model
-        @template = attrs.template
-        @callback = attrs.callback
-        @hook = attrs.hook
+
+    initialize: ({@template, @data, @callback, @hook})->
+
+
     render: ()->
-        tpl = _.template($(@template).html(), @model.attributes)
-        element = $(@el).html(tpl)
-        $('body').append(element.fadeIn(200))
-        $('.block').fadeIn(300)
+        @block = $('<div />', {class: 'blocker'})
+
+        tpl = _.template($(@template).html(), if @data? then @data else {})
+        $('body').append(@$el.html(tpl)).append(@block)
+
         if @hook?
             @hook(@)
 
 
-ContextMenu = Backbone.View.extend
+class ContextMenu extends Backbone.View
     tagName: 'ul'
     className: 'contextmenu'
 
