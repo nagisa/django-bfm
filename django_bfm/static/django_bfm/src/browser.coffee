@@ -227,7 +227,7 @@ class FileTableView extends FileTableControlsView
             else
                 @collection.set_sorting(_by, sort.reversed)
             # Tell it to do things.
-            @collection.updated(table=@)
+            @collection.updated()
 
     filter_files: (e)->
         # Rework it to a full text, case-insensitive search
@@ -240,7 +240,7 @@ class FileTableView extends FileTableControlsView
         if not @original_collection?
             @original_collection = @collection
 
-        @original_collection.search(query).updated(table=@)
+        @original_collection.search(query).updated()
 
         if query == ""
             delete(@original_collection)
