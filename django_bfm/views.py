@@ -19,13 +19,6 @@ import signals
 import settings
 from storage import BFMStorage
 
-#Optional dependecy for image_actions
-try:
-    from PIL import Image
-except:
-    pass
-
-
 @login_required
 @staff_member_required
 def base(request):
@@ -37,13 +30,13 @@ def base(request):
 
 
 def admin_options(request):
-    admin_options = {
+    admin_settings = {
         "upload": reverse("bfm_upload"),
-        "upload_rel_dir": settings.ADMIN_UPDIR
+        "upload_rel_dir": settings.BFM['ADMIN_UPLOAD_DIRECTORY']
     }
     c = RequestContext(request, {
         'settings': settings.JSON,
-        'admin_options': simplejson.dumps(admin_options)
+        'admin_options': simplejson.dumps(admin_settings)
     })
     return render_to_response('django_bfm/admin.js', c)
 
@@ -137,7 +130,8 @@ class FileActions(View):
         return response
 
     def delete(self):
-        [self.storage.delete(f) for f in self.args['files']]
+        for f in self.args['files']:
+            self.storage.delete(f)
         return HttpResponse()
 
     # def touch(self):

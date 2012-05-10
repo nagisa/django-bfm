@@ -10,7 +10,7 @@ from django.utils import simplejson
 from django.utils._os import safe_join
 
 # Project imports
-import settings
+from settings import BFM as settings
 from utils import json_handler
 
 
@@ -21,8 +21,8 @@ class BFMStorage(FileSystemStorage):
             self.rel_dir = ''
         else:
             self.rel_dir = '{}/'.format(rel_dir.strip('/'))
-        directory = safe_join(settings.MEDIA_DIRECTORY, self.rel_dir)
-        url = urljoin(settings.MEDIA_URL, self.rel_dir)
+        directory = safe_join(settings['MEDIA_DIRECTORY'], self.rel_dir)
+        url = urljoin(settings['MEDIA_URL'], self.rel_dir)
         super(BFMStorage, self).__init__(directory, url)
 
     def file_metadata(self, filename, json=False):
