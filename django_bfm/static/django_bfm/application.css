@@ -148,6 +148,7 @@
 #uploader-table {
     clear: both;
     background: #fff;
+    overflow-x: hidden;
 }
 
 .visible #uploader-table-container {
@@ -157,7 +158,7 @@
 #uploader-table .file {
     clear: both;
     width: 100%;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid #eee;
     position: relative;
     z-index: 1;
 }
