@@ -71,7 +71,7 @@ Example: ``admin_files/`` and files will be uploaded to ``{{BFM_MEDIA_DIRECTORY}
 
 Default: empty string.
 
-**BFM['UPLOADS_AT_ONCE']**
+**BFM['SIMULTANEOUS_UPLOADS']**
 
 Tells BFM how much files to upload at once.
 Requires integer value.
