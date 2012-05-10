@@ -96,14 +96,21 @@ class FileActions(View):
     @method_decorator(login_required)
     @method_decorator(staff_member_required)
     def dispatch(self, request):
+        if request.method != 'POST':
+            return HttpResponseBadRequest()
+
         # Check for all required arguments and move them to another dict.
-        self.args = {'directory': None, 'action': None, 'file': None}
+        self.args = {'directory': None, 'action': None, 'files[]': None}
         for arg in self.args:
-            if arg not in request.GET:
+            if arg not in request.POST:
                 return HttpResponseBadRequest()
-            self.args[arg] = request.GET[arg]
+            if arg[-2:] == '[]':
+                self.args[arg] = request.POST.getlist(arg)
+            else:
+                self.args[arg] = request.POST[arg]
+        self.args['files'] = self.args['files[]']
         # Rename needs `new` variable.
-        self.args['new'] = request.GET.get('new', False)
+        # self.args['new'] = request.GET.get('new', False)
 
         # Initialize storage.
         self.storage = BFMStorage(self.args['directory'])
@@ -111,39 +118,40 @@ class FileActions(View):
         # Initialize signals
         self.signals = {'pre': signals.pre_file_action,
                         'post': signals.post_file_action}
-        self.sigfile = {'original': self.storage.path(self.args['file']),
-                        'new': None}
+        affected_files = (self.storage.path(f) for f in self.args['files'])
+        self.sigfiles = {'affected': affected_files,
+                        'resulting': None}
         self.sigargs = {'sender': request,
                         'action': self.args['action'],
-                        'affected_files': self.sigfile}
+                        'files': self.sigfiles}
 
-        # Send signals and run action, then send post signal.
-        a = {'delete': self.delete, 'rename': self.rename, 'touch': self.touch}
-        if self.args['action'] in a:
-            self.signals['pre'].send(**self.sigargs)
-            response = a[self.args['action']]()
-            if not response.status_code >= 400:
-                self.signals['post'].send(**self.sigargs)
-            return response
-        else:
+        # Send pre-action signals, run action and then send post-action signal.
+        actions = {'delete': self.delete}
+        if not self.args['action'] in actions:
             return HttpResponseBadRequest()
+
+        self.signals['pre'].send(**self.sigargs)
+        response = actions[self.args['action']]()
+        if not response.status_code >= 400:
+            self.signals['post'].send(**self.sigargs)
+        return response
 
     def delete(self):
-        self.storage.delete(self.args['file'])
+        [self.storage.delete(f) for f in self.args['files']]
         return HttpResponse()
 
-    def touch(self):
-        self.storage.touch(self.args['file'])
-        new_meta = self.storage.file_metadata(self.args['file'], json=True)
-        return HttpResponse(new_meta)
+    # def touch(self):
+    #     self.storage.touch(self.args['file'])
+    #     new_meta = self.storage.file_metadata(self.args['file'], json=True)
+    #     return HttpResponse(new_meta)
 
-    def rename(self):
-        if self.args['new'] is False:
-            return HttpResponseBadRequest()
-        new_path = self.storage.rename(self.args['file'], self.args['new'])
-        self.sigfile['new'] = new_path
-        new_meta = self.storage.file_metadata(self.args['new'], json=True)
-        return HttpResponse(new_meta)
+    # def rename(self):
+    #     if self.args['new'] is False:
+    #         return HttpResponseBadRequest()
+    #     new_path = self.storage.rename(self.args['file'], self.args['new'])
+    #     self.sigfile['new'] = new_path
+    #     new_meta = self.storage.file_metadata(self.args['new'], json=True)
+    #     return HttpResponse(new_meta)
 
 
 class DirectoryActions(View):
@@ -204,64 +212,64 @@ class DirectoryActions(View):
         return HttpResponse()
 
 
-class ImageActions(View):
+# class ImageActions(View):
 
-    @method_decorator(login_required)
-    @method_decorator(staff_member_required)
-    def dispatch(self, request):
-        if not settings.HAS_PIL:
-            return HttpResponseServerError('Install PIL!')
+#     @method_decorator(login_required)
+#     @method_decorator(staff_member_required)
+#     def dispatch(self, request):
+#         if not settings.HAS_PIL:
+#             return HttpResponseServerError('Install PIL!')
 
-        self.args = {'directory': None, 'action': None, 'file': None}
-        for arg in self.args:
-            if arg not in request.GET:
-                return HttpResponseBadRequest()
-            self.args[arg] = request.GET[arg]
+#         self.args = {'directory': None, 'action': None, 'file': None}
+#         for arg in self.args:
+#             if arg not in request.GET:
+#                 return HttpResponseBadRequest()
+#             self.args[arg] = request.GET[arg]
 
-        # Resize action has many more arguments.
-        if self.args['action'] == 'resize':
-            self.resize_args = {'filter': None, 'new_w': None, 'new_h': None}
-            for arg in self.resize_args:
-                if arg not in request.GET:
-                    return HttpResponseBadRequest()
-                self.resize_args[arg] = request.GET[arg]
+#         # Resize action has many more arguments.
+#         if self.args['action'] == 'resize':
+#             self.resize_args = {'filter': None, 'new_w': None, 'new_h': None}
+#             for arg in self.resize_args:
+#                 if arg not in request.GET:
+#                     return HttpResponseBadRequest()
+#                 self.resize_args[arg] = request.GET[arg]
 
-        # Initialize storage and get image path.
-        self.storage = BFMStorage(self.args['directory'])
-        self.image = self.storage.path(self.args['file'])
+#         # Initialize storage and get image path.
+#         self.storage = BFMStorage(self.args['directory'])
+#         self.image = self.storage.path(self.args['file'])
 
-        # Initialize signals.
-        self.signals = {'pre': signals.pre_image_resize,
-                        'post': signals.post_image_resize}
-        self.sigfile = {'original': self.image,
-                        'new': None}
-        self.sigargs = {'sender': request,
-                        'action': self.args['action'],
-                        'affected_files': self.sigfile}
+#         # Initialize signals.
+#         self.signals = {'pre': signals.pre_image_resize,
+#                         'post': signals.post_image_resize}
+#         self.sigfile = {'original': self.image,
+#                         'new': None}
+#         self.sigargs = {'sender': request,
+#                         'action': self.args['action'],
+#                         'affected_files': self.sigfile}
 
-        # Send signals and run action.
-        a = {'info': self.info, 'resize': self.resize}
-        if self.args['action'] in a:
-            self.signals['pre'].send(**self.sigargs)
-            response = a[self.args['action']]()
-            if not response >= 400:
-                self.signals['post'].send(**self.sigargs)
-            return response
-        else:
-            return HttpResponseBadRequest()
+#         # Send signals and run action.
+#         a = {'info': self.info, 'resize': self.resize}
+#         if self.args['action'] in a:
+#             self.signals['pre'].send(**self.sigargs)
+#             response = a[self.args['action']]()
+#             if not response >= 400:
+#                 self.signals['post'].send(**self.sigargs)
+#             return response
+#         else:
+#             return HttpResponseBadRequest()
 
-    def info(self):
-        img = Image.open(self.image)
-        s = img.size
-        sizes = {'height': s[1], 'width': s[0]}
-        return HttpResponse(simplejson.dumps(sizes))
+#     def info(self):
+#         img = Image.open(self.image)
+#         s = img.size
+#         sizes = {'height': s[1], 'width': s[0]}
+#         return HttpResponse(simplejson.dumps(sizes))
 
-    def resize(self):
-        _filter = getattr(Image, self.resize_args['filter'])
-        size = (int(self.resize_args['new_w']), int(self.resize_args['new_h']))
-        img = Image.open(self.image)
-        new_image = img.resize(size, _filter)
-        new_name = self.storage.get_available_name(self.args['file'])
-        new_image.save(self.storage.path(new_name))
-        self.sigfile['new'] = self.storage.path(new_name)
-        return HttpResponse(self.storage.file_metadata(new_name, json=True))
+#     def resize(self):
+#         _filter = getattr(Image, self.resize_args['filter'])
+#         size = (int(self.resize_args['new_w']), int(self.resize_args['new_h']))
+#         img = Image.open(self.image)
+#         new_image = img.resize(size, _filter)
+#         new_name = self.storage.get_available_name(self.args['file'])
+#         new_image.save(self.storage.path(new_name))
+#         self.sigfile['new'] = self.storage.path(new_name)
+#         return HttpResponse(self.storage.file_metadata(new_name, json=True))

@@ -57,7 +57,7 @@ class FileUploadView extends Backbone.View
         if @directory == FileBrowser.path
             _.defer(()=>
                 FileBrowser.files.add(data)
-                FileBrowser.file_table.resort_files()
+                FileBrowser.files.updated()
             )
         FileUploader.uploader.report_finished(@)
 

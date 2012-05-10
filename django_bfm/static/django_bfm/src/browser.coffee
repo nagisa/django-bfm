@@ -33,6 +33,8 @@ class FileCollection extends Backbone.Collection
         mime: (model)->
             return model.get('mimetype')
 
+    sorting: {'by': 'date', 'reversed': true}
+
     sort: (options)->
         # Call original sorter with silent option.
         super(_.extend(_.clone(options), {'silent': true}))
@@ -41,6 +43,10 @@ class FileCollection extends Backbone.Collection
             @models.reverse()
         if not options.silent
             @trigger('reset', @, options)
+
+    set_sorting: (_by, reversed)->
+        @comparator = @comparators[_by]
+        @sorting = {'by': _by, 'reversed': reversed}
 
     initialize: ()->
         @base_url = @url
@@ -52,6 +58,8 @@ class FileCollection extends Backbone.Collection
         @url = "#{@base_url}?directory=#{path}"
 
     updated: ()->
+        # Sort files...
+        @sort({'reversed': @sorting.reversed, 'silent': true})
         # Render most parental view, which will render everything else...
         FileBrowser.file_table.render(@)
 
@@ -61,10 +69,10 @@ class FileCollection extends Backbone.Collection
             return
         files = {
             'files': _.map(@action_queue, (v)-> return v.model.get('filename')),
-            'dir': @action_queue[0].model.get('rel_dir'),
-            'action': action
+            'directory': @action_queue[0].model.get('rel_dir'),
+            'action': action,
+            'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
         }
-        console.log(files)
         $.post('action/', files, (data)=>
             @action_queue = []
             @fetch()
@@ -81,8 +89,6 @@ class FileTableControlsView extends Backbone.View
         'click #result_list th.sortable': 'resort_files',
         'change #action-toggle': 'toggle_selections'
     }
-
-    current_sorting: {'by': 'date', 'reversed': true}
 
     initialize: ()->
         @setElement($('#changelist-form'))
@@ -137,8 +143,8 @@ class FileTableControlsView extends Backbone.View
         @table.html('')
         # Render
         context = {'filename': '', 'size': '', 'date': '', 'mime': ''}
-        sort = if @current_sorting.reversed then 'descending' else 'ascending'
-        context[@current_sorting.by] = "#{sort} sorted"
+        sort = if @collection.sorting.reversed then 'descending' else 'ascending'
+        context[@collection.sorting.by] = "#{sort} sorted"
         @table.append(@templates.thead(context))
 
     count_pages: (items)->
@@ -192,19 +198,17 @@ class FileTableView extends FileTableControlsView
         @collection.models[start...start+per_page]
 
     resort_files: (e)->
-        sort = @current_sorting
+        sort = @collection.sorting
 
         if e?
             _by = e.currentTarget.getAttribute('data-name')
 
             if sort.by == _by
-                sort.reversed = not sort.reversed
+                @collection.set_sorting(sort.by, not sort.reversed)
             else
-                sort.by = _by
-
-            @collection.comparator = @collection.comparators[_by]
-
-        @collection.sort({'reversed': sort.reversed})
+                @collection.set_sorting(_by, sort.reversed)
+            # Tell it to do things.
+            @collection.updated()
 
     filter_files: (e)->
         # Rework it to a full text, case- search
@@ -316,10 +320,7 @@ FileBrowser =
             if @last_xhr.readyState != 4
                 @last_xhr.abort()
             @last_xhr = @files.fetch({
-                'silent': true,
-                'success': (collection)=>
-                    reversed = @file_table.current_sorting.reversed
-                    collection.sort({'reversed': reversed})
+                'silent': false
             })
         @file_table.change_page(@page, @files)
 
