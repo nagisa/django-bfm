@@ -28,7 +28,7 @@
 .trash:before {content: '\e05a';}
 .upload-file:before {content:'\2795';}
 .upload-folder:before {content:'\e065';}
-.clear:before {content:'\e054';}
+.clear_files:before {content:'\e054';}
 .cancel:before {content: '\26d4';}
 
 /* UPLOADER */

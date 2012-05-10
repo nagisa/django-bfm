@@ -54,7 +54,7 @@ class FileUploadView extends Backbone.View
         @$el.find('.filename').attr('href', data.url).text(data.filename)
         # Reload file browser
         # I don't like those calls to FileBrowser. Any ideas?
-        if @directory == FileBrowser.path
+        if not BFMAdminOptions? and @directory == FileBrowser.path
             _.defer(()=>
                 FileBrowser.files.add(data)
                 FileBrowser.files.updated()
@@ -86,7 +86,7 @@ class UploaderView extends Backbone.View
     events: {
         'click #toggle-uploader': 'toggle_visibility',
         'change input[type="file"]': 'add_files',
-        'click .clear': 'clear_finished'
+        'click .clear_files': 'clear_finished'
     }
 
     initialize: ()->
