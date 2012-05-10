@@ -9,10 +9,11 @@ Admin Applet
     jQuery, so all ``$`` and ``jQuery`` variables defined before will be rewritten.
     ``django.jQuery`` variable won't change.
 
-Making admin applet to work requires more work because application specific files should be edited.
+Making admin applet to appear in your application admin panel
+requires more work because application specific files should be edited.
 
-Firstly, open your application, in which you want applet to appear, ``admin.py``
-file and these lines just after imports
+Firstly, open your application ``admin.py`` file of an application in which
+you want applet to appear and place these lines just after other imports.
 
 ::
 

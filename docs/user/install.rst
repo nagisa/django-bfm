@@ -44,15 +44,14 @@ or with pip:
 Configuration
 =============
 
-Adding to Django
-----------------
+Enabling BFM
+------------
 
-After downloading and installing BFM, you need to configure your Django project
-to work with it.
+After downloading and installing BFM, you need to configure your Django project.
 
 #. Add ``'django_bfm',`` to your ``INSTALLED_APPS`` in **settings.py**,
 #. Add ``url(r'^files/', include('django_bfm.urls')),`` to your ``urlpatterns`` in **urls.py**,
-#. Make sure you have `staticfiles enabled <https://docs.djangoproject.com/en/dev/howto/static-files/#basic-usage>`_ (`with context processor <https://docs.djangoproject.com/en/dev/howto/static-files/#with-a-context-processor>`_) and run `python manage.py collectstatic`,
+#. Make sure you have `staticfiles enabled <https://docs.djangoproject.com/en/dev/howto/static-files/#basic-usage>`_ (`with a context processor <https://docs.djangoproject.com/en/dev/howto/static-files/#with-a-context-processor>`_) and run `python manage.py collectstatic`,
 #. Make sure, that static files are served correctly by your production server.
 
 .. note::

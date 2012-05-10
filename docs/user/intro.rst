@@ -6,11 +6,9 @@ Introduction
 Why another? There's `adminfiles <https://bitbucket.org/carljm/django-adminfiles/src>`_ and `filebrowser <https://github.com/sehmaschine/django-filebrowser>`_ already.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Why software gets created? Because someone were unhappy with already existing
-software.
-
-That was case for me too - I found it hard to make both those to work the way I
-want, so I made my own filebrowser.
+Why software is created in the first place?
+Because there is somebody who is not satisfied with already existing solutions.
+I'm one of those people and I think that I can do better.
 
 Why use BFM?
 ------------
@@ -22,9 +20,9 @@ Why use BFM?
 Why you would not want to use BFM yet?
 --------------------------------------
 
-#. If you want integrate it with TinyMCE or something of the like, you shouldn't think about BFM. **YET**.
-#. You want mature project.
-#. You need to support IE, which is not even a browser.
+#. You need to support IE, which is actually not even a browser.
+#. You want a mature project.
+#. If you want integrate it with TinyMCE or something of the like, you shouldn't think about BFM.
 
 Support tables, dependencies
 ============================
@@ -32,29 +30,30 @@ Support tables, dependencies
 Browser
 -------
 
-Version, required to have full functionality of BFM. BFM itelf will still work
-with older browser, but some things, like file uploading won't work.
+Version, required to have full functionality of BFM. Some parts of BFM may still
+work with older browsers, but advanced functionality, like file uploading won't.
 
 ==========================  ==========================
 Browser                     Version
 ==========================  ==========================
 Chrome/Chromium             7 +
 Firefox                     5 +
-Opera                       Not supported \*
+Opera                       12.0 + \*
 IE                          10 + \*
 Safari                      5.0 +
 ==========================  ==========================
 
 
-**\*** Opera and IE 9 and below doesn't support `XHR2 <http://www.w3.org/TR/XMLHttpRequest2/>`_,
-which is used to upload files and report upload status.
+**\*** `XHR2 <http://www.w3.org/TR/XMLHttpRequest2/>`_,
+which is used internally to upload files and report upload status,
+is not supported by stable versions of these browsers.
 
 .. _core_dependencies:
 
-Core dependencies
------------------
+Dependencies
+------------
 
 BFM was only tested on Python 2.6 and Python 2.7, so it is safe to assume, that dependencies are as follows:
 
-- Python: 2.6 or 2.7
+- Python: 2.6 or 2.7,
 - Django: 1.3 or 1.4

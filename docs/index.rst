@@ -7,28 +7,23 @@ Django Basic File Manager
 =========================
 
 BFM is an `Apache Licenced <http://www.apache.org/licenses/LICENSE-2.0>`_ server
-file manager made with ease of use and new web technologies in mind.
+file manager for Django made with ease of use and new web technologies in mind.
 
-Because of that BFM looks like Django Admin page. Therefore BFM shouldn't cause
+BFM looks like Django Admin page therefore BFM shouldn't cause
 any unfamiliarity for anyone who used Django before.
 
-It has minimal dependencies and most of those are optional as they enable
-optional features.
+Also, it has minimal dependencies.
 
-Core Features
--------------
+Features
+--------
 
-- Select multiple files at once,
-- Realtime upload status reporting,
-- File browsing,
-- File actions (Delete, Rename, Touch),
-- Directory browsing,
-- Admin applet (You can make Uploader appear in any admin page).
-
-.. note::
-
-    Core features requires no optional dependencies, however
-    :ref:`core_dependencies` are required.
+- Uploading multiple files at once,
+- Live upload status,
+- Browsing files...
+- and directories,
+- Doesn't have a lot of dependencies,
+- Extends Django admin templates, so has familiar feeling,
+- Ability to add upload applet to your application admin.
 
 Next steps
 ----------
@@ -40,8 +35,6 @@ Next steps
    user/install
    user/settingsvars
    user/adminapplet
-   user/additionalfeats
-
 
 Indices and tables
 ==================

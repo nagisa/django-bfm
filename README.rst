@@ -1,28 +1,23 @@
 Django Basic File Manager
 =========================
 
-Core Features
--------------
+Features
+--------
 
-- Select more than one file at once
-- Live Upload Status reporting
-- File browsing
-- Directory support
-- Core features has no dependencies (except for Django), lightweight
-- Looks like django admin (extends admin template)
-- Admin upload applet
-
-Additional Features (uses additional dependencies)
---------------------------------------------------
-
-- Image resizing (PIL)
+- Uploading multiple files at once,
+- Live upload status,
+- Browsing files...
+- and directories,
+- Doesn't have a lot of dependencies,
+- Extends Django admin templates, so has familiar feeling,
+- Ability to add upload applet to your application admin.
 
 Requirements
 ------------
 
-- Modern browser - BFM relies on a bunch of HTML5 features.
-- Django 1.3 or 1.4
-- Python 2.6 or 2.7 (Not tested with 2.5 and below)
+- Modern web browser,
+- Django 1.3 or 1.4,
+- Python 2.6 or 2.7 (Not tested with 2.5 and below).
 
 Documentation
 -------------
