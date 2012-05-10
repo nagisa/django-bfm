@@ -5,7 +5,11 @@ class File extends Backbone.Model
 
     initialize: ()->
         @set({'date': new Date(@get('date'))})
-        @set({'pdate': @parseDate(), 'psize': @parseSize()})
+        @set({
+            'pdate': @parseDate(),
+            'psize': @parseSize(),
+            'lower_filename': @get('filename').toLowerCase()
+        })
 
     parseDate: ()->
         # Parses Date into more readable and shorter YYYY-MM-DD date.
@@ -57,11 +61,11 @@ class FileCollection extends Backbone.Collection
     update_directory: (path)->
         @url = "#{@base_url}?directory=#{path}"
 
-    updated: ()->
+    updated: (collection, options, view=FileBrowser.file_table)->
         # Sort files...
         @sort({'reversed': @sorting.reversed, 'silent': true})
         # Render most parental view, which will render everything else...
-        FileBrowser.file_table.render(@)
+        view.render(@)
 
     execute_action: (action)->
         # Executes action to all files inside action_queue.
@@ -77,6 +81,21 @@ class FileCollection extends Backbone.Collection
             @action_queue = []
             @fetch()
         )
+
+    search: (query)->
+        query = query.toLowerCase()
+        if query == ""
+            return @
+
+        tester = (model)->
+            return model.get('lower_filename').indexOf(query) >= 0
+
+        new_collection = new FileCollection()
+        new_collection.add(@filter(tester), {'silent': true})
+        new_collection.set_sorting(@sorting.by, @sorting.reversed)
+        return new_collection
+
+
 
 
 class FileTableControlsView extends Backbone.View
@@ -208,31 +227,23 @@ class FileTableView extends FileTableControlsView
             else
                 @collection.set_sorting(_by, sort.reversed)
             # Tell it to do things.
-            @collection.updated()
+            @collection.updated(table=@)
 
     filter_files: (e)->
-        # Rework it to a full text, case- search
-        # For testing purposes regex is pretty good.
-        # DAMMIT - test a lot.
-        # And make it work!
-        query = e.currentTarget.value
-        if query == '' and @search_query?
-            delete(@search_query)
-            return @render(@orig_collection)
-        else if query == '' or (@search_query? and query == @search_query)
+        # Rework it to a full text, case-insensitive search
+        # And make it work quickly!
+        query = e.currentTarget.value.trim()
+        if query == @last_query
             return
-        if not @search_query?
-            @orig_collection = @collection
-        console.time('Search')
-        @search_query = query
-        test_regex = new RegExp(query)
-        tester = (model)->
-            return !!test_regex.exec(model.get('filename'))
-        collection = new FileCollection()
-        collection.add(@orig_collection.filter(tester), {'silent': true})
-        collection.sort({'reversed': @current_sorting.reversed, 'silent': true})
-        @render(collection)
-        console.timeEnd('Search')
+        @last_query = query
+
+        if not @original_collection?
+            @original_collection = @collection
+
+        @original_collection.search(query).updated(table=@)
+
+        if query == ""
+            delete(@original_collection)
 
     toggle_selections: (e)->
         activate = e.currentTarget.checked
@@ -289,9 +300,6 @@ class FileView extends Backbone.View
     select: (val)->
         @select_e(val)
         @$el.find('input[type="checkbox"]').prop('checked', val)
-
-    rename: (e)->
-        console.log(e)
 
 
 FileBrowser =
