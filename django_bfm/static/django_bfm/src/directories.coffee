@@ -1,4 +1,4 @@
-Directory = Backbone.Model.extend
+class Directory extends Backbone.Model
     url: 'directory/'
     initialize: ()->
         @id = @get('rel_dir')
@@ -28,7 +28,7 @@ Directory = Backbone.Model.extend
         })
 
 
-DirectoryCollection = Backbone.Collection.extend
+class DirectoryCollection extends Backbone.Collection
     # Collection responsible for all directory models.
     #
     # Methods:
@@ -51,7 +51,7 @@ DirectoryCollection = Backbone.Collection.extend
         DirectoryBrowser.sidebar.set_active(DirectoryBrowser.path)
 
 
-DirectoriesView = Backbone.View.extend
+class DirectoriesView extends Backbone.View
     # View responsible for whole sidebar of directories.
     #
     # Methods:
@@ -100,7 +100,7 @@ DirectoriesView = Backbone.View.extend
         @el.children().remove()
 
 
-DirectoryView = Backbone.View.extend
+class DirectoryView extends Backbone.View
     # View responsible for one directory node.
     #
     # Methods:
@@ -179,7 +179,7 @@ DirectoryView = Backbone.View.extend
         dialog.render()
 
 
-RootDirectoryView = DirectoryView.extend
+class RootDirectoryView extends DirectoryView
     events: {
         "click a": "load_directory",
         "contextmenu a": "actions_menu"
