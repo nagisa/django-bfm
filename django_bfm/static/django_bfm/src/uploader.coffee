@@ -93,7 +93,7 @@ class UploaderView extends Backbone.View
         @setElement(@make('div', {'id': 'uploader'}))
         @upload_queue = []
         @finished_uploads = []
-        @upload_count = window.BFMOptions.uploads_at_once
+        @upload_count = window.BFMOptions['simultaneous_uploads']
         @active_uploads = 0
 
     render: ()->

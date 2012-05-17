@@ -167,7 +167,7 @@ class FileTableControlsView extends Backbone.View
         @table.append(@templates.thead(context))
 
     count_pages: (items)->
-        ~~(items/BFMOptions.files_in_page)
+        ~~(items / BFMOptions['files_per_page'])
 
     change_page: (page, collection)->
         parse_event = (e)->
@@ -212,7 +212,7 @@ class FileTableView extends FileTableControlsView
     page_models: (page)->
         if @collection.length < 1
             return []
-        per_page = BFMOptions.files_in_page
+        per_page = BFMOptions['files_per_page']
         start = per_page*(@page-1)
         @collection.models[start...start+per_page]
 
@@ -272,12 +272,12 @@ class FileView extends Backbone.View
     events: {"change input[type='checkbox']": 'select_e'}
 
     initialize: ({@model, @table})->
-        resizable_mimetypes = ['image/png', 'image/jpeg', 'image/bmp',
-                                'image/gif']
-        if !(@model.get('mimetype') in resizable_mimetypes) or !BFMOptions.pil
-            @resizable = false
-        else
-            @resizable = true
+        # resizable_mimetypes = ['image/png', 'image/jpeg', 'image/bmp',
+        #                         'image/gif']
+        # if !(@model.get('mimetype') in resizable_mimetypes) or !BFMOptions.pil
+        #     @resizable = false
+        # else
+        #     @resizable = true
 
     render_el: (row_class)->
         tpl = _.template($('#browse_file_tpl').html(), @model.attributes)
