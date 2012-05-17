@@ -337,33 +337,32 @@
 /* CONTEXT MENU */
 
 .contextmenu{
-    position:absolute;
-    padding:0;
-    margin:0;
+    position: absolute;
+    padding: 0;
+    margin: 0;
     border: 1px solid #CCC;
-    background:#FFF;
-    z-index:10010;
-    border-radius:0 7px 7px;
-    padding:7px 0;
-    box-shadow: 0 0 7px #BBB;
-    -webkit-box-shadow: 0 0 7px #BBB;
-    -moz-box-shadow: 0 0 7px #BBB;
+    background: #FFF;
+    z-index: 10010;
+    padding: 3px 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+    -webkit-box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+    -moz-box-shadow: 0 0 10px rgba(0, 0, 0, .15);
 }
 
 .contextmenu li{
-    list-style:none;
-    padding:0;
+    list-style: none;
+    padding: 0;
 }
 
 .contextmenu li a{
-    display:block;
+    display: block;
     white-space: nowrap;
-    padding:5px 10px;
+    padding: 5px 10px;
 }
 
 .contextmenu li a:hover{
-    background:#EDF3FE;
-    cursor:pointer;
+    background: #EDF3FE;
+    cursor: pointer;
 }
 
 /* DIALOG */
@@ -403,7 +402,7 @@
     height:100%;
     top:0;
     left:0;
-    background: rgba(0,0,0,.2);
+    background: rgba(0,0,0,.1);
     z-index:1001;
 }
 

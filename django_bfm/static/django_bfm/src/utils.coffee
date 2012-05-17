@@ -66,24 +66,55 @@ class ContextMenu extends Backbone.View
     className: 'contextmenu'
 
     initialize: ()->
-        @el = $(@el)
+        @$body = $('body')
+
     clicked: (callback)->
-        @el.hide(200, ()=>@remove())
+        @remove()
         if callback?
             callback()
+
     add_entry: (entry, callback)->
-        @el.append(entry)
+        @$el.append(entry)
         $(entry).click(()=>@clicked(callback))
+
     add_entries: (entries, callbacks)->
         entries = entries.filter('li')
         _.each(entries, (entry, key)=>
             @add_entry(entry, callbacks[key])
         )
+
+    remove: ()->
+        _.defer(()=> @blocker.remove())
+        super()
+
     render: (e)->
-        width = @el.appendTo($('body')).outerWidth()
-        @el.hide().show(200, ()=> $('html').one('mouseup', ()=>@clicked()))
+        width = @$el.appendTo(@$body).outerWidth()
         top = e.pageY
         left = e.pageX
         if left + width >= $(document).width()
             left = $(document).width() - width
-        @el.css(top: top, left: left)
+        @$el.css({'top': top + 1, 'left': left + 1})
+
+        handle = (b, e)=> @remove(b, e)
+        @blocker = new Block({'mousedown': handle, 'contextmenu': handle})
+        @blocker.render()
+
+
+class Block extends Backbone.View
+    tagName: 'div'
+    className: 'blocker'
+
+    initialize: (callbacks)->
+        @callbacks = {}
+        for key, callback of callbacks
+            @callbacks[key] = @wrap_callback(callback)
+        @delegateEvents(@callbacks)
+
+    render: ()->
+        @$el.appendTo($('body'))
+
+    wrap_callback: (callback)->
+        return (e)=>
+            e.preventDefault()
+            e.stopImmediatePropagation()
+            return callback(@, arguments...)
