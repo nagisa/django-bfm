@@ -1,14 +1,15 @@
 class Directory extends Backbone.Model
     url: 'directory/'
+
     initialize: ()->
         @id = @get('rel_dir')
-        @is_child = if @get('rel_dir').indexOf('/') == -1 then false else true
+        @is_child = @get('rel_dir').indexOf('/') != -1
 
-    new_folder: (data)->
+    new_directory: (data)->
         additional_data = {'action': 'new', 'directory': @get('rel_dir')}
         $.ajax({
             'url': @url,
-            'data': $.extend(data, additional_data),
+            'data': _.extend(data, additional_data),
             'success': ()-> DirectoryBrowser.directories.fetch()
         })
 
@@ -29,138 +30,104 @@ class Directory extends Backbone.Model
 
 
 class DirectoryCollection extends Backbone.Collection
-    # Collection responsible for all directory models.
-    #
-    # Methods:
-    #
-    # added - event callback, called everytime directory list changes.
     url: 'list_directories/'
     model: Directory
 
-    initialize: (attrs)->
-        @bind('reset', @added)
-        # Root directory is exception to all possible rules...
+    initialize: ()->
+        @on('reset', @added)
         @root = new Directory({name: '', rel_dir: ''})
 
     added: ()->
-        DirectoryBrowser.sidebar.clear()
+        @view.clear()
         _.forEach(@models, (model)=>
             if !model.is_child
-                DirectoryBrowser.sidebar.append_directory(model)
+                @view.add_directory(model)
         )
-        DirectoryBrowser.sidebar.set_active(DirectoryBrowser.path)
+        @view.set_active_by_path(DirectoryBrowser.path)
 
 
 class DirectoriesView extends Backbone.View
-    # View responsible for whole sidebar of directories.
-    #
-    # Methods:
-    #
-    # append_directory - adds directory with all it's children to sidebar.
-    # append_children - creates child directory tree.
-    # set_active - makes directory responsible for some path to display it's
-    #              activation.
-    dirs: {}
-    active_dir: null
+    el: '#changelist-filter'
+    subviews: {}
 
-    initialize: ()->
-        @el = $('.directory-list')
-        # Root directory is exception to all possible rules...
-        new RootDirectoryView()
-
-    append_directory: (model)->
-        view = new DirectoryView({'model': model})
-        @dirs[model.id] = view
-        @el.append(view.srender())
-        _.forEach(model.get('children'), (child)=>
-            @append_children(child, view)
-        )
-
-    append_children: (id, parent_view)->
-        model = DirectoryBrowser.directories.get(id)
-        view = new DirectoryView({'model': model})
-        @dirs[model.id] = view
-        parent_view.append_child(view.srender())
-        _.forEach(model.get('children'), (child)=>
-            @append_children(child, view)
-        )
-
-    set_active: (path)->
-        if path
-            if @active_dir
-                @active_dir.deactivate()
-            @active_dir = @dirs[path]
-            @active_dir.activate()
-        else if @active_dir
-            @active_dir.deactivate()
+    initialize: (@directories)->
+        # Root directory has some unusual rules, so it has different view and
+        # model.
+        @root_id = @directories.root.id
+        @subviews[@root_id] = new RootDirectoryView(null, @directories.root, @)
+        # Explain collection who's in control now.
+        @directories.view = @
+        @child_el = @$el.find('.directory-list')
 
     clear: ()->
-        dirs = {}
-        active_dir = null
-        @el.children().remove()
+        for key, view of @subviews
+            if key != @root_id
+                view.remove()
+        @subviews = {}
+        @active_view = null
+
+    add_directory: (model, to = @child_el)->
+        view = new DirectoryView(null, model, @)
+        @subviews[model.id] = view
+        view.render(to)
+        _.forEach(model.get('children'), (model_id)=>
+            @add_directory(@directories.get(model_id), view.child_el)
+        )
+
+    set_active: (view)->
+        if view != @active_view
+            @active_view?.deactivate()
+            @active_view = if view.model.id == @root_id then undefined else view
+
+    set_active_by_path: (path)->
+        view = @subviews[@directories.get(path).id]
+        view.activate()
 
 
 class DirectoryView extends Backbone.View
-    # View responsible for one directory node.
-    #
-    # Methods:
-    #
-    # load_directory - event callback, called when user clicks on directory node
-    # srender - renders directory node into element.
-    # activate - changes directory node state from not active to active.
-    # deactivate - changes directory node state from active to not active.
-    # append_child - adds child node as descendent. Imitates tree structure.
     tagName: 'li'
     events: {
-        "click .directory": "load_directory",
-        "contextmenu .directory": "actions_menu"
+        'click .directory': 'activate',
+        'contextmenu .directory': 'context_menu'
     }
-    children_el: false
     context_template: '#directory_actions_tpl'
 
-    initialize: (attrs)->
-        @model = attrs.model
-        @el = $(@el)
+    initialize: (filler, @model, @supervisor)->
         @context_callbacks = [
-            (()=>@new_folder()),
+            (()=>@new_directory()),
             (()=>@rename()),
-            (()=>@delete())]
+            (()=>@delete())
+        ]
 
-    load_directory: (e)->
-        e.stopImmediatePropagation()
-        e.preventDefault()
+    render: (to)->
+        link = $(@make('a', {'class': 'directory'}, @model.get('name')))
+        @$el.append(link, (@child_el = @make('ul')))
+        $(to).append(@$el)
+
+    activate: (e)->
+        e?.stopImmediatePropagation()
+        @$el.children('a').addClass('selected')
+        @supervisor.set_active(@)
         DirectoryBrowser.open_path(@model.get('rel_dir'), true)
 
-    srender: ()->
-        @el.html("<a class='directory'>#{@model.get('name')}</a>")
-
-    activate: ()->
-        @el.children('a').addClass('selected')
-
     deactivate: ()->
-        @el.children('a').removeClass('selected')
+        @$el.children('a').removeClass('selected')
 
-    append_child: (child)->
-        if !@children_el
-            @children_el = $('<ul />')
-            @el.append(@children_el)
-        @children_el.append(child)
-
-    actions_menu: (e)->
+    context_menu: (e)->
         e.stopImmediatePropagation()
         e.preventDefault()
-        entries = $(_.template($(@context_template).html())())
+        if not @context_items
+            @context_items = $(_.template($(@context_template).html(), {}))
         menu = new ContextMenu()
-        menu.add_entries(entries, @context_callbacks)
+        menu.add_entries(@context_items, @context_callbacks)
         menu.render(e)
 
-    new_folder: ()->
-        dialog = new Dialog({
+    new_directory: ()->
+        new Dialog({
             'model': @model,
             'template': '#new_directory_tpl',
-            'callback': (data)=>@model.new_folder(data)
-        })
-        dialog.render()
+            'callback': (data)=> @model.new_directory(data)
+        }).render()
 
     rename: ()->
         dialog = new Dialog({
@@ -181,15 +148,19 @@ class DirectoryView extends Backbone.View
 
 class RootDirectoryView extends DirectoryView
     events: {
-        "click a": "load_directory",
-        "contextmenu a": "actions_menu"
+        'click': 'activate',
+        'contextmenu': 'context_menu'
     }
     context_template: '#rootdirectory_actions_tpl'
-    initialize: ()->
-        @el = $('#changelist-filter>h2').first()
-        @model = DirectoryBrowser.directories.root
-        @context_callbacks = [(()=>@new_folder())]
-        @delegateEvents()
+
+    initialize: (filler, @model, @supervisor)->
+        @setElement($('#changelist-filter>h2').first())
+        @context_callbacks = [()=> @new_directory()]
+
+    activate: (e)->
+        e.stopImmediatePropagation()
+        @supervisor.set_active(@)
+        DirectoryBrowser.open_path(@model.get('rel_dir'), true)
 
 
 DirectoryBrowser =
@@ -200,11 +171,9 @@ DirectoryBrowser =
         @path = path
         if @first
             @directories = new DirectoryCollection()
-            @sidebar = new DirectoriesView()
+            @sidebar = new DirectoriesView(@directories)
             @directories.fetch()
             @first = false
-        else
-            @sidebar.set_active(path)
 
     open_path: (path)->
         @router.navigate("path=#{path}^page=1", true)

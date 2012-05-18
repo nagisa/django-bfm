@@ -12,8 +12,7 @@
 
 <script id="new_directory_tpl" type="text/template">
     <h2>{% trans "Create new directory" %}</h2>
-    {% trans "You are going to create a new directory inside '/<%= rel_dir %>'. Enter it's name." %}
-    <input type="text" name="new" value="">
+    <input type="text" name="new" placeholder="{% trans "Enter name of new directory" %}">
     <input type="submit" class="submit" value="{% trans "Create" %}">
     <input type="submit" class="cancel" value="{% trans "Cancel" %}">
 </script>
