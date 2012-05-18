@@ -16,16 +16,6 @@ readable_size = (size)->
 
 
 class Dialog extends Backbone.View
-    # View responsible for rendering dialog box from given template.
-    #
-    # Methods:
-    #
-    # tear_down - destroys dialog box.
-    # cancel - event callback, called when user clicks on "Cancel" button.
-    # call_Callback - event callback, called when user submits dialog.
-    #                 This function is also responsible for calling function
-    #                 given as callback when Dialog was initialized.
-    # render - draws dialog box into window.
     tagName: 'form'
     className: 'dialog'
     events:
@@ -34,7 +24,7 @@ class Dialog extends Backbone.View
 
     tear_down: ()->
         @remove()
-        @block.remove()
+        @blocker.remove()
 
     cancel: (e)->
         @tear_down()
@@ -48,13 +38,13 @@ class Dialog extends Backbone.View
             object[field.name] = field.value
         @callback(object)
 
-    initialize: ({@template, @data, @callback, @hook})->
-
+    initialize: ({@template, @model, @callback, @hook})->
 
     render: ()->
-        @block = $('<div />', {class: 'blocker'})
+        @blocker = new Block()
+        @blocker.render()
 
-        tpl = _.template($(@template).html(), if @data? then @data else {})
+        tpl = _.template($(@template).html(), @model?.attributes or {})
         $('body').append(@$el.html(tpl)).append(@block)
 
         if @hook?
