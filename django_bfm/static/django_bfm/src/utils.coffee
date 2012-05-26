@@ -15,6 +15,17 @@ readable_size = (size)->
             return "#{(size / (s[1] / 1024)).toFixed(s[2])} #{s[0]}"
 
 
+count_letters = (string)->
+    # Counts letter appearances in string.
+    letters = {}
+    whitespace=/\s/
+    for letter in string
+        # Ignore whitespace characters
+        if whitespace.test(letter) then continue
+        letters[letter] = (letters[letter] or 0) + 1
+    return letters
+
+
 class Dialog extends Backbone.View
     tagName: 'form'
     className: 'dialog'

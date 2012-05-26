@@ -4,11 +4,14 @@ class File extends Backbone.Model
     url: 'file/'
 
     initialize: ()->
-        @set({'date': new Date(@get('date'))})
+        @set({
+            'date': new Date(@get('date')),
+            'lowercase_filename': @get('filename').toLowerCase()
+        })
         @set({
             'pdate': @parseDate(),
             'psize': @parseSize(),
-            'lower_filename': @get('filename').toLowerCase()
+            'searchable': count_letters(@get('lowercase_filename'))
         })
 
     parseDate: ()->
@@ -86,16 +89,54 @@ class FileCollection extends Backbone.Collection
         query = query.toLowerCase()
         if query == ""
             return @
+        query_letters = count_letters(query)
 
         tester = (model)->
-            return model.get('lower_filename').indexOf(query) >= 0
+            # First we make sure, that query contains less identical letters
+            # than filename itself.
+            searchable = model.get('searchable')
+            for letter, count of query_letters
+                if (searchable[letter] or 0) < count
+                    return false
+            return true
 
+        second_tester = (model)->
+            # This one has to make sure, that query letters matches
+            # order of appearance in filename.
+            # It IS slower, but it should have to work on smaller sets of
+            # models as there's first filter.
+            whitespace = /\s/
+            filename = model.get('lowercase_filename')
+            checked = 0
+            length = filename.length
+
+            for letter in query
+                if whitespace.test(letter) then continue
+
+                for filename_letter in filename.substring(checked, length)
+                    # Advance filename until next non-whitespace character
+                    if whitespace.test(filename[checked])
+                        checked += 1
+                        continue
+
+                    checked += 1
+                    if filename_letter == letter and checked <= length
+                        break
+                    else if checked > length
+                        return false
+
+            return true
+
+        # Actual search by filtering models trough two testers defined above.
+        filtered = @filter(tester)
+        if query.length > 1
+            filtered = _.filter(filtered, second_tester)
+
+        # Put filtered results into a new collection and return it.
         new_collection = new FileCollection()
-        new_collection.add(@filter(tester), {'silent': true})
+        new_collection.add(filtered, {'silent': true})
         new_collection.set_sorting(@sorting.by, @sorting.reversed)
         return new_collection
-
-
 
 
 class FileTableControlsView extends Backbone.View
