@@ -63,7 +63,8 @@ class DirectoriesView extends Backbone.View
         for key, view of @subviews
             if key != @root_id
                 view.remove()
-        @subviews = {}
+        [old_subviews, @subviews] = [@subviews, {}]
+        @subviews[@root_id] = old_subviews[@root_id]
         @active_view = null
 
     add_directory: (model, to = @child_el)->
@@ -77,10 +78,13 @@ class DirectoriesView extends Backbone.View
     set_active: (view)->
         if view != @active_view
             @active_view?.deactivate()
-            @active_view = if view.model.id == @root_id then undefined else view
+            @active_view = view
 
     set_active_by_path: (path)->
-        view = @subviews[@directories.get(path).id]
+        if path == @root_id
+            view = @subviews[@root_id]
+        else
+            view = @subviews[@directories.get(path).id]
         view.activate()
 
 
@@ -152,15 +156,19 @@ class RootDirectoryView extends DirectoryView
         'contextmenu': 'context_menu'
     }
     context_template: '#rootdirectory_actions_tpl'
+    el: '#root-dir'
 
     initialize: (filler, @model, @supervisor)->
-        @setElement($('#changelist-filter>h2').first())
         @context_callbacks = [()=> @new_directory()]
 
     activate: (e)->
-        e.stopImmediatePropagation()
+        e?.stopImmediatePropagation()
+        @$el.addClass('selected')
         @supervisor.set_active(@)
         DirectoryBrowser.open_path(@model.get('rel_dir'), true)
+
+    deactivate: ()->
+        @$el.removeClass('selected')
 
 
 DirectoryBrowser =

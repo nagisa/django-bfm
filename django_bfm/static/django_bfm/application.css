@@ -329,8 +329,12 @@
     border:none;
 }
 
-#changelist-filter h2 a{
-    color: #fff!important;
+#root-dir {
+    color: #fff !important;
+    cursor: pointer;
+}
+
+#root-dir.selected {
     text-decoration: underline;
 }
 
