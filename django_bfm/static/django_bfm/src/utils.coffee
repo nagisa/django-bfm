@@ -1,7 +1,7 @@
-readable_size = (size)->
-    # Converts given size in bytes to normalized size.
+format_size = (size)->
+    # Converts given size in bytes to normalized size and formats it.
     #
-    # Returns string containing number and multiplier.
+    # Returns formatted string containing size and multiplier.
     table = [
         # Mult.     |Biggest size in bytes  |Decimal digits
         ['B',       1024,                   0],
@@ -10,6 +10,7 @@ readable_size = (size)->
         ['GB',      1099511627776,          2],
         ['TB',      1125899906842624,       3]
     ]
+
     for s in table
         if size < s[1]
             return "#{(size / (s[1] / 1024)).toFixed(s[2])} #{s[0]}"

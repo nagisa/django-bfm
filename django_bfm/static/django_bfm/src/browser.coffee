@@ -21,7 +21,7 @@ class File extends Backbone.Model
 
     parseSize: ()->
         # Parses file size into more readable value, like 23,4 KB.
-        return readable_size(@get('size'))
+        return format_size(@get('size'))
 
 
 class FileCollection extends Backbone.Collection
