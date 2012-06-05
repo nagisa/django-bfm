@@ -39,6 +39,13 @@ or with pip:
 
     pip install -e git+git://github.com/simukis/django-bfm.git#egg=Package
 
+.. note::
+
+    Do not forget to compile .coffee files yourself if you are cloning
+    repository from ``master``. You can do so by running
+    ``manage.py compile_coffee``.
+
+
 .. _configure:
 
 Configuration
