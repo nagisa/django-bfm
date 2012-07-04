@@ -53,8 +53,10 @@ Other BFM options
 
 **BFM['FILES_PER_PAGE']**
 
-BFM uses Pagination to ensure, that reasonable ammount of files is displayed at once.
-You may specify, how much that "reasonable" is for you by giving this variable an integer value.
+BFM uses Pagination to ensure, that reasonable ammount of files is displayed at
+once.
+You may specify, how much that "reasonable" is for you by giving this variable
+an integer value.
 
 Example: ``50``
 
@@ -64,10 +66,11 @@ Default: ``20``
 
 **BFM['ADMIN_UPLOAD_DIRECTORY']**
 
-Directory path relative to ``BFM_MEDIA_DIRECTORY``.
+Directory path relative to ``BFM['MEDIA_DIRECTORY']``.
 Tells BFM where to save files uploaded with :ref:`admin-applet`.
 
-Example: ``admin_files/`` and files will be uploaded to ``{{BFM_MEDIA_DIRECTORY}}/admin_files/``.
+Example: ``admin_files/`` and files will be uploaded to
+``{{BFM['MEDIA_DIRECTORY']}}/admin_files/``.
 
 Default: empty string.
 
@@ -85,8 +88,8 @@ Default: ``2``
     If you experiencing issues like dropped connections with uploader then set
     this option to ``1``.
 
-Settings, that aren't directly related to BFM
-----------------------------------------------
+Related settings
+----------------
 
 `LOGIN_URL <https://docs.djangoproject.com/en/dev/ref/settings/#login-url>`_
 
