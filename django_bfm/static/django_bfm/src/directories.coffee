@@ -10,7 +10,7 @@ class Directory extends Backbone.Model
         $.ajax({
             'url': @url,
             'data': _.extend(data, additional_data),
-            'success': ()-> DirectoryBrowser.directories.fetch()
+            'success': ()=> @collection.fetch()
         })
 
     rename: (data)->
@@ -18,14 +18,14 @@ class Directory extends Backbone.Model
         $.ajax({
             'url': @url,
             'data': $.extend(data, additional_data),
-            'success': ()-> DirectoryBrowser.directories.fetch()
+            'success': ()=> @collecion.fetch()
         })
 
     delete: (data)->
         $.ajax({
             url: @url,
             data: {'action': 'delete', 'directory': @get('rel_dir')},
-            success: ()-> DirectoryBrowser.directories.fetch()
+            success: ()=> @collection.fetch()
         })
 
 
@@ -36,6 +36,7 @@ class DirectoryCollection extends Backbone.Collection
     initialize: ()->
         @on('reset', @added)
         @root = new Directory({name: '', rel_dir: ''})
+        @root.collection = @
 
     added: ()->
         @view.clear()
